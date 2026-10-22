@@ -1,6 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseProjectCatalog } from '../electron/project-catalog.js';
+test('POSIX project paths preserve case and respect directory boundaries', () => {
+  const catalog = parseProjectCatalog({ 'local-projects': {
+    app: { id: 'app', name: 'Mac app', rootPaths: ['/Users/dev/App/'] }
+  } });
+  assert.equal(catalog.match('nested', '/Users/dev/App/src')?.id, 'app');
+  assert.equal(catalog.match('other', '/Users/dev/Application'), undefined);
+  assert.equal(catalog.match('case', '/Users/dev/app/src'), undefined);
+});
 test('project names match explicit thread membership before cwd, and support normalized nested paths', () => {
   const catalog = parseProjectCatalog({ 'local-projects': {
     android: { id: 'android', name: '安卓', rootPaths: ['D:\\project\\app\\android-native'] },

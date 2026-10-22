@@ -18,9 +18,8 @@ test('absent secondary windows are omitted; an existing window with missing data
   assert.equal(quotaWindows({ limitId: 'codex', primary: { ...primary, usedPercent: null } }).length, 1);
   assert.equal(quotaWindows({ limitId: 'codex', primary, secondary: { ...primary, windowDurationMins: 10080 } }).length, 2);
 });
-test('compact window shrinks in both dimensions and adapts to a single quota window', () => {
-  assert.deepEqual(floatingSize(true, 2), { width: 252, height: 40 });
-  assert.deepEqual(floatingSize(true, 1), { width: 212, height: 40 });
-  assert.equal(floatingSize(false, 2).width, 320);
+test('vertical rail stays narrow and fits all returned quota windows', () => {
+  assert.deepEqual(floatingSize(2), { width: 68, height: 212 });
+  assert.deepEqual(floatingSize(1), { width: 68, height: 140 });
+  assert.deepEqual(floatingSize(0), { width: 68, height: 140 });
 });
-

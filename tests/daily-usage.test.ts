@@ -19,6 +19,26 @@ test('daily totals use event time across midnight, deduplicate copied history, a
   samples.forEach((sample, index) => acc.add(sample, 'fork', index));
   const result = acc.result(2, 0); assert.equal(result.tokens.total, 250); assert.equal(result.tokens.input, 200); assert.equal(result.tokens.output, 50); assert.equal(result.turnCount, 1); assert.equal(result.recordCount, 2); assert.equal(result.duplicateRecords, 2);
   assert.equal(range.date, '2026-10-22'); assert.equal(range.end, new Date(2026, 9, 23).getTime());
+  assert.equal(result.hourly?.length, 24);
+  assert.equal(result.hourly?.[0].total, 250);
+  assert.equal(result.hourly?.[0].records, 2);
+  assert.equal(result.hourly?.reduce((sum, hour) => sum + (hour.total ?? 0), 0), result.tokens.total);
+});
+
+test('hourly buckets preserve missing counters and do not double count copied records', () => {
+  const acc = new DailyAccumulator(localDayRange(new Date(2026, 9, 22)));
+  const sample: UsageSample = { key: 'hourly-a', turnId: 'turn-hourly', timestamp: new Date(2026, 9, 22, 9, 30).toISOString(), tokens: { input: 10, output: 5, cachedInput: 0, reasoning: 0, total: 15 }, complete: true, dedupable: true };
+  acc.add(sample, 'a', 0); acc.add(sample, 'fork', 0);
+  acc.add({ ...sample, key: 'missing', timestamp: new Date(2026, 9, 22, 10).toISOString(), tokens: { ...sample.tokens, total: null } }, 'a', 1);
+  acc.add({ ...sample, key: 'invalid', timestamp: 'invalid' }, 'a', 2);
+  const result = acc.result(2, 0);
+  assert.equal(result.hourly?.[9].total, 15);
+  assert.equal(result.hourly?.[9].records, 1);
+  assert.equal(result.hourly?.[10].total, null);
+  assert.equal(result.hourly?.[11].total, 0);
+  assert.equal(result.recordCount, 2);
+  assert.equal(result.duplicateRecords, 1);
+  assert.ok(result.warnings.some(warning => warning.includes('时间无效')));
 });
 test('missing optional counts, uncertain deduplication and unknown timestamps are explicitly reported', () => {
   const range = localDayRange(); const acc = new DailyAccumulator(range);

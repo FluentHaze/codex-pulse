@@ -5,11 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { CodexClient, detectCodex, RpcError } from './codex.js';
 import { TokenStore } from './token-store.js';
-import { captureAnchor, anchoredBounds, type WindowAnchor } from './window-position.js';
+import { captureAnchor, anchoredBounds, sidePanelBounds, type WindowAnchor } from './window-position.js';
 import { defaults, bucketsFrom, remaining, severity, quotaWindows, floatingSize, type State, type Settings, type Account, type Limits } from './types.js';
 
+const isMac = process.platform === 'darwin';
+// Windows GPU rasterization can leave diagonal seams across large solid surfaces.
+if (process.platform === 'win32') app.commandLine.appendSwitch('disable-gpu-rasterization');
 const here = dirname(fileURLToPath(import.meta.url));
-let floating: BrowserWindow | undefined, details: BrowserWindow | undefined, tray: Tray;
+let floating: BrowserWindow | undefined, details: BrowserWindow | undefined, peekWindow: BrowserWindow | undefined, tray: Tray;
 let quitting = false, generation = 0, failures = 0, timer: ReturnType<typeof setTimeout> | undefined, active: Promise<void> | undefined;
 let resetChecks = new Set<number>();
 let paused = false;
@@ -19,6 +22,8 @@ let notices: Record<string, number> = {};
 let position: { x: number; y: number } | undefined;
 let resizeAnchor: { displayId: number; anchor: WindowAnchor } | undefined;
 let resizing = false;
+let peekTimer: ReturnType<typeof setTimeout> | undefined;
+let peekReady = false;
 let drag: { x: number; y: number; windowX: number; windowY: number } | undefined;
 let state: State = { settings: { ...defaults }, account: null, plan: null, buckets: [], updatedAt: null, refreshing: false, status: '正在连接 Codex', error: null, executable: null, live: null };
 const tokenStore = new TokenStore(() => state.settings.sessionPath);
@@ -49,7 +54,7 @@ function save() {
 }
 function log(event: string) { try { const path = join(app.getPath('userData'), 'diagnostic.log'); if (existsSync(path) && statSync(path).size > 256_000) writeFileSync(path, ''); appendFileSync(path, `${new Date().toISOString()} ${event}\n`); } catch { /* Storage may be read-only. */ } }
 function publish() {
-  for (const win of [floating, details]) if (win && !win.isDestroyed()) win.webContents.send('state', state);
+  for (const win of [floating, details, peekWindow]) if (win && !win.isDestroyed()) win.webContents.send('state', state);
   if (tray) { const main = state.buckets.find(b => b.limitId === 'codex') ?? state.buckets[0]; const windows = quotaWindows(main); tray.setToolTip(`Codex Pulse · ${windows.length ? windows.map(w => remaining(w) === null ? '暂不可用' : `${remaining(w)}%`).join(' / ') : '暂无额度窗口'}\n${state.status}`); }
 }
 function announce(body: string) { if (Notification.isSupported()) new Notification({ title: 'Codex Pulse', body }).show(); }
@@ -119,7 +124,7 @@ function clampWindow() {
 function applyWindow() {
   if (!floating) return;
   const main = state.buckets.find(bucket => bucket.limitId === 'codex') ?? state.buckets[0];
-  const size = floatingSize(state.settings.compact, quotaWindows(main).length);
+  const size = floatingSize(quotaWindows(main).length);
   floating.setAlwaysOnTop(state.settings.alwaysOnTop); floating.setMovable(!state.settings.locked);
   floating.setIgnoreMouseEvents(state.settings.clickThrough, { forward: true }); floating.setOpacity(state.settings.opacity);
   const bounds = floating.getBounds();
@@ -134,44 +139,58 @@ function applyWindow() {
   clampWindow();
   const current = floating.getBounds(); position = { x: current.x, y: current.y };
 }
-function createWindow(kind: 'float' | 'details') {
-  const main = state.buckets.find(bucket => bucket.limitId === 'codex') ?? state.buckets[0]; const size = floatingSize(state.settings.compact, quotaWindows(main).length);
-  const win = new BrowserWindow({ icon: join(here, '../assets/app.png'), width: kind === 'float' ? size.width : 940, height: kind === 'float' ? size.height : 760, minWidth: kind === 'float' ? 180 : 700, minHeight: kind === 'float' ? 36 : 550, ...(kind === 'float' ? { frame: false, resizable: false, skipTaskbar: true, ...position } : {}), show: false, backgroundColor: '#10141c', webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
-  void win.loadFile(join(here, '../dist/index.html'), { query: { view: kind } });
+function createWindow(kind: 'float' | 'details' | 'peek', tab = 'overview') {
+  const main = state.buckets.find(bucket => bucket.limitId === 'codex') ?? state.buckets[0]; const size = floatingSize(quotaWindows(main).length);
+  const small = kind !== 'details';
+  const win = new BrowserWindow({ icon: join(here, '../assets/app.png'), width: kind === 'float' ? size.width : kind === 'peek' ? 320 : 1020, height: kind === 'float' ? size.height : kind === 'peek' ? 310 : 860, minWidth: small ? 40 : 700, minHeight: small ? 40 : 550, ...(small ? { frame: false, resizable: false, skipTaskbar: true, transparent: true, hasShadow: false, ...(kind === 'float' ? position : { focusable: false }) } : {}), show: false, backgroundColor: small ? '#00000000' : '#141519', webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
+  void win.loadFile(join(here, '../dist/index.html'), { query: { view: kind, tab } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' })); win.webContents.on('will-navigate', event => event.preventDefault());
   if (kind === 'float') { floating = win; applyWindow(); win.on('moved', () => { if (!floating || resizing) return; clampWindow(); const { x, y } = floating.getBounds(); position = { x, y }; save(); }); win.once('ready-to-show', () => { if (state.settings.showOnLaunch) win.showInactive(); }); }
+  else if (kind === 'peek') { peekWindow = win; win.once('ready-to-show', () => { peekReady = true; }); }
   else { details = win; win.once('ready-to-show', () => win.show()); win.on('closed', () => { details = undefined; }); }
   return win;
 }
-function openDetails() { if (details) { details.show(); details.focus(); } else createWindow('details'); }
+function hidePeek() { clearTimeout(peekTimer); peekWindow?.hide(); }
+function showPeek() {
+  clearTimeout(peekTimer);
+  if (!floating?.isVisible() || !peekWindow || !peekReady || drag || state.settings.clickThrough) return;
+  const bounds = floating.getBounds(), area = screen.getDisplayMatching(bounds).workArea;
+  peekWindow.setBounds(sidePanelBounds(bounds, area));
+  peekWindow.setAlwaysOnTop(state.settings.alwaysOnTop);
+  peekWindow.showInactive();
+}
+function openDetails(tab = 'overview') { if (details) { details.webContents.send('navigate', tab); details.show(); details.focus(); } else createWindow('details', tab); }
 function toggleFloat() { if (floating?.isVisible()) floating.hide(); else floating?.showInactive(); }
 function menu() {
-  return Menu.buildFromTemplate([{ label: '立即刷新', enabled: !state.refreshing, click: () => void refresh() }, { label: '打开详情与设置', click: openDetails }, { type: 'separator' }, ...(['compact', 'alwaysOnTop', 'locked', 'clickThrough'] as const).map((key, i) => ({ label: ['紧凑模式', '窗口置顶', '锁定位置', '鼠标穿透（从托盘恢复）'][i], type: 'checkbox' as const, checked: state.settings[key], click: () => updateSettings({ [key]: !state.settings[key] }) })), { type: 'separator' }, { label: floating?.isVisible() ? '隐藏悬浮窗' : '显示悬浮窗', click: toggleFloat }, { label: '退出应用', click: () => app.quit() }]);
+  return Menu.buildFromTemplate([{ label: '立即刷新', enabled: !state.refreshing, click: () => void refresh() }, { label: '打开详情与设置', click: () => openDetails() }, { type: 'separator' }, ...(['alwaysOnTop', 'locked', 'clickThrough'] as const).map((key, i) => ({ label: ['窗口置顶', '锁定位置', '鼠标穿透（从托盘恢复）'][i], type: 'checkbox' as const, checked: state.settings[key], click: () => updateSettings({ [key]: !state.settings[key] }) })), { type: 'separator' }, { label: floating?.isVisible() ? '隐藏悬浮窗' : '显示悬浮窗', click: toggleFloat }, { label: '退出应用', click: () => app.quit() }]);
 }
 function updateSettings(patch: Partial<Settings>) {
   const previous = state.settings; const next = { ...previous };
-  for (const key of ['startup', 'showOnLaunch', 'alwaysOnTop', 'compact', 'locked', 'clickThrough', 'lowAlerts', 'recoveryAlerts'] as const) if (typeof patch[key] === 'boolean') next[key] = patch[key];
+  for (const key of ['startup', 'showOnLaunch', 'alwaysOnTop', 'locked', 'clickThrough', 'lowAlerts', 'recoveryAlerts'] as const) if (typeof patch[key] === 'boolean') next[key] = patch[key];
   if (typeof patch.interval === 'number' && Number.isFinite(patch.interval)) next.interval = Math.max(1, Math.min(60, Math.round(patch.interval)));
   if (typeof patch.opacity === 'number' && Number.isFinite(patch.opacity)) next.opacity = Math.max(.65, Math.min(1, patch.opacity));
+  if (patch.quotaDisplay === 'remaining' || patch.quotaDisplay === 'used') next.quotaDisplay = patch.quotaDisplay;
   if (patch.theme && ['system', 'dark', 'light'].includes(patch.theme)) next.theme = patch.theme;
   if (typeof patch.codexPath === 'string') next.codexPath = patch.codexPath;
   if (typeof patch.sessionPath === 'string') next.sessionPath = patch.sessionPath;
   if (typeof patch.watchedSessionId === 'string' && (patch.watchedSessionId === '' || /^[a-f0-9]{24}$/.test(patch.watchedSessionId))) next.watchedSessionId = patch.watchedSessionId;
   if (previous.sessionPath !== next.sessionPath) next.watchedSessionId = '';
   if (next.clickThrough && !previous.clickThrough) announce('鼠标穿透已开启，可右键系统托盘关闭');
+  if (next.clickThrough) hidePeek();
   state.settings = next; nativeTheme.themeSource = next.theme;
   if (previous.sessionPath !== next.sessionPath || previous.watchedSessionId !== next.watchedSessionId) { state.live = null; liveScanAt = 0; void refreshLive(); }
-  if (previous.startup !== next.startup) app.setLoginItemSettings({ openAtLogin: next.startup, path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] });
+  if (previous.startup !== next.startup) app.setLoginItemSettings(isMac ? { openAtLogin: next.startup } : { openAtLogin: next.startup, path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] });
   applyWindow(); save(); publish();
   if (previous.codexPath !== next.codexPath) { invalidate(); client.stop(); void (active ?? Promise.resolve()).then(() => refresh()); } else if (previous.interval !== next.interval) schedule(next.interval * 60_000);
 }
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
-  app.on('second-instance', openDetails);
+  app.on('second-instance', () => openDetails());
   app.whenReady().then(() => {
     app.setAppUserModelId('com.codexpulse.desktop');
     Menu.setApplicationMenu(Menu.buildFromTemplate([
-      { label: '文件', submenu: [{ label: '刷新额度', accelerator: 'CmdOrCtrl+R', click: () => void refresh() }, { label: '打开详情与设置', click: openDetails }, { type: 'separator' }, { label: '关闭窗口', role: 'close' }, { label: '退出应用', click: () => app.quit() }] },
+      ...(isMac ? [{ label: app.name, submenu: [{ role: 'about' as const }, { type: 'separator' as const }, { role: 'services' as const }, { type: 'separator' as const }, { role: 'hide' as const }, { role: 'hideOthers' as const }, { role: 'unhide' as const }, { type: 'separator' as const }, { role: 'quit' as const }] }] : []),
+      { label: '文件', submenu: [{ label: '刷新额度', accelerator: 'CmdOrCtrl+R', click: () => void refresh() }, { label: '打开详情与设置', click: () => openDetails() }, { type: 'separator' }, { label: '关闭窗口', role: 'close' }, { label: '退出应用', click: () => app.quit() }] },
       { label: '编辑', submenu: [{ label: '撤销', role: 'undo' }, { label: '重做', role: 'redo' }, { type: 'separator' }, { label: '剪切', role: 'cut' }, { label: '复制', role: 'copy' }, { label: '粘贴', role: 'paste' }, { label: '全选', role: 'selectAll' }] },
       { label: '视图', submenu: [{ label: '放大', role: 'zoomIn' }, { label: '缩小', role: 'zoomOut' }, { label: '实际大小', role: 'resetZoom' }, { type: 'separator' }, { label: '全屏', role: 'togglefullscreen' }] },
       { label: '窗口', submenu: [{ label: '最小化', role: 'minimize' }, { label: '最大化 / 还原', role: 'zoom' }, { label: '关闭窗口', role: 'close' }, { type: 'separator' }, { label: '显示 / 隐藏悬浮窗', click: toggleFloat }] },
@@ -179,8 +198,17 @@ else {
     ]));
     try { const data = JSON.parse(readFileSync(storage(), 'utf8')); state = { ...state, account: data.account ?? null, plan: data.plan ?? null, buckets: Array.isArray(data.buckets) ? data.buckets : [], updatedAt: data.updatedAt ?? null }; identity = data.identity ?? null; notices = data.notices ?? {}; position = data.position; updateSettings({ ...defaults, ...data.settings }); } catch { /* First launch. */ }
     nativeTheme.themeSource = state.settings.theme;
-    tray = new Tray(nativeImage.createFromPath(join(here, '../assets/app.png')).resize({ width: 32, height: 32 })); tray.on('click', toggleFloat); tray.on('right-click', () => tray.popUpContextMenu(menu()));
+    const trayIcon = nativeImage.createFromPath(join(here, isMac ? '../assets/trayTemplate.png' : '../assets/app.png')).resize({ width: isMac ? 18 : 32, height: isMac ? 18 : 32 });
+    if (isMac) trayIcon.setTemplateImage(true);
+    tray = new Tray(trayIcon); tray.on('click', toggleFloat); tray.on('right-click', () => tray.popUpContextMenu(menu()));
     createWindow('float');
+    createWindow('peek');
+    ipcMain.handle('float-peek', (event, expanded: unknown) => {
+      if (![floating?.webContents, peekWindow?.webContents].includes(event.sender) || typeof expanded !== 'boolean') return;
+      clearTimeout(peekTimer);
+      if (expanded) showPeek(); else peekTimer = setTimeout(hidePeek, 180);
+    });
+    floating?.on('hide', hidePeek);
     ipcMain.handle('get-state', () => state);
     ipcMain.handle('token-catalog', (_event, force: unknown) => tokenStore.list(force === true));
     ipcMain.handle('today-usage', (_event, force: unknown) => tokenStore.today(force === true));
@@ -188,7 +216,7 @@ else {
     ipcMain.handle('token-session', (_event, id: unknown) => { if (typeof id !== 'string' || !/^[a-f0-9]{24}$/.test(id)) throw new Error('无效的聊天标识'); return tokenStore.read(id); });
     ipcMain.on('drag', (event, phase: string, x: number, y: number) => {
       if (event.sender !== floating?.webContents || state.settings.locked || !Number.isFinite(x) || !Number.isFinite(y)) return;
-      if (phase === 'start') { resizeAnchor = undefined; const bounds = floating.getBounds(); drag = { x, y, windowX: bounds.x, windowY: bounds.y }; }
+      if (phase === 'start') { hidePeek(); resizeAnchor = undefined; const bounds = floating.getBounds(); drag = { x, y, windowX: bounds.x, windowY: bounds.y }; }
       if (phase === 'move' && drag) { floating.setPosition(Math.round(drag.windowX + x - drag.x), Math.round(drag.windowY + y - drag.y)); clampWindow(); }
       if (phase === 'end') drag = undefined;
     });
@@ -196,10 +224,12 @@ else {
     ipcMain.handle('settings', (_event, patch: Partial<Settings>) => { if (patch && typeof patch === 'object') updateSettings(patch); });
     ipcMain.handle('action', async (_event, action: string) => {
       if (action === 'details') openDetails();
+      if (action === 'tokens') openDetails('tokens');
+      if (action === 'show') floating?.showInactive();
       if (action === 'menu') menu().popup({ window: floating });
       if (action === 'hide') floating?.hide();
       if (action === 'online' && (!state.updatedAt || Date.now() - state.updatedAt >= state.settings.interval * 60_000)) schedule(1000);
-      if (action === 'choose') { const result = await dialog.showOpenDialog({ filters: [{ name: 'Codex', extensions: ['exe'] }], properties: ['openFile'] }); if (!result.canceled) updateSettings({ codexPath: result.filePaths[0] }); }
+      if (action === 'choose') { const result = await dialog.showOpenDialog({ ...(process.platform === 'win32' ? { filters: [{ name: 'Codex', extensions: ['exe'] }] } : {}), properties: ['openFile'] }); if (!result.canceled) updateSettings({ codexPath: result.filePaths[0] }); }
       if (action === 'choose-sessions') { const result = await dialog.showOpenDialog({ title: '选择 Codex sessions 会话目录', properties: ['openDirectory'] }); if (!result.canceled) updateSettings({ sessionPath: result.filePaths[0] }); }
       if (action === 'install') await shell.openExternal('https://developers.openai.com/codex/cli/');
       if (action === 'login') {
@@ -209,7 +239,7 @@ else {
     });
     client.onAccountChanged = () => { invalidate(); delete notices.auth; void (active ?? Promise.resolve()).then(() => { if (!quitting) void refresh(); }); };
     powerMonitor.on('resume', () => schedule(1000));
-    const displayChanged = () => { resizeAnchor = undefined; clampWindow(); };
+    const displayChanged = () => { hidePeek(); resizeAnchor = undefined; clampWindow(); };
     screen.on('display-added', displayChanged); screen.on('display-removed', displayChanged); screen.on('display-metrics-changed', displayChanged);
     setInterval(() => {
       if (!state.updatedAt || state.refreshing || paused) return;
@@ -220,5 +250,6 @@ else {
     liveTimer = setInterval(() => void refreshLive(), 1000); liveTimer.unref(); void refreshLive();
   });
 }
+app.on('activate', () => { if (app.isReady() && !quitting) openDetails(); });
 app.on('window-all-closed', () => {});
-app.on('before-quit', () => { quitting = true; clearTimeout(timer); clearInterval(liveTimer); client.stop(); });
+app.on('before-quit', () => { quitting = true; clearTimeout(peekTimer); clearTimeout(timer); clearInterval(liveTimer); client.stop(); });

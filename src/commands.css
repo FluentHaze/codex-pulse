@@ -1,0 +1,13 @@
+.workspace-bar .command-trigger { gap: 8px; color: var(--muted); padding: 7px 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; font-size: 11px; }
+.command-trigger kbd { margin-left: 24px; color: var(--muted); font: 10px var(--font); }
+.command-dialog { width: min(490px,calc(100vw - 32px)); margin: 12vh auto auto; padding: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); overflow: hidden; box-shadow: 0 24px 90px #0005; }
+.command-dialog::backdrop { background: #080d1780; }
+.command-search { display: flex; align-items: center; gap: 11px; padding: 18px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.command-search input { background: transparent; color: var(--ink); border: 0; min-width: 0; width: 100%; font-size: 14px; padding: 5px 0; outline-offset: 4px; }
+.command-search input::placeholder { color: var(--muted); }.command-search button { padding: 3px 5px; border: 0; background: transparent; }.command-search kbd { font: 10px var(--font); color: var(--muted); }
+.command-results { padding: 8px; max-height: 350px; overflow-y: auto; }.command-results button { display: flex; width: 100%; align-items: center; justify-content: space-between; border: 1px solid transparent; border-radius: 8px; text-align: left; background: transparent; padding: 10px 12px; color: var(--ink); font-size: 13px; }.command-results button small { display: block; font-size: 11px; margin-top: 3px; color: var(--muted); }.command-results button.active { background: var(--accent-soft); border-color: var(--accent); }.command-results button>span:last-child { color: var(--muted); }.command-empty { padding: 16px; font-size: 12px; }
+.command-results button:not(.active):hover { background: transparent; border-color: transparent; }
+.command-content>footer { display: flex; gap: 16px; padding: 11px 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.save-toast { position: fixed; z-index: 5; bottom: 22px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 9px; padding: 11px 17px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: var(--surface); box-shadow: 0 8px 30px #0002; font-size: 12px; pointer-events: none; animation: feedback-in 160ms var(--ease-out); }.save-toast>span { color: var(--positive); }
+@keyframes feedback-in { from { opacity: 0; translate: 0 4px; } to { opacity: 1; translate: 0 0; } }
+@media(max-width:700px) { .command-trigger kbd { display: none; }.workspace-bar .command-trigger { padding: 5px 7px; }.workspace-bar>div { gap: 0; }.account-strip .status { display: none; } }

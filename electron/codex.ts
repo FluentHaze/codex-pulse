@@ -1,17 +1,29 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, accessSync, statSync, constants } from 'node:fs';
 import { join, delimiter } from 'node:path';
 import { homedir } from 'node:os';
 
 export class RpcError extends Error { constructor(message: string, public code?: number) { super(message); } }
 export function detectCodex(custom = ''): string {
-  if (custom) { if (!custom.toLowerCase().endsWith('.exe') || !existsSync(custom)) throw new Error('选择的 codex.exe 不存在'); return custom; }
-  const candidates = (process.env.PATH ?? '').split(delimiter).map(p => join(p, 'codex.exe'));
+  const windows = process.platform === 'win32';
+  const executable = windows ? 'codex.exe' : 'codex';
+  const usable = (path: string) => {
+    try { accessSync(path, windows ? constants.F_OK : constants.X_OK); return statSync(path).isFile() && (!windows || path.toLowerCase().endsWith('.exe')); }
+    catch { return false; }
+  };
+  if (custom) { if (!usable(custom)) throw new Error(`选择的 ${executable} 不存在或不可执行`); return custom; }
+  const candidates = (process.env.PATH ?? '').split(delimiter).filter(Boolean).map(p => join(p, executable));
   const root = join(process.env.LOCALAPPDATA ?? join(homedir(), 'AppData', 'Local'), 'OpenAI', 'Codex', 'bin');
-  if (existsSync(root)) candidates.push(...readdirSync(root).reverse().map(p => join(root, p, 'codex.exe')));
-  const found = candidates.find(p => existsSync(p));
-  if (!found) throw new Error('未找到 Codex，请在设置中选择 codex.exe');
+  if (windows && existsSync(root)) candidates.push(...readdirSync(root).reverse().map(p => join(root, p, executable)));
+  if (process.platform === 'darwin') candidates.push(
+    '/opt/homebrew/bin/codex', '/usr/local/bin/codex',
+    join(homedir(), '.local/bin/codex'),
+    '/Applications/Codex.app/Contents/Resources/codex',
+    join(homedir(), 'Applications/Codex.app/Contents/Resources/codex')
+  );
+  const found = candidates.find(usable);
+  if (!found) throw new Error(`未找到 Codex，请在设置中选择 ${executable}`);
   return found;
 }
 export class CodexClient {

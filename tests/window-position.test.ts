@@ -1,3 +1,4 @@
+import { sidePanelBounds } from '../electron/window-position.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { captureAnchor, anchoredBounds } from '../electron/window-position.js';
@@ -24,4 +25,13 @@ test('clamping a large mode does not replace the original anchor or cause drift 
   const anchor = captureAnchor(compact, area);
   assert.deepEqual(anchoredBounds(anchor, { width: 380, height: 280 }, area), { x: 20, y: 20, width: 380, height: 280 });
   assert.deepEqual(anchoredBounds(anchor, compact, area), compact);
+});
+
+test('hover panels choose the free side without moving the rail and remain inside the work area', () => {
+  const area = { x: -1920, y: 0, width: 1920, height: 1080 };
+  const leftRail = { x: -1920, y: 10, width: 68, height: 212 };
+  const rightRail = { x: -68, y: 900, width: 68, height: 140 };
+  assert.deepEqual(sidePanelBounds(leftRail, area), { x: -1842, y: 0, width: 320, height: 310 });
+  assert.deepEqual(sidePanelBounds(rightRail, area), { x: -398, y: 770, width: 320, height: 310 });
+  assert.equal(leftRail.x, -1920);
 });

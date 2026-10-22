@@ -1,4 +1,4 @@
-import type { TokenCounts, UsageSample, DailyStats } from './types.js';
+import type { TokenCounts, UsageSample, DailyStats, HourlyUsage } from './types.js';
 
 export function localDayRange(now = new Date()) {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -13,15 +13,22 @@ export class DailyAccumulator {
   private tokens: TokenCounts = { input: 0, cachedInput: 0, output: 0, reasoning: 0, total: 0 };
   private records = 0;
   private duplicates = 0;
+  private hourly: HourlyUsage[] = Array.from({ length: 24 }, (_, hour) => ({ hour, total: 0, records: 0 }));
   readonly warnings = new Set<string>();
   constructor(readonly range: ReturnType<typeof localDayRange>) {}
   add(sample: UsageSample, source: string, index: number) {
     if (!sample.timestamp && this.range.start !== -Infinity) { this.warnings.add('部分用量没有有效时间，无法归入今天，未计入合计'); return; }
     const time = sample.timestamp ? Date.parse(sample.timestamp) : 0;
+    if (!Number.isFinite(time)) { this.warnings.add('部分用量时间无效，未计入统计'); return; }
     if (time < this.range.start || time >= this.range.end) return;
     const key = sample.dedupable ? sample.key : `${source}:${index}`;
     if (this.keys.has(key)) { this.duplicates++; return; }
     this.keys.add(key); this.records++;
+    if (sample.timestamp && Number.isFinite(time) && this.range.start !== -Infinity) {
+      const bucket = this.hourly[new Date(time).getHours()];
+      bucket.records++;
+      bucket.total = bucket.total === null || sample.tokens.total === null ? null : bucket.total + sample.tokens.total;
+    }
     this.turns.add(sample.dedupable ? sample.turnId : `${source}:${sample.turnId}`);
     if (!sample.dedupable) this.warnings.add('部分旧记录没有稳定轮次标识，跨文件去重可能不完整');
     if (!sample.complete) this.warnings.add('部分轮次统计不完整，合计仅包含已确认用量');
@@ -29,6 +36,6 @@ export class DailyAccumulator {
   }
   result(scannedFiles: number, skippedFiles: number): DailyStats {
     if (skippedFiles) this.warnings.add(`${skippedFiles} 个文件未能完整读取，今日合计可能不完整`);
-    return { date: this.range.date, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, tokens: { ...this.tokens }, turnCount: this.turns.size, recordCount: this.records, duplicateRecords: this.duplicates, scannedFiles, skippedFiles, warnings: [...this.warnings], updatedAt: Date.now() };
+    return { date: this.range.date, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, tokens: { ...this.tokens }, hourly: this.range.start === -Infinity ? undefined : this.hourly.map(bucket => ({ ...bucket })), turnCount: this.turns.size, recordCount: this.records, duplicateRecords: this.duplicates, scannedFiles, skippedFiles, warnings: [...this.warnings], updatedAt: Date.now() };
   }
 }

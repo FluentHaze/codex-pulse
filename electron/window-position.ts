@@ -1,6 +1,13 @@
 export interface Rect { x: number; y: number; width: number; height: number }
 export interface WindowAnchor { horizontal: 'left' | 'right'; vertical: 'top' | 'bottom'; horizontalGap: number; verticalGap: number }
 
+export function sidePanelBounds(rail: Rect, area: Rect, size = { width: 320, height: 310 }): Rect {
+  const right = rail.x + rail.width + 10, left = rail.x - size.width - 10;
+  const x = right + size.width <= area.x + area.width ? right : left;
+  const y = rail.y + rail.height / 2 - size.height / 2;
+  return { ...size, x: Math.round(Math.max(area.x, Math.min(x, area.x + area.width - size.width))), y: Math.round(Math.max(area.y, Math.min(y, area.y + area.height - size.height))) };
+}
+
 export function captureAnchor(bounds: Rect, area: Rect): WindowAnchor {
   const left = bounds.x - area.x;
   const right = area.x + area.width - bounds.x - bounds.width;

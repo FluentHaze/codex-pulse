@@ -1,8 +1,10 @@
 import { readFile } from 'node:fs/promises';
-import { win32 } from 'node:path';
+import { win32, posix } from 'node:path';
 export interface LocalProject { id: string; name: string; roots: string[] }
 const record = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
-const canonical = (path: string) => win32.normalize(path).replace(/[\\/]+$/, '').toLowerCase();
+const canonical = (path: string) => /^[a-z]:[\\/]|^\\\\/i.test(path)
+  ? win32.normalize(path).replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase()
+  : posix.normalize(path).replace(/\/+$/, '');
 export function parseProjectCatalog(value: unknown) {
   const state = record(value);
   const projects: LocalProject[] = Object.values(record(state['local-projects'])).flatMap(value => {
@@ -15,7 +17,7 @@ export function parseProjectCatalog(value: unknown) {
     const explicit = assigned.projectKind === 'local' ? projects.find(project => project.id === assigned.projectId) : undefined;
     if (explicit) return explicit;
     const path = canonical(cwd);
-    return projects.flatMap(project => project.roots.map(root => ({ project, root: canonical(root) }))).filter(item => item.root && (path === item.root || path.startsWith(item.root + '\\'))).sort((a, b) => b.root.length - a.root.length)[0]?.project;
+    return projects.flatMap(project => project.roots.map(root => ({ project, root: canonical(root) }))).filter(item => item.root && (path === item.root || path.startsWith(item.root + '/'))).sort((a, b) => b.root.length - a.root.length)[0]?.project;
   } };
 }
 export async function readProjectCatalog(path: string) {
