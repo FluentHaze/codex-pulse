@@ -1,0 +1,81 @@
+import React, { useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { remaining, quotaWindows, type State, type Settings, type QuotaWindow, type TokenCatalog, type TokenSession, type DailyStats } from '../electron/types';
+import { TokenDetails } from './TokenDetails';
+import { TodayUsage } from './TodayUsage';
+import './style.css';
+import appLogo from '../assets/app.png';
+
+interface Bridge { getState(): Promise<State>; scopeUsage(ids: string[]): Promise<DailyStats>; tokenCatalog(force?: boolean): Promise<TokenCatalog>; tokenSession(id: string): Promise<TokenSession>; todayUsage(force?: boolean): Promise<DailyStats>; refresh(): Promise<void>; settings(patch: Partial<Settings>): Promise<void>; action(action: string): Promise<void>; drag(phase: 'start' | 'move' | 'end', x: number, y: number): void; subscribe(callback: (state: State) => void): () => void }
+declare global { interface Window { pulse?: Bridge } }
+const api = window.pulse;
+type IconName = 'pulse' | 'overview' | 'settings' | 'refresh' | 'clock' | 'shield' | 'account' | 'more' | 'expand' | 'collapse';
+function Icon({ name, className = '' }: { name: IconName; className?: string }) {
+  const paths: Record<IconName, React.ReactNode> = {
+    expand: <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>,
+    collapse: <path d="M3 8h5V3m13 5h-5V3M8 21v-5H3m13 5v-5h5"/>,
+    pulse: <path d="M3 12h4l3-7 4 14 3-7h4"/>,
+    overview: <><rect x="4" y="4" width="6" height="16" rx="1.5"/><rect x="14" y="4" width="6" height="10" rx="1.5"/></>,
+    settings: <><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></>,
+    refresh: <><path d="M20 8a8 8 0 1 0 .2 7M20 3v5h-5"/></>,
+    clock: <><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></>,
+    shield: <><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6z"/><path d="m8 12 3 3 5-6"/></>,
+    account: <><circle cx="12" cy="8" r="3"/><path d="M5 21v-3a7 7 0 0 1 14 0v3"/></>,
+    more: <><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>
+  };
+  return <svg className={`icon ${className}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+}
+function duration(window: QuotaWindow) { const mins = window.windowDurationMins; return mins == null ? '额度窗口' : mins === 10080 ? '每周' : mins >= 1440 ? `${+(mins / 1440).toFixed(1)}天` : mins >= 60 ? `${+(mins / 60).toFixed(1)}小时` : `${mins}分钟`; }
+function resetText(time: number | null, now: number) { if (!time) return '重置时间暂不可用'; const delta = time * 1000 - now; if (delta <= 0) return '等待刷新确认重置'; const mins = Math.ceil(delta / 60000); const days = Math.floor(mins / 1440); const hours = Math.floor(mins % 1440 / 60); return `${days ? `${days}天 ` : ''}${hours ? `${hours}小时 ` : ''}${mins % 60}分钟后重置`; }
+function Quota({ quota, now, small = false }: { quota?: QuotaWindow | null; now: number; small?: boolean }) {
+  const value = remaining(quota); const color = value === null ? 'muted' : value <= 10 ? 'danger' : value <= 20 ? 'warning' : 'good';
+  return <div className={`quota ${small ? 'small' : ''} ${color}`} title={quota?.resetsAt ? new Date(quota.resetsAt * 1000).toLocaleString() : '重置时间暂不可用'}>
+    <div className="quota-label"><span>{quota ? duration(quota) : '额度窗口'}</span><span className="quota-condition">{value === null ? '暂无数据' : value === 0 ? '已耗尽' : value <= 20 ? '额度偏低' : '可用'}</span></div>
+    <div className="quota-number"><strong>{value === null ? '—' : +value.toFixed(1)}{value !== null && <span>%</span>}</strong><span className="remaining-label">剩余额度</span></div>
+    <div className="capacity" role="meter" aria-label={`${quota ? duration(quota) : '窗口'}剩余额度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? undefined} aria-valuetext={value === null ? '暂不可用' : `${value}%`}>
+      {Array.from({ length: small ? 20 : 40 }, (_, index) => <i aria-hidden="true" key={index} className={value !== null && index * (small ? 5 : 2.5) < value ? 'filled' : ''}/>)}
+    </div>
+    {!small && <><div className="capacity-scale" aria-hidden="true"><span>0%</span><span>50%</span><span>100%</span></div><div className="quota-meta"><Icon name="clock"/><div><span>{resetText(quota?.resetsAt ?? null, now)}</span><time dateTime={quota?.resetsAt ? new Date(quota.resetsAt * 1000).toISOString() : undefined}>{quota?.resetsAt ? new Date(quota.resetsAt * 1000).toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '重置时间暂不可用'}</time></div></div></>}
+  </div>;
+}
+function App() {
+  const [state, setState] = useState<State>(); const [now, setNow] = useState(Date.now()); const [tab, setTab] = useState('overview'); const [localError, setLocalError] = useState('');
+  useEffect(() => { const online = () => { void api?.action('online'); }; window.addEventListener('online', online); return () => window.removeEventListener('online', online); }, []);
+  useEffect(() => { if (!api) return; let mounted = true; const unsubscribe = api.subscribe(value => { if (mounted) setState(value); }); void api.getState().then(value => { if (mounted) setState(value); }).catch(() => setLocalError('无法连接应用后台')); const timer = setInterval(() => setNow(Date.now()), 1000); return () => { mounted = false; unsubscribe(); clearInterval(timer); }; }, []);
+  const run = (work: Promise<unknown> | undefined) => { void work?.catch(() => setLocalError('操作失败，请重试')); };
+  const action = (name: string) => run(api?.action(name));
+  const setting = (patch: Partial<Settings>) => run(api?.settings(patch));
+  if (!api) return <div className="unavailable"><h1>Codex Pulse</h1><p>请通过 Electron 桌面应用启动，以读取本机 Codex 额度。</p><code>npm start</code></div>;
+  if (!state) return <div className="unavailable">正在连接后台…{localError}</div>;
+  const float = new URLSearchParams(location.search).get('view') === 'float';
+  const main = state.buckets.find(bucket => bucket.limitId === 'codex') ?? state.buckets[0];
+  const windows = quotaWindows(main);
+  const live = state.live;
+  const liveCount = live?.tokens?.total;
+  const liveLabel = live?.status === 'completed' ? '上轮' : live?.status === 'interrupted' ? '中断' : '本轮';
+  const liveText = liveCount == null ? '—' : liveCount >= 1_000_000 ? `${+(liveCount / 1_000_000).toFixed(1)}m` : liveCount >= 1000 ? `${+(liveCount / 1000).toFixed(1)}k` : liveCount.toString();
+  const liveTitle = `${state.settings.watchedSessionId ? '固定跟踪' : '自动跟随本机最近更新的聊天'}：${live?.title ?? '等待本机记录'}\n${live?.turnNumber ? `第 ${live.turnNumber} 轮 · ` : ''}${liveCount == null ? '暂无统计' : `${liveCount.toLocaleString()} Token${live?.complete ? '' : '（统计不完整）'}`}\n输入 ${live?.tokens?.input?.toLocaleString() ?? '—'} / 输出 ${live?.tokens?.output?.toLocaleString() ?? '—'}\n${live?.error ?? '随本地用量事件更新，不按当前登录账号筛选'}`;
+  const stale = !!state.updatedAt && now - state.updatedAt > state.settings.interval * 120_000;
+  const status = stale ? '数据过期' : state.refreshing ? '正在刷新' : state.status;
+  const age = state.updatedAt ? now - state.updatedAt : null;
+  const updated = age === null ? '尚未成功更新' : age < 60000 ? '刚刚更新' : `${Math.floor(age / 60000)}分钟前更新`;
+  const dark = state.settings.theme === 'dark' || state.settings.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches;
+  if (float) return <div className={`floating ${state.settings.compact ? 'is-compact' : ''} ${dark ? 'dark' : 'light'}`} onContextMenu={e => { e.preventDefault(); action('menu'); }}>
+    <header className={state.settings.locked ? '' : 'drag'} onPointerDown={e => { if (e.button !== 0 || state.settings.locked || (e.target as Element).closest('button')) return; e.currentTarget.setPointerCapture(e.pointerId); api.drag('start', e.screenX, e.screenY); }} onPointerMove={e => { if (e.currentTarget.hasPointerCapture(e.pointerId)) api.drag('move', e.screenX, e.screenY); }} onPointerUp={e => { if (e.currentTarget.hasPointerCapture(e.pointerId)) { e.currentTarget.releasePointerCapture(e.pointerId); api.drag('end', e.screenX, e.screenY); } }} onPointerCancel={e => api.drag('end', e.screenX, e.screenY)} onDoubleClick={e => { if (!(e.target as Element).closest('button')) setting({ compact: !state.settings.compact }); }}><span className="brand"><Icon name="pulse"/>{!state.settings.compact && <>Codex <em>Pulse</em></>}</span>{state.settings.compact && <><button className="compact-values" title={windows.map(w => `${duration(w)}：${remaining(w) ?? '暂不可用'}%`).join(' / ') || status} onClick={() => action('details')}>{windows.length ? windows.map(w => remaining(w) === null ? '—' : `${Math.round(remaining(w)!)}%`).join(' / ') : '额度 —'}</button><button className="compact-token" title={liveTitle} onClick={() => action('details')}>{liveLabel}<b>{liveText}</b></button></>}<button className="mode-toggle" aria-label={state.settings.compact ? '展开悬浮窗' : '切换紧凑模式'} title={state.settings.compact ? '展开悬浮窗' : '切换紧凑模式'} aria-pressed={state.settings.compact} onClick={() => setting({ compact: !state.settings.compact })}><Icon name={state.settings.compact ? 'expand' : 'collapse'}/></button><button aria-label="打开菜单" onClick={() => action('menu')}><Icon name="more"/></button></header>
+    {!state.settings.compact && <>{windows.length ? <button className={`float-quotas ${windows.length === 1 ? 'single-window' : ''}`} onClick={() => action('details')}>{windows.map((window, index) => <Quota key={index} quota={window} now={now} small/>)}</button> : <div className="float-no-quota">{state.error ?? (state.updatedAt ? '服务端未返回额度窗口' : status)}</div>}<button className="live-token" title={liveTitle} onClick={() => action('details')}><span><small>{live?.title ?? '等待本机聊天记录'}</small><span>{liveLabel} Token <em>{live?.error ? '读取失败' : liveCount == null ? '等待记录' : live?.status === 'completed' ? '已完成' : live?.status === 'unknown' ? '未结束' : live?.complete ? '已记录' : '统计不完整'}</em></span></span><strong className="live-token-value">{liveCount == null ? '—' : liveCount.toLocaleString()}</strong></button><footer title={`${state.error ?? status}\n${state.updatedAt ? new Date(state.updatedAt).toLocaleString() : updated}`}><span className={stale || state.error ? 'error-text' : ''}>{state.error ? state.status : windows[0] ? resetText(windows[0].resetsAt, now) : status}</span><span>{state.refreshing ? '刷新中…' : updated}</span></footer></>}
+  </div>;
+  const toggle = (key: keyof Settings, label: string, help: string) => <label className="setting-row"><span><b>{label}</b><small>{help}</small></span><input type="checkbox" checked={Boolean(state.settings[key])} onChange={e => setting({ [key]: e.target.checked })}/></label>;
+  return <div className={`app ${dark ? 'dark' : 'light'}`}><header className="app-toolbar"><div className="logo"><span className="logo-mark"><img src={appLogo} alt="" width="34" height="34"/></span><b>Codex <span>Pulse</span></b></div><nav aria-label="主导航"><button aria-current={tab === 'overview' ? 'page' : undefined} className={tab === 'overview' ? 'selected' : ''} onClick={() => setTab('overview')}><Icon name="overview"/>额度概览</button><button aria-current={tab === 'today' ? 'page' : undefined} className={tab === 'today' ? 'selected' : ''} onClick={() => setTab('today')}><Icon name="clock"/>今日用量</button><button aria-current={tab === 'tokens' ? 'page' : undefined} className={tab === 'tokens' ? 'selected' : ''} onClick={() => setTab('tokens')}><Icon name="pulse"/>Token 明细</button><button aria-current={tab === 'settings' ? 'page' : undefined} className={tab === 'settings' ? 'selected' : ''} onClick={() => setTab('settings')}><Icon name="settings"/>偏好设置</button></nav><span className="local-label"><Icon name="shield"/>本地监控</span></header>
+    <main><div className="page-heading"><div><h1>{tab === 'overview' ? '额度概览' : tab === 'tokens' ? 'Token 明细' : tab === 'today' ? '今日用量' : '偏好设置'}</h1><p>{tab === 'overview' ? '查看你的 Codex 可用额度与重置时间' : tab === 'tokens' ? '查看每轮对话实际记录的 Token 用量' : tab === 'today' ? '本机今天已记录的 Token 消耗' : '管理监控频率、通知和桌面显示'}</p></div>{tab !== 'tokens' && tab !== 'today' && <button className="primary" disabled={state.refreshing} onClick={() => run(api.refresh())}><Icon name="refresh" className={state.refreshing ? 'refreshing' : ''}/>{state.refreshing ? '刷新中…' : '立即刷新'}</button>}</div>
+    {(state.error || localError) && <div role="alert" className="alert">{state.error ?? localError}<button onClick={() => action('login')}>登录 Codex ↗</button></div>}
+    {tab === 'overview' ? <><section className="account-strip" aria-label="当前账号"><Icon name="account"/><b>{state.account ?? '等待连接账号'}</b><span className="plan-badge">{state.plan ? `${state.plan.charAt(0).toUpperCase()}${state.plan.slice(1)}` : 'ChatGPT'}</span><span className={`status ${state.error || stale ? 'warning' : ''}`}><i/>{status}</span></section>
+      {state.buckets.length ? state.buckets.map(bucket => { const bucketWindows = quotaWindows(bucket); return <section className="bucket" key={bucket.limitId}><div className="bucket-heading"><h2>{bucket.limitName ?? (bucket.limitId === 'codex' ? 'Codex 额度' : bucket.limitId)}</h2><span title="仅展示服务端返回的窗口，未返回不代表无限额度">{bucketWindows.length === 1 ? '服务端返回 1 个额度窗口' : '剩余比例'}</span></div>{bucketWindows.length ? <div className={`quota-grid ${bucketWindows.length === 1 ? 'single-window' : ''}`}>{bucketWindows.map((window, index) => <Quota key={index} quota={window} now={now}/>)}</div> : <p className="no-quota-note">服务端未返回额度窗口，暂无法确认额度；这不代表无限额度。</p>}</section>; }) : <section className="empty"><Icon name="overview"/><h2>{state.refreshing ? '正在获取额度' : '尚无额度数据'}</h2><p>{state.error ?? '连接已登录的 Codex，即可查看你的额度。'}</p><button onClick={() => action('login')}>登录 Codex</button><button onClick={() => setTab('settings')}>检查路径设置</button></section>}
+      <section className="connection"><div><Icon name="refresh"/>{updated}</div><span>每 {state.settings.interval} 分钟自动刷新</span></section><footer className="overview-note"><Icon name="shield"/><p>额度与 Token 用量均在本机读取。<span>额度由整个账号共享，重置以服务端确认为准。</span></p></footer>
+    </> : tab === 'today' ? <TodayUsage sessionPath={state.settings.sessionPath}/> : tab === 'tokens' ? <TokenDetails sessionPath={state.settings.sessionPath} watchedSessionId={state.settings.watchedSessionId}/> : <><section className="settings-card"><h2>监控与提醒</h2><label className="setting-row"><span><b>刷新周期</b><small>按设定频率自动更新额度</small></span><select value={state.settings.interval} onChange={e => setting({ interval: Number(e.target.value) })}>{Array.from(new Set([1, 3, 5, 10, 15, 30, 60, state.settings.interval])).sort((a,b) => a-b).map(value => <option key={value} value={value}>{value} 分钟</option>)}</select></label>{toggle('lowAlerts', '低额度通知', '跨过 20%、10% 和 0% 时提醒')}{toggle('recoveryAlerts', '额度恢复通知', '此前耗尽，并确认恢复时提醒')}{toggle('startup', '开机启动', '登录 Windows 后在后台运行')}</section>
+      <section className="settings-card"><h2>悬浮窗</h2>{toggle('showOnLaunch', '启动时显示', '关闭详情窗口后仍在后台监控')}{toggle('alwaysOnTop', '窗口置顶', '让额度始终可见')}{toggle('compact', '紧凑模式', '点击悬浮窗收起 / 展开按钮切换')}{toggle('locked', '锁定位置', '避免误拖动')}{toggle('clickThrough', '鼠标穿透', '开启后请从系统托盘右键菜单恢复')}<label className="setting-row"><span><b>不透明度</b><small>{Math.round(state.settings.opacity * 100)}%</small></span><input aria-label="不透明度" type="range" min="0.65" max="1" step="0.05" value={state.settings.opacity} onChange={e => setting({ opacity: Number(e.target.value) })}/></label><label className="setting-row"><b>主题</b><select value={state.settings.theme} onChange={e => setting({ theme: e.target.value as Settings['theme'] })}><option value="system">跟随系统</option><option value="dark">深色</option><option value="light">浅色</option></select></label></section>
+      <section className="settings-card"><h2>Codex 连接</h2><p className="path">{state.settings.codexPath || state.executable || '自动检测本机 codex.exe'}</p><div className="actions"><button onClick={() => action('choose')}>选择 codex.exe</button><button onClick={() => setting({ codexPath: '' })}>恢复自动检测</button><button onClick={() => action('login')}>登录账号 ↗</button><button onClick={() => action('install')}>安装指引 ↗</button></div><p className="note">不复制或保存登录 Token，仅通过本机 app-server 读取账号额度。</p></section></>}
+    </main></div>;
+}
+createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
+
+
