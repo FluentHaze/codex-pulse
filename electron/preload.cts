@@ -1,8 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { State, Settings, TokenCatalog, TokenSession, DailyStats } from './types.js';
+import type { ResetData } from './reset-data.js';
 ipcRenderer.on('navigate', (_event, tab: string) => window.dispatchEvent(new CustomEvent('pulse-navigate', { detail: tab })));
 contextBridge.exposeInMainWorld('pulse', {
+  platform: process.platform,
+  windowMenus: (): Promise<string[]> => ipcRenderer.invoke('window-menus'),
+  windowMenu: (label: string, x: number, y: number): Promise<void> => ipcRenderer.invoke('window-menu', label, x, y),
   getState: (): Promise<State> => ipcRenderer.invoke('get-state'),
+  resetData: (): Promise<ResetData> => ipcRenderer.invoke('reset-data'),
+  resetSource: (url: string): Promise<void> => ipcRenderer.invoke('reset-source', url),
   tokenCatalog: (force = false): Promise<TokenCatalog> => ipcRenderer.invoke('token-catalog', force),
   tokenSession: (id: string): Promise<TokenSession> => ipcRenderer.invoke('token-session', id),
   todayUsage: (force = false): Promise<DailyStats> => ipcRenderer.invoke('today-usage', force),

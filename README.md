@@ -14,13 +14,25 @@ npm start
 
 `npm run dev` 只用于页面开发；真实额度与系统交互需使用 Electron。
 
+## 重置雷达与日历
+
+「重置雷达」展示未来 24 / 48 小时额外全局重置的历史模型概率、最近重置及公告信号；预测为实验性参考，不代表官方承诺，也不替代个人账号的重置时间。
+
+日历按本机时区展示历史公告记录，可切换月份、筛选已确认重置并点击日期查看来源。全局重置仅按来源接口 `group=reset` 且 `announcement_state=announced` 的记录标记；预告、储备重置与其他额度事件单独展示。服务端返回的个人窗口到期时间另设标记，不计入全局重置日。
+
+公开数据来自 [codex-reset.com](https://codex-reset.com/)，使用其 [公开接口](https://codex-reset.com/developers)，通过 Electron 主进程读取，不发送账号、额度、聊天或登录信息。打开雷达时加载，每 5 分钟更新；主进程共享缓存，每个接口最多每分钟请求一次，并遵守 429 的 Retry-After。失败时保留上次成功数据并标注过期，首次失败显示不可用，不生成虚构概率或历史记录。
+
 ```powershell
 npm test
 npm run build
 npm run pack
 ```
 
-打包结果在 `release/`，使用 Windows portable 可执行程序。应用启动后显示竖向圆环悬浮栏，点击额度进入详情和设置，右键打开菜单。托盘单击显示/隐藏，右键可关闭鼠标穿透或退出。关闭详情不会退出。
+Windows `npm run pack` 每次在 `release/build-时间戳-随机后缀/` 生成 portable EXE，终端会打印完整路径。独立目录避免覆盖被运行中应用或其他进程占用的旧 `win-unpacked/resources/app.asar`，无需手动换目录。历史产物不会自动删除；确认不再使用后可自行清理。显式传入 `--config.directories.output` 时沿用指定目录，此时需自行确保没有文件占用。
+
+`npm run pack` 和 `npm run pack:mac` 均在源码构建通过后自动递增一次补丁版本（例如 `0.1.10 → 0.1.11`），同步更新 `package.json` 与 `package-lock.json`，不会创建 Git 提交或标签。应用版本和产物文件名使用递增后的版本；若后续打包失败，本次版本号仍保留，重试会继续递增。单独执行 `npm run build` 不递增版本。
+
+应用启动后显示竖向圆环悬浮栏，点击额度进入详情和设置，右键打开菜单。托盘单击显示/隐藏，右键可关闭鼠标穿透或退出。关闭详情不会退出。
 
 ## macOS 运行和打包
 

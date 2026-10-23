@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, Notification, screen, powerMonitor, dialog, shell, nativeTheme } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, Notification, screen, powerMonitor, dialog, shell, nativeTheme, net } from 'electron';
+import { ResetService, resetSourceUrl } from './reset-data.js';
 import { readFileSync, writeFileSync, existsSync, renameSync, appendFileSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +18,7 @@ let quitting = false, generation = 0, failures = 0, timer: ReturnType<typeof set
 let resetChecks = new Set<number>();
 let paused = false;
 const client = new CodexClient();
+const resetService = new ResetService((input, init) => net.fetch(input instanceof URL ? input.href : input, init));
 let identity: string | null = null;
 let notices: Record<string, number> = {};
 let position: { x: number; y: number } | undefined;
@@ -139,10 +141,17 @@ function applyWindow() {
   clampWindow();
   const current = floating.getBounds(); position = { x: current.x, y: current.y };
 }
+function windowColors() { return nativeTheme.shouldUseDarkColors ? { color: '#080e0b', symbolColor: '#dce9df', height: 32 } : { color: '#f3f7f3', symbolColor: '#1a3023', height: 32 }; }
+function updateWindowColors() {
+  if (!details || details.isDestroyed()) return;
+  details.setBackgroundColor(windowColors().color);
+  if (process.platform === 'win32') details.setTitleBarOverlay(windowColors());
+}
 function createWindow(kind: 'float' | 'details' | 'peek', tab = 'overview') {
   const main = state.buckets.find(bucket => bucket.limitId === 'codex') ?? state.buckets[0]; const size = floatingSize(quotaWindows(main).length);
   const small = kind !== 'details';
-  const win = new BrowserWindow({ icon: join(here, '../assets/app.png'), width: kind === 'float' ? size.width : kind === 'peek' ? 320 : 1020, height: kind === 'float' ? size.height : kind === 'peek' ? 310 : 860, minWidth: small ? 40 : 700, minHeight: small ? 40 : 550, ...(small ? { frame: false, resizable: false, skipTaskbar: true, transparent: true, hasShadow: false, ...(kind === 'float' ? position : { focusable: false }) } : {}), show: false, backgroundColor: small ? '#00000000' : '#141519', webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
+  const win = new BrowserWindow({ icon: join(here, '../assets/app.png'), width: kind === 'float' ? size.width : kind === 'peek' ? 320 : 1020, height: kind === 'float' ? size.height : kind === 'peek' ? 310 : 860, minWidth: small ? 40 : 700, minHeight: small ? 40 : 550, ...(small ? { frame: false, resizable: false, skipTaskbar: true, transparent: true, hasShadow: false, ...(kind === 'float' ? position : { focusable: false }) } : process.platform === 'win32' ? { titleBarStyle: 'hidden', titleBarOverlay: windowColors() } : {}), show: false, backgroundColor: small ? '#00000000' : windowColors().color, webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
+  if (!small && process.platform === 'win32') win.setMenuBarVisibility(false);
   void win.loadFile(join(here, '../dist/index.html'), { query: { view: kind, tab } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' })); win.webContents.on('will-navigate', event => event.preventDefault());
   if (kind === 'float') { floating = win; applyWindow(); win.on('moved', () => { if (!floating || resizing) return; clampWindow(); const { x, y } = floating.getBounds(); position = { x, y }; save(); }); win.once('ready-to-show', () => { if (state.settings.showOnLaunch) win.showInactive(); }); }
@@ -178,6 +187,7 @@ function updateSettings(patch: Partial<Settings>) {
   if (next.clickThrough && !previous.clickThrough) announce('鼠标穿透已开启，可右键系统托盘关闭');
   if (next.clickThrough) hidePeek();
   state.settings = next; nativeTheme.themeSource = next.theme;
+  updateWindowColors();
   if (previous.sessionPath !== next.sessionPath || previous.watchedSessionId !== next.watchedSessionId) { state.live = null; liveScanAt = 0; void refreshLive(); }
   if (previous.startup !== next.startup) app.setLoginItemSettings(isMac ? { openAtLogin: next.startup } : { openAtLogin: next.startup, path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] });
   applyWindow(); save(); publish();
@@ -198,6 +208,7 @@ else {
     ]));
     try { const data = JSON.parse(readFileSync(storage(), 'utf8')); state = { ...state, account: data.account ?? null, plan: data.plan ?? null, buckets: Array.isArray(data.buckets) ? data.buckets : [], updatedAt: data.updatedAt ?? null }; identity = data.identity ?? null; notices = data.notices ?? {}; position = data.position; updateSettings({ ...defaults, ...data.settings }); } catch { /* First launch. */ }
     nativeTheme.themeSource = state.settings.theme;
+    nativeTheme.on('updated', updateWindowColors);
     const trayIcon = nativeImage.createFromPath(join(here, isMac ? '../assets/trayTemplate.png' : '../assets/app.png')).resize({ width: isMac ? 18 : 32, height: isMac ? 18 : 32 });
     if (isMac) trayIcon.setTemplateImage(true);
     tray = new Tray(trayIcon); tray.on('click', toggleFloat); tray.on('right-click', () => tray.popUpContextMenu(menu()));
@@ -210,6 +221,16 @@ else {
     });
     floating?.on('hide', hidePeek);
     ipcMain.handle('get-state', () => state);
+    ipcMain.handle('window-menus', event => event.sender === details?.webContents ? Menu.getApplicationMenu()?.items.map(item => item.label) ?? [] : []);
+    ipcMain.handle('window-menu', (event, label: unknown, x: unknown, y: unknown) => {
+      if (event.sender !== details?.webContents || typeof label !== 'string' || typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)) return;
+      const submenu = Menu.getApplicationMenu()?.items.find(item => item.label === label)?.submenu;
+      if (!submenu || !details) return;
+      const [width, height] = details.getContentSize();
+      return new Promise<void>(resolve => submenu.popup({ window: details, x: Math.round(Math.max(0, Math.min(width, x))), y: Math.round(Math.max(0, Math.min(height, y))), callback: resolve }));
+    });
+    ipcMain.handle('reset-data', () => resetService.read());
+    ipcMain.handle('reset-source', async (_event, value: unknown) => { const url = resetSourceUrl(value); if (!url) throw new Error('无效的来源链接'); await shell.openExternal(url); });
     ipcMain.handle('token-catalog', (_event, force: unknown) => tokenStore.list(force === true));
     ipcMain.handle('today-usage', (_event, force: unknown) => tokenStore.today(force === true));
     ipcMain.handle('scope-usage', (_event, ids: unknown) => { if (!Array.isArray(ids) || ids.some(id => typeof id !== 'string' || !/^[a-f0-9]{24}$/.test(id))) throw new Error('无效的聊天标识'); return tokenStore.scopeUsage(ids); });

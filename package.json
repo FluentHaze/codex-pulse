@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -9,9 +9,9 @@
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json",
     "start": "npm run build && electron .",
     "test": "tsx --test tests/*.test.ts",
-    "pack": "npm run build && electron-builder --win portable",
+    "pack": "npm run build && npm version patch --no-git-tag-version --ignore-scripts && node scripts/pack.mjs",
     "probe": "tsx scripts/probe.ts",
-    "pack:mac": "npm run build && electron-builder --mac"
+    "pack:mac": "npm run build && npm version patch --no-git-tag-version --ignore-scripts && electron-builder --mac"
   },
   "dependencies": {
     "react": "^19.2.0",
