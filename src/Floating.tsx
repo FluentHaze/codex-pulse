@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { BrandIcon } from './BrandIcon';
 import { quotaWindows, remaining, type State } from '../electron/types';
 import { QuotaRing, duration, resetText } from './Quota';
 
@@ -12,7 +13,7 @@ export function Floating({ state, now, dark, popup }: { state: State; now: numbe
   const action = (name: string) => { peek(false); void window.pulse?.action(name).catch(() => {}); };
   const theme = dark ? 'dark' : 'light';
   if (popup) return <div className={`peek-window ${theme}`} onPointerEnter={() => peek(true)} onPointerLeave={() => peek(false)} onFocus={() => peek(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) peek(false); }} onKeyDown={event => { if (event.key === 'Escape') peek(false); }}>
-    <header><span className="peek-logo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></span><b>Codex 额度</b><span className="plan-badge">{state.plan ?? 'ChatGPT'}</span></header>
+    <header><span className="peek-logo"><BrandIcon/></span><b>Codex 额度</b><span className="plan-badge">{state.plan ?? 'ChatGPT'}</span></header>
     {state.error && <p className="peek-error">{state.error}</p>}
     {windows.length ? windows.map((quota, index) => {
       const left = remaining(quota), value = left === null ? null : used ? 100 - left : left;

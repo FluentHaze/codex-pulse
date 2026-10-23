@@ -23,7 +23,10 @@
 .app-toolbar { height: 100vh; padding: 28px 14px 18px; background: color-mix(in srgb,var(--sidebar) 88%,transparent); backdrop-filter: blur(24px); }
 .app:has(>.desktop-chrome)>.app-toolbar { height: calc(100vh - 61px); }
 .logo { padding: 0 8px; gap: 10px; }
-.logo-mark { width: 34px; height: 34px; background: var(--accent); color: var(--on-accent); border-radius: 10px; box-shadow: inset 0 1px 0 #ffffff30; }
+.logo-mark { width: 38px; height: 38px; background: transparent; border-radius: 0; box-shadow: none; }
+.brand-icon { display: block; width: 100%; height: 100%; object-fit: contain; flex-shrink: 0; user-select: none; }
+.desktop-title-icon { width: 20px; height: 20px; background: transparent; border: 0; border-radius: 0; }
+.peek-logo { width: 28px; height: 28px; }
 .logo b { font-size: 15px; letter-spacing: -.4px; }.logo small { font-size: 10px; margin-top: 3px; }
 .nav-caption { padding: 34px 12px 10px; font-size: 11px; font-weight: 600; }
 nav { gap: 5px; }nav button { min-height: 40px; border-radius: 9px; color: var(--ink); font-size: 13px; }
