@@ -141,7 +141,8 @@ function applyWindow() {
   clampWindow();
   const current = floating.getBounds(); position = { x: current.x, y: current.y };
 }
-function windowColors() { return nativeTheme.shouldUseDarkColors ? { color: '#080e0b', symbolColor: '#dce9df', height: 32 } : { color: '#f3f7f3', symbolColor: '#1a3023', height: 32 }; }
+// Match .desktop-chrome's --sidebar background and --ink in radar-theme.css.
+function windowColors() { return nativeTheme.shouldUseDarkColors ? { color: '#242426', symbolColor: '#f5f5f7', height: 32 } : { color: '#ececf0', symbolColor: '#1d1d1f', height: 32 }; }
 function updateWindowColors() {
   if (!details || details.isDestroyed()) return;
   details.setBackgroundColor(windowColors().color);
