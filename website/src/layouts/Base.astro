@@ -1,0 +1,8 @@
+---
+import '../styles/global.css';
+interface Props { title?: string; description?: string }
+const { title = 'Codex Pulse — 额度，心中有数。', description = '轻巧的 Codex 额度与 Token 用量监控工具。在菜单栏看额度，在每一轮看用量。支持 macOS 与 Windows，开源免费。' } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content={description}/><meta name="theme-color" content="#fafafa"/><link rel="canonical" href={canonical}/><link rel="icon" type="image/svg+xml" href={`${base}assets/app.svg`}/><meta property="og:type" content="website"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:locale" content="zh_CN"/><meta property="og:image" content={new URL(`${base}assets/app.svg`, Astro.site)}/><title>{title}</title></head><body><a class="skip-link" href="#main">跳转到内容</a><slot/></body></html>

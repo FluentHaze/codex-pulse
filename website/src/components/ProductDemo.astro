@@ -1,0 +1,25 @@
+---
+import Mark from './Mark.astro';
+import Icon from './Icon.astro';
+import UsageChart from './UsageChart.astro';
+import QuotaPopover from './QuotaPopover.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+<div class="product-scene" data-platform="mac" id="product-demo">
+  <div class="scene-glow"></div>
+  <div class="laptop">
+    <div class="laptop-display">
+      <div class="laptop-camera"><i></i></div>
+      <div class="desktop-wallpaper"><i></i><i></i><i></i></div>
+      <div class="demo-systembar"><span><Icon name="spark" size={12}/> <b>Codex Pulse</b><span class="systembar-word">文件　编辑　视图</span></span><span><span class="systembar-pulse"><Mark size={18}/> 88%</span><span class="systembar-status">◒　▰</span><span>周六 10:24</span></span></div>
+      <div class="demo-dashboard">
+        <aside class="demo-sidebar"><div class="demo-window-controls"><i></i><i></i><i></i></div><div class="demo-brand"><Mark size={22}/><b>Codex Pulse</b></div><span class="demo-nav active"><Icon name="chart" size={13}/>额度概览</span><span class="demo-nav"><Icon name="clock" size={13}/>重置雷达</span><span class="demo-nav"><Icon name="chart" size={13}/>今日用量</span><span class="demo-nav"><Icon name="spark" size={13}/>Token 明细</span><span class="demo-sidebar-bottom"><i></i>本机额度监控</span></aside>
+        <div class="demo-main"><div class="demo-main-title"><h3>额度概览</h3><span><i></i>已连接</span></div><div class="demo-account"><span class="demo-account-mark"><Mark size={21}/></span><b>Codex <small>Plus</small></b><span>刚刚更新 ↻</span></div><div class="demo-quota-grid">{[{ name: '5 小时窗口', percent: 88, color: '#50c983', text: '2 小时 17 分钟后重置' }, { name: '每周窗口', percent: 65, color: '#1688ff', text: '3 天后重置' }].map(quota => <div class="demo-quota-card"><h4>{quota.name}</h4><div class="demo-ring" style={`--percent:${quota.percent};--ring-color:${quota.color}`}><span><b>{quota.percent}<small>%</small></b><em>剩余</em></span></div><small>{quota.text}</small></div>)}</div><div class="demo-chart-panel"><div><b>今日 Token 用量</b><strong>12.8k</strong></div><div class="chart-legend"><span>输入</span><span>输出</span><span>缓存</span></div><UsageChart/></div></div>
+      </div>
+      <QuotaPopover class="hero-popover"/>
+      <div class="windows-rail"><Mark size={19}/><span>88<small>%</small></span><span>65<small>%</small></span><b>12.8k</b></div>
+    </div>
+    <div class="laptop-base"><i></i></div><div class="laptop-bottom"></div>
+  </div>
+  <img src={`${base}assets/app.svg`} width="136" height="136" class="hero-app-icon" alt="Codex Pulse 应用图标" />
+</div>

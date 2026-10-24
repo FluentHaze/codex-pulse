@@ -1,6 +1,63 @@
+# Dependencies and package manager caches (all project directories)
 node_modules/
-dist/
-dist-electron/
-release/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+
+# Generated builds and release packages
+/dist/
+/dist-electron/
+/release/
+/release-*/
+/website/dist/
+/website/.astro/
+/website/design/preview/
+*.tsbuildinfo
+
+# Local caches, test output and temporary files
+.cache/
+.vite/
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+/tmp/
+/temp/
+/website/tmp/
+/website/temp/
 *.log
-/.idea/
+*.log.*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# IDE configuration
+.idea/
+.vscode/
+*.iml
+
+# macOS and Windows metadata
+.DS_Store
+._*
+.Spotlight-V100/
+.Trashes/
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Local environment and signing credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
+*.key
+*.pem
+
+# Keep source assets, design references, package-lock.json and GitHub workflows tracked.

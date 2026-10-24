@@ -1,0 +1,20 @@
+---
+interface Props { name?: string; size?: number; class?: string }
+const { name = 'arrow', size = 20, class: className } = Astro.props;
+const paths: Record<string, string> = {
+  arrow: '<path d="M7 17 17 7M7 7h10v10"/>',
+  download: '<path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/>',
+  chevron: '<path d="m9 5 7 7-7 7"/>',
+  mac: '<rect x="4" y="3" width="16" height="13" rx="2"/><path d="M2 20h20l-2-4H4Z"/>',
+  windows: '<path d="m3 5 8-1v7H3Zm10-1 8-1v8h-8ZM3 13h8v7l-8-1Zm10 0h8v8l-8-1Z"/>',
+  github: '<path d="M9 19c-4.3 1.3-4.3-2-6-2m12 5v-3.9c0-1.1-.4-1.8-.8-2.2 2.7-.3 5.6-1.3 5.6-6a4.7 4.7 0 0 0-1.3-3.3c.1-.4.5-1.6-.1-3.2 0 0-1-.3-3.3 1.3a11.8 11.8 0 0 0-6 0C6.8 3.1 5.8 3.4 5.8 3.4c-.6 1.6-.2 2.8-.1 3.2a4.7 4.7 0 0 0-1.3 3.3c0 4.7 2.9 5.7 5.6 6-.4.4-.8 1.1-.8 2.2V22"/>',
+  shield: '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/>',
+  lock: '<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  check: '<path d="m5 12 4 4L19 6"/>',
+  spark: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  chart: '<path d="M4 20V10m6 10V4m6 16v-8m5 8H2"/>'
+};
+---
+<svg class={className} width={size} height={size} viewBox="0 0 24 24" fill={name === 'windows' ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={paths[name] || paths.arrow} />
