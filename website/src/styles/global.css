@@ -635,7 +635,7 @@ p {
   color: #a0a8b4;
 }
 .demo-chart-panel .usage-chart {
-  height: 76px;
+  height: 58px;
   padding-top: 7px;
   padding-bottom: 15px;
 }
@@ -2937,7 +2937,7 @@ html[data-theme=dark] .download-card > svg { color: #d7e9ff; }
 html[data-theme=dark] .faq-list details, html[data-theme=dark] .site-footer { border-color: #34363d; }
 html[data-theme=dark] .menubar-art { background: linear-gradient(145deg,#1b2b43,#253b56); }
 html[data-theme=dark] .feature-systembar { background: #d6e4f21a; color: #c6dbf2; }
-html[data-theme=dark] .token-art { background: linear-gradient(145deg,#20242d,#232d3f); }
+html[data-theme=dark] .token-art { background: transparent; }
 html[data-theme=dark] .token-chart-card, html[data-theme=dark] .token-breakdown { background: #181e29; color: #d2dded; }
 html[data-theme=dark] .token-breakdown b { color: #c3d8f3; }
 html[data-theme=dark] .demo-systembar { background: #12233c44; color: #d2e9ff; }
@@ -3011,4 +3011,11 @@ html[data-theme=dark] .skip-link { background: #1d1e22; }
 @media (max-width: 640px) { :root { --header-height: 59px; } .nav-links { top: var(--header-height); } }
 @media (max-width: 360px) { .nav-shell { gap: 7px; } .display-controls { gap: 5px; } }
 html[data-theme=dark] .popover-footer > span:last-child { color: #b9d9ff; }
-html[data-theme=dark] .chart-lines > span { border-color: #ffffff18; }
+html[data-theme=dark] .chart-lines > span { background: #ffffff12; color: #9ba9bd; }
+html[data-theme=dark] .chart-bars { border-color: #ffffff18; }
+html[data-theme=dark] .menubar-art { border-color: #46546a; box-shadow: 0 8px 35px #00000025; }
+html[data-theme=dark] .menubar-art::before {
+  background: linear-gradient(170deg, #345477, #233a55);
+  box-shadow: 0 0 0 20px #45668a38;
+}
+html[data-theme=dark] .feature-systembar > span { color: #b3c4da; }
