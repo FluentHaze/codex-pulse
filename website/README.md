@@ -53,3 +53,7 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 - 语言与主题使用自定义菜单，支持方向键、Home/End、Enter/空格、Esc、点击外部关闭；键盘焦点使用内描边，已选项使用勾选标记。
 - 主题提供跟随系统（默认）、浅色、深色，首屏前应用偏好；跟随系统时响应系统切换。
 - 只在浏览器本地保存 `pulse-language`、`pulse-theme`，不向服务器发送偏好。
+
+## 仓库文档链接
+
+官网各语言的 GitHub 入口分别指向根目录简体中文 README 或 `docs/README.{locale}.md`。中文数据说明保留 `#数据和连接`，其他语言使用稳定的 `#data-and-connection`。修改 README 标题时必须保留这些锚点；发布文档与官网链接时应在同一提交中更新。
