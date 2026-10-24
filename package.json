@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.20",
+  "version": "0.1.25",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -64,9 +64,12 @@
         }
       ],
       "category": "public.app-category.utilities",
-      "icon": "assets/app.png"
+      "icon": "assets/app.png",
+      "identity": "-",
+      "hardenedRuntime": false
     },
-    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "afterSign": "scripts/verify-mac-signature.mjs"
   },
   "engines": {
     "node": ">=22.16.0"

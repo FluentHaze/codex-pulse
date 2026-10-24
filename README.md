@@ -52,9 +52,25 @@ npm test
 npm run pack:mac
 ```
 
-`pack:mac` 需在 macOS 上执行，在 `release/mac/` 生成 arm64（Apple Silicon）和 x64（Intel）各自的 DMG 与 ZIP。将应用放入 Applications 后再开启登录启动。当前未配置 Developer ID 签名和公证，公开分发前需要补齐；系统可能拦截未签名应用。
+`pack:mac` 需在 macOS 上执行，在 `release/mac/` 生成 arm64（Apple Silicon）和 x64（Intel）各自的 DMG 与 ZIP。将应用放入 Applications 后再开启登录启动。当前使用 ad-hoc 本地签名，打包时会对完整应用执行 `codesign --verify --deep --strict`，校验失败即停止生成安装包。本地签名可以验证包完整性，但没有 Developer ID 身份和 Apple 公证，下载后仍可能被 Gatekeeper 拦截；正式发行需另行配置 Developer ID 签名及公证。
 
 macOS 实机需验收：自动/手动查找 Codex、登录和额度读取、浅色/深色菜单栏图标、Dock 激活、窗口拖动与穿透恢复、多显示器与全屏 Spaces、登录启动、休眠恢复和通知授权。Windows 构建和单元测试不能替代这些验收。
+
+### Mac 首次安装与允许打开
+
+Apple Silicon（M 系列）选择 `mac-arm64`，Intel Mac 选择 `mac-x64`。打开 DMG 后将 Codex Pulse 拖入「应用程序」；使用 ZIP 时先解压，再将应用拖入「应用程序」。
+
+当前版本使用本地签名，尚未经过 Apple 公证。仅在确认文件来自本项目且未遭篡改时，按以下步骤允许打开：
+
+1. 在「应用程序」中双击 Codex Pulse，先尝试打开一次。
+2. 如果出现无法验证开发者或未公证的拦截提示，选择「取消」或「完成」。
+3. 打开「系统设置 → 隐私与安全性」，向下找到「安全性」。
+4. 在 Codex Pulse 被阻止的提示旁点击「仍要打开」，按提示使用密码或 Touch ID 验证。
+5. 再次确认「打开」。系统通常会记住这次许可，后续可直接打开。
+
+如果仍提示「已损坏」，或没有「仍要打开」，请使用最新版并反馈问题，不要直接关闭系统安全保护。签名完整性校验通过不等于 Apple 公证或系统准入验证。
+
+参考：[Apple 官方说明：在 Mac 上安全地打开 App](https://support.apple.com/zh-cn/102445)。
 
 ## 数据和连接
 
