@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.15",
+  "version": "0.1.20",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -9,9 +9,11 @@
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json",
     "start": "npm run build && electron .",
     "test": "tsx --test tests/*.test.ts",
-    "pack": "npm run build && npm version patch --no-git-tag-version --ignore-scripts && node scripts/pack.mjs",
+    "pack": "node scripts/pack.mjs all",
     "probe": "tsx scripts/probe.ts",
-    "pack:mac": "npm run build && npm version patch --no-git-tag-version --ignore-scripts && electron-builder --mac"
+    "pack:mac": "node scripts/pack.mjs mac",
+    "pack:all": "node scripts/pack.mjs all",
+    "pack:win": "node scripts/pack.mjs win"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -65,5 +67,8 @@
       "icon": "assets/app.png"
     },
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+  },
+  "engines": {
+    "node": ">=22.16.0"
   }
 }

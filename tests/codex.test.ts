@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, chmodSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, chmodSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { detectCodex } from '../electron/codex.js';
 
 test('Codex selection rejects directories and missing files, and detects executables from PATH', () => {
@@ -23,6 +23,32 @@ test('Codex selection rejects directories and missing files, and detects executa
     }
   } finally {
     if (previous === undefined) delete process.env.PATH; else process.env.PATH = previous;
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('macOS detects the ChatGPT bundled CLI without a shell PATH', { skip: process.platform !== 'darwin' }, () => {
+  const root = mkdtempSync(join(tmpdir(), 'pulse-chatgpt-'));
+  const previousPath = process.env.PATH;
+  const previousHome = process.env.HOME;
+  try {
+    const binary = join(root, 'Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex');
+    mkdirSync(dirname(binary), { recursive: true });
+    writeFileSync(binary, '#!/bin/sh\n');
+    chmodSync(binary, 0o755);
+    process.env.PATH = '/usr/bin:/bin';
+    process.env.HOME = root;
+    // A system-wide installation may take precedence over this user installation.
+    assert.ok([
+      '/opt/homebrew/bin/codex', '/usr/local/bin/codex',
+      '/Applications/Codex.app/Contents/Resources/codex',
+      '/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex',
+      binary
+    ].includes(detectCodex()));
+    assert.equal(detectCodex(binary), binary);
+  } finally {
+    if (previousPath === undefined) delete process.env.PATH; else process.env.PATH = previousPath;
+    if (previousHome === undefined) delete process.env.HOME; else process.env.HOME = previousHome;
     rmSync(root, { recursive: true, force: true });
   }
 });

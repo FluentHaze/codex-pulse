@@ -14,3 +14,7 @@
 .peek-progress { height: 5px; background: var(--rail); border-radius: 9px; overflow: hidden; margin-top: 8px; }.peek-progress i { display: block; height: 100%; background: var(--quota); border-radius: inherit; }
 .peek-session { display: flex; width: 100%; text-align: left; justify-content: space-between; gap: 10px; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 12px 0 10px; margin-top: 14px; background: transparent; }.peek-session>span { min-width: 0; }.peek-session small { display: block; font-size: 10px; color: var(--muted); }.peek-session b { display: block; font-weight: 400; font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 3px; }.peek-session>strong { font-size: 21px; color: var(--accent); font-weight: 550; font-variant-numeric: tabular-nums; }
 .peek-window footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; }.peek-window footer button { border: 0; background: transparent; font-size: 10px; padding: 4px 0; }.peek-error { font-size: 10px; color: var(--warning); }.peek-empty { font-size: 11px; padding: 15px 0; }
+
+.peek-overview { cursor: pointer; border-radius: 8px; }
+.peek-overview:hover { background: var(--accent-soft); }
+.peek-overview:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }

@@ -28,15 +28,23 @@ npm run build
 npm run pack
 ```
 
-Windows `npm run pack` 每次在 `release/build-时间戳-随机后缀/` 生成 portable EXE，终端会打印完整路径。独立目录避免覆盖被运行中应用或其他进程占用的旧 `win-unpacked/resources/app.asar`，无需手动换目录。历史产物不会自动删除；确认不再使用后可自行清理。显式传入 `--config.directories.output` 时沿用指定目录，此时需自行确保没有文件占用。
+打包统一使用 Node.js 22.16 或更新版本（使用 nvm 时先执行 `nvm use`，项目已提供 `.nvmrc`），所有产物固定放在 `release/`：
 
-`npm run pack` 和 `npm run pack:mac` 均在源码构建通过后自动递增一次补丁版本（例如 `0.1.10 → 0.1.11`），同步更新 `package.json` 与 `package-lock.json`，不会创建 Git 提交或标签。应用版本和产物文件名使用递增后的版本；若后续打包失败，本次版本号仍保留，重试会继续递增。单独执行 `npm run build` 不递增版本。
+| 命令 | 平台 | 输出 |
+| --- | --- | --- |
+| `npm run pack`（或 `npm run pack:all`） | Windows + macOS，需在 Mac 上运行 | `release/win/` 和 `release/mac/` |
+| `npm run pack:win` | Windows x64 portable EXE | `release/win/` |
+| `npm run pack:mac` | Mac arm64、x64 的 DMG 和 ZIP | `release/mac/` |
+
+每次命令先构建源码，成功后递增一次补丁版本（如 `0.1.16 → 0.1.17`），同步更新 `package.json` 和 `package-lock.json`。双平台打包只递增一次，两端版本一致。采用 `主版本.次版本.补丁版本`；日常打包自动递增补丁版本，功能版本和重大版本由发布时另行调整。不自动创建 Git 提交或标签，也不上传发布。单独 `npm run build` 不递增版本。
+
+安装包文件名包含版本与架构，保留旧版本安装包；解包后的应用目录会复用，请先退出其中运行的应用。并发打包会被阻止。若打包阶段失败，已生成的产物和本次版本号保留，重试会使用下一个版本；双平台其中一端失败时仍会尝试另一端，并最终报告失败。
 
 应用启动后显示竖向圆环悬浮栏，点击额度进入详情和设置，右键打开菜单。托盘单击显示/隐藏，右键可关闭鼠标穿透或退出。关闭详情不会退出。
 
 ## macOS 运行和打包
 
-在 Mac 上安装依赖后运行 `npm start`，额度连接可先通过 `npm run probe` 检查。菜单栏单击显示/隐藏悬浮窗，右键打开设置菜单；点击 Dock 图标打开详情，关闭详情后继续后台监控，使用菜单或 Cmd+Q 退出。
+在 Mac 上安装依赖后运行 `npm start`，额度连接可先通过 `npm run probe` 检查。菜单栏单击或右键打开菜单，移入显示额度卡片；桌面悬浮窗默认关闭，可在设置中开启；点击 Dock 图标打开详情，关闭详情后继续后台监控，使用菜单或 Cmd+Q 退出。
 
 ```sh
 npm install
@@ -44,7 +52,7 @@ npm test
 npm run pack:mac
 ```
 
-`pack:mac` 需在 macOS 上执行，在 `release/` 生成 arm64（Apple Silicon）和 x64（Intel）各自的 DMG 与 ZIP。将应用放入 Applications 后再开启登录启动。当前未配置 Developer ID 签名和公证，公开分发前需要补齐；系统可能拦截未签名应用。
+`pack:mac` 需在 macOS 上执行，在 `release/mac/` 生成 arm64（Apple Silicon）和 x64（Intel）各自的 DMG 与 ZIP。将应用放入 Applications 后再开启登录启动。当前未配置 Developer ID 签名和公证，公开分发前需要补齐；系统可能拦截未签名应用。
 
 macOS 实机需验收：自动/手动查找 Codex、登录和额度读取、浅色/深色菜单栏图标、Dock 激活、窗口拖动与穿透恢复、多显示器与全屏 Spaces、登录启动、休眠恢复和通知授权。Windows 构建和单元测试不能替代这些验收。
 

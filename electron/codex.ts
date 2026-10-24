@@ -20,7 +20,10 @@ export function detectCodex(custom = ''): string {
     '/opt/homebrew/bin/codex', '/usr/local/bin/codex',
     join(homedir(), '.local/bin/codex'),
     '/Applications/Codex.app/Contents/Resources/codex',
-    join(homedir(), 'Applications/Codex.app/Contents/Resources/codex')
+    join(homedir(), 'Applications/Codex.app/Contents/Resources/codex'),
+    // Finder launches do not inherit the shell PATH used by ChatGPT's bundled CLI.
+    '/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex',
+    join(homedir(), 'Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex')
   );
   const found = candidates.find(usable);
   if (!found) throw new Error(`未找到 Codex，请在设置中选择 ${executable}`);

@@ -13,12 +13,14 @@ export function Floating({ state, now, dark, popup }: { state: State; now: numbe
   const action = (name: string) => { peek(false); void window.pulse?.action(name).catch(() => {}); };
   const theme = dark ? 'dark' : 'light';
   if (popup) return <div className={`peek-window ${theme}`} onPointerEnter={() => peek(true)} onPointerLeave={() => peek(false)} onFocus={() => peek(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) peek(false); }} onKeyDown={event => { if (event.key === 'Escape') peek(false); }}>
+    <div className="peek-overview" role="button" tabIndex={0} aria-label="打开额度详情" title="点击打开额度详情" onClick={() => action('details')} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); action('details'); } }}>
     <header><span className="peek-logo"><BrandIcon/></span><b>Codex 额度</b><span className="plan-badge">{state.plan ?? 'ChatGPT'}</span></header>
     {state.error && <p className="peek-error">{state.error}</p>}
     {windows.length ? windows.map((quota, index) => {
       const left = remaining(quota), value = left === null ? null : used ? 100 - left : left;
       return <section className={`peek-quota ${left === null ? 'muted' : left <= 10 ? 'danger' : left <= 20 ? 'warning' : 'good'}`} key={index}><div><b>{duration(quota)}窗口</b><strong>{value === null ? '暂无数据' : `${+value.toFixed(1)}% ${used ? '已用' : '剩余'}`}</strong></div><div className="peek-progress"><i style={{ width: `${value ?? 0}%` }}/></div><span>{resetText(quota.resetsAt, now)}</span></section>;
     }) : <p className="peek-empty">{state.refreshing ? '正在读取额度…' : '服务端暂未返回额度窗口'}</p>}
+    </div>
     <button className="peek-session" onClick={() => action('tokens')}><span><small>{state.live?.status === 'completed' ? '上轮 Token' : '本轮 Token'}</small><b>{state.live?.title ?? '等待本机聊天记录'}</b></span><strong>{short}</strong></button>
     <footer><span>{state.updatedAt ? `${new Date(state.updatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })} 更新` : '尚未更新'}</span><button onClick={() => action('details')}>打开详情 <span aria-hidden="true">↗</span></button></footer>
   </div>;
