@@ -1,7 +1,12 @@
 name: Deploy website to GitHub Pages
 
-# Explicitly run this workflow after enabling Pages → Source: GitHub Actions.
+# Deploy website changes on main; keep a manual entry for rebuilds.
 on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - ".github/workflows/website.yml"
   workflow_dispatch:
 
 permissions:

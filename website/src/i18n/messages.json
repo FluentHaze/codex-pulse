@@ -1,0 +1,866 @@
+{
+  "额度，心中有数。": [
+    "Know your limits.",
+    "額度，心中有數。",
+    "残量を、ひと目で。",
+    "남은 한도, 한눈에."
+  ],
+  "专注，始终在线。": [
+    "Stay in your flow.",
+    "專注，始終在線。",
+    "集中を、途切れさせない。",
+    "몰입은 계속되도록."
+  ],
+  "为专注而生": [
+    "Made for focus",
+    "為專注而生",
+    "集中するあなたへ",
+    "몰입을 위해"
+  ],
+  "在菜单栏看额度，在每一轮看用量。": [
+    "Limits in your menu bar. Usage in every turn.",
+    "在選單列看額度，在每一輪看用量。",
+    "メニューバーで残量を。ターンごとの使用量も。",
+    "메뉴 막대에서 한도를, 매 턴마다 사용량을."
+  ],
+  "概览": [
+    "Overview",
+    "概覽",
+    "概要",
+    "개요"
+  ],
+  "功能": [
+    "Features",
+    "功能",
+    "機能",
+    "기능"
+  ],
+  "安装指引": [
+    "Setup guide",
+    "安裝指南",
+    "インストール",
+    "설치 안내"
+  ],
+  "免费下载": [
+    "Free download",
+    "免費下載",
+    "無料ダウンロード",
+    "무료 다운로드"
+  ],
+  "下载 Mac 版": [
+    "Download for Mac",
+    "下載 Mac 版",
+    "Mac 版をダウンロード",
+    "Mac용 다운로드"
+  ],
+  "下载 Windows 版": [
+    "Download for Windows",
+    "下載 Windows 版",
+    "Windows 版をダウンロード",
+    "Windows용 다운로드"
+  ],
+  "Mac 版": [
+    "For Mac",
+    "Mac 版",
+    "Mac 版",
+    "Mac용"
+  ],
+  "Windows 版": [
+    "For Windows",
+    "Windows 版",
+    "Windows 版",
+    "Windows용"
+  ],
+  "开源免费": [
+    "Free & open source",
+    "免費開源",
+    "無料・オープンソース",
+    "무료 오픈 소스"
+  ],
+  "macOS 与 Windows": [
+    "macOS & Windows",
+    "macOS 與 Windows",
+    "macOS と Windows",
+    "macOS 및 Windows"
+  ],
+  "界面与用量数据为功能示意": [
+    "Illustrative interface and sample usage data",
+    "介面與用量資料為功能示意",
+    "画面と使用量は機能紹介用のサンプルです",
+    "화면과 사용량은 기능 설명용 예시입니다"
+  ],
+  "轻巧，却很周到。": [
+    "Small app. Thoughtful details.",
+    "輕巧，卻很周到。",
+    "軽やかに、きめ細やかに。",
+    "가볍지만 세심하게."
+  ],
+  "少一点打断。": [
+    "Fewer interruptions.",
+    "少一點打斷。",
+    "中断を減らして。",
+    "방해는 줄이고."
+  ],
+  "多一点心中有数。": [
+    "More peace of mind.",
+    "多一點心中有數。",
+    "見通しを、もっと。",
+    "여유는 더하고."
+  ],
+  "把注意力留给创作，": [
+    "Keep your mind on creating.",
+    "把注意力留給創作，",
+    "つくることに集中を。",
+    "창작에 집중하세요."
+  ],
+  "把额度与用量交给 Pulse。": [
+    "Leave limits and usage to Pulse.",
+    "把額度與用量交給 Pulse。",
+    "残量と使用量は Pulse に。",
+    "한도와 사용량은 Pulse에 맡기세요."
+  ],
+  "随时看一眼": [
+    "Always a glance away",
+    "隨時看一眼",
+    "いつでも、ひと目で",
+    "언제든 한눈에"
+  ],
+  "抬眼之间，": [
+    "One glance.",
+    "抬眼之間，",
+    "ひと目で、",
+    "고개만 들면,"
+  ],
+  "额度尽知。": [
+    "All your limits.",
+    "額度盡知。",
+    "残量がわかる。",
+    "한도가 보여요."
+  ],
+  "剩余百分比常驻 Mac 菜单栏。": [
+    "Your remaining percentage lives in the Mac menu bar.",
+    "剩餘百分比常駐 Mac 選單列。",
+    "Mac のメニューバーに残量を常時表示。",
+    "Mac 메뉴 막대에 남은 비율을 표시합니다."
+  ],
+  "移入展开，点击直达详情。": [
+    "Hover to preview. Click through to details.",
+    "移入展開，點擊直達詳情。",
+    "ホバーで確認。クリックで詳細へ。",
+    "마우스를 올려 확인하고, 클릭해 자세히 보세요."
+  ],
+  "每一轮都有迹可循": [
+    "Every turn, accounted for",
+    "每一輪都有跡可循",
+    "ターンごとの記録を",
+    "매 턴의 기록을"
+  ],
+  "每一轮，": [
+    "Every turn.",
+    "每一輪，",
+    "どのターンも、",
+    "매 턴을,"
+  ],
+  "都看得清。": [
+    "Clearly in view.",
+    "都看得清。",
+    "わかりやすく。",
+    "명확하게."
+  ],
+  "查看输入、输出与缓存用量。": [
+    "See input, output and cached tokens.",
+    "查看輸入、輸出與快取用量。",
+    "入力・出力・キャッシュの使用量を確認。",
+    "입력, 출력, 캐시 사용량을 확인하세요."
+  ],
+  "从当日趋势，看到每轮细节。": [
+    "From daily trends to individual turns.",
+    "從當日趨勢，看到每輪細節。",
+    "一日の傾向から、各ターンの詳細まで。",
+    "하루의 추이부터 각 턴의 세부 정보까지."
+  ],
+  "本机已记录": [
+    "Recorded on this device",
+    "本機已記錄",
+    "このデバイスの記録",
+    "이 기기에 기록됨"
+  ],
+  "今日 Token 用量": [
+    "Today's tokens",
+    "今日 Token 用量",
+    "今日のトークン使用量",
+    "오늘의 토큰 사용량"
+  ],
+  "输入": [
+    "Input",
+    "輸入",
+    "入力",
+    "입력"
+  ],
+  "输出": [
+    "Output",
+    "輸出",
+    "出力",
+    "출력"
+  ],
+  "缓存": [
+    "Cached",
+    "快取",
+    "キャッシュ",
+    "캐시"
+  ],
+  "按你的节奏更新": [
+    "Updates at your pace",
+    "按你的節奏更新",
+    "あなたのペースで更新",
+    "내 속도에 맞춘 업데이트"
+  ],
+  "自动刷新，关注额度窗口与重置时间。": [
+    "Automatic refresh keeps limits and reset times in view.",
+    "自動重新整理，掌握額度週期與重設時間。",
+    "自動更新で、上限とリセット時刻を確認。",
+    "자동 새로고침으로 한도와 초기화 시간을 확인하세요."
+  ],
+  "临界时，提醒你": [
+    "A heads-up when it matters",
+    "接近上限，提醒你",
+    "必要なときにお知らせ",
+    "필요한 순간에 알림"
+  ],
+  "低额度与恢复通知，少一次意外打断。": [
+    "Low-limit and recovery alerts help avoid surprises.",
+    "低額度與恢復通知，減少意外打斷。",
+    "残量低下と回復の通知で、突然の中断を減らします。",
+    "한도 부족과 회복 알림으로 갑작스러운 중단을 줄입니다."
+  ],
+  "两种桌面，一份从容": [
+    "Two desktops. One calm workflow.",
+    "兩種桌面，一份從容",
+    "どちらのデスクトップでも、快適に。",
+    "두 데스크톱, 같은 여유."
+  ],
+  "Mac 菜单栏，Windows 桌面悬浮窗。": [
+    "Mac menu bar. Windows floating widget.",
+    "Mac 選單列，Windows 桌面浮動視窗。",
+    "Mac はメニューバー、Windows はフローティングウィジェット。",
+    "Mac 메뉴 막대와 Windows 바탕 화면 위젯."
+  ],
+  "本机读取，安心专注。": [
+    "Local by design.",
+    "本機讀取，安心專注。",
+    "ローカルで読み取り、安心して集中。",
+    "로컬에서 읽고, 안심하고 집중."
+  ],
+  "你的数据，": [
+    "Your data.",
+    "你的資料，",
+    "あなたのデータは、",
+    "내 데이터는,"
+  ],
+  "留在你的电脑。": [
+    "On your computer.",
+    "留在你的電腦。",
+    "あなたのコンピュータに。",
+    "내 컴퓨터에."
+  ],
+  "通过本机 Codex 读取额度。": [
+    "Reads limits through Codex on your computer.",
+    "透過本機 Codex 讀取額度。",
+    "このコンピュータの Codex から残量を取得。",
+    "이 컴퓨터의 Codex를 통해 한도를 읽습니다."
+  ],
+  "不复制、不保存登录 Token，不发送模型对话。": [
+    "No copying or storing sign-in tokens. No sending model conversations.",
+    "不複製、不儲存登入 Token，不傳送模型對話。",
+    "認証トークンをコピー・保存せず、モデルとの会話も送信しません。",
+    "로그인 토큰을 복사하거나 저장하지 않고, 모델 대화도 전송하지 않습니다."
+  ],
+  "账号额度通过本机 app-server 读取": [
+    "Account limits read via the local app-server",
+    "帳號額度透過本機 app-server 讀取",
+    "ローカルの app-server 経由でアカウントの残量を取得",
+    "로컬 app-server를 통해 계정 한도를 읽습니다"
+  ],
+  "查看数据说明": [
+    "How your data is handled",
+    "查看資料說明",
+    "データの取り扱いについて",
+    "데이터 처리 안내"
+  ],
+  "准备好，继续创造。": [
+    "Ready for your next idea.",
+    "準備好，繼續創作。",
+    "次のアイデアに、備えよう。",
+    "다음 아이디어를 향해."
+  ],
+  "让专注，": [
+    "Make room",
+    "讓專注，",
+    "集中に、",
+    "몰입에,"
+  ],
+  "多一点从容。": [
+    "for focus.",
+    "多一點從容。",
+    "ゆとりを。",
+    "여유를 더하세요."
+  ],
+  "你的下一行代码，值得更专注的时刻。": [
+    "Your next line of code deserves your full attention.",
+    "你的下一行程式碼，值得更專注的時刻。",
+    "次の一行に、もっと集中できる時間を。",
+    "다음 한 줄의 코드를 위해, 더 깊이 몰입하세요."
+  ],
+  "M 系列芯片": [
+    "M-series chips",
+    "M 系列晶片",
+    "M シリーズチップ",
+    "M 시리즈 칩"
+  ],
+  "Intel 处理器": [
+    "Intel processors",
+    "Intel 處理器",
+    "Intel プロセッサ",
+    "Intel 프로세서"
+  ],
+  "x64 · 便携版": [
+    "x64 · Portable",
+    "x64 · 可攜式版本",
+    "x64・ポータブル版",
+    "x64 · 포터블 버전"
+  ],
+  "前往 GitHub 下载": [
+    "Download on GitHub",
+    "前往 GitHub 下載",
+    "GitHub でダウンロード",
+    "GitHub에서 다운로드"
+  ],
+  "下载安装包": [
+    "Download installer",
+    "下載安裝套件",
+    "インストーラをダウンロード",
+    "설치 파일 다운로드"
+  ],
+  "ZIP 压缩包": [
+    "ZIP archive",
+    "ZIP 壓縮檔",
+    "ZIP アーカイブ",
+    "ZIP 압축 파일"
+  ],
+  "下载后直接运行": [
+    "Download and run",
+    "下載後直接執行",
+    "ダウンロード後、そのまま起動",
+    "다운로드 후 바로 실행"
+  ],
+  "安装包与更新记录，请在 GitHub Releases 查看。": [
+    "Installers and release notes are available on GitHub Releases.",
+    "安裝檔與更新紀錄，請至 GitHub Releases 查看。",
+    "インストーラと更新履歴は GitHub Releases で確認できます。",
+    "설치 파일과 변경 사항은 GitHub Releases에서 확인하세요."
+  ],
+  "需要已安装并登录 ChatGPT 账号的 Codex。": [
+    "Requires Codex installed and signed in with a ChatGPT account.",
+    "需要已安裝並以 ChatGPT 帳號登入的 Codex。",
+    "Codex のインストールと ChatGPT アカウントでのログインが必要です。",
+    "Codex를 설치하고 ChatGPT 계정으로 로그인해야 합니다."
+  ],
+  "Mac 版尚未经过 Apple 公证，首次打开请按下方指引操作。": [
+    "The Mac app is not Apple-notarized. Follow the first-launch guide below.",
+    "Mac 版尚未經過 Apple 公證，首次開啟請依下方指南操作。",
+    "Mac 版は Apple の公証を受けていません。初回起動は下の手順をご確認ください。",
+    "Mac 앱은 Apple 공증을 받지 않았습니다. 처음 실행할 때 아래 안내를 따르세요."
+  ],
+  "Mac 首次安装指引": [
+    "Mac first-launch guide",
+    "Mac 首次安裝指南",
+    "Mac 初回起動ガイド",
+    "Mac 첫 실행 안내"
+  ],
+  "从下载到专注": [
+    "From download to flow",
+    "從下載到專注",
+    "ダウンロードから、集中まで",
+    "다운로드부터 몰입까지"
+  ],
+  "Mac 首次打开，": [
+    "First time on Mac?",
+    "Mac 首次開啟，",
+    "Mac での初回起動は、",
+    "Mac에서 처음 실행할 때,"
+  ],
+  "只需这几步。": [
+    "Just a few steps.",
+    "只需這幾步。",
+    "この手順で。",
+    "몇 단계면 충분해요."
+  ],
+  "当前使用本地签名，尚未经过 Apple 公证。": [
+    "Currently locally signed, without Apple notarization.",
+    "目前使用本機簽章，尚未經過 Apple 公證。",
+    "現在はローカル署名を使用しており、Apple の公証は受けていません。",
+    "현재 로컬 서명을 사용하며 Apple 공증은 받지 않았습니다."
+  ],
+  "仅在确认下载来源可信且文件未被篡改时操作。": [
+    "Only proceed if you trust the download source and the file is unmodified.",
+    "僅在確認下載來源可信且檔案未遭竄改時操作。",
+    "配布元が信頼でき、ファイルが改変されていないことを確認してから操作してください。",
+    "다운로드 출처를 신뢰하고 파일이 변조되지 않았을 때만 진행하세요."
+  ],
+  "移入应用程序": [
+    "Move to Applications",
+    "移至「應用程式」",
+    "アプリケーションに移動",
+    "응용 프로그램으로 이동"
+  ],
+  "打开 DMG，将 Codex Pulse 拖入「应用程序」。使用 ZIP 时，请先解压。": [
+    "Open the DMG and drag Codex Pulse into Applications. For ZIP, extract it first.",
+    "開啟 DMG，將 Codex Pulse 拖入「應用程式」。使用 ZIP 時，請先解壓縮。",
+    "DMG を開き、Codex Pulse を「アプリケーション」にドラッグします。ZIP は先に展開してください。",
+    "DMG를 열고 Codex Pulse를 응용 프로그램으로 드래그하세요. ZIP은 먼저 압축을 해제하세요."
+  ],
+  "先尝试打开一次": [
+    "Try opening it once",
+    "先嘗試開啟一次",
+    "一度起動する",
+    "먼저 한 번 실행"
+  ],
+  "双击 Codex Pulse。出现无法验证开发者的提示时，选择「取消」或「完成」。": [
+    "Double-click Codex Pulse. If macOS cannot verify the developer, choose Cancel or Done.",
+    "按兩下 Codex Pulse。出現無法驗證開發者的提示時，選擇「取消」或「完成」。",
+    "Codex Pulse をダブルクリックします。開発元を検証できない場合は「キャンセル」または「完了」を選びます。",
+    "Codex Pulse를 더블 클릭하세요. 개발자를 확인할 수 없다는 메시지가 나오면 취소 또는 완료를 선택하세요."
+  ],
+  "前往隐私与安全性": [
+    "Open Privacy & Security",
+    "前往「隱私權與安全性」",
+    "プライバシーとセキュリティへ",
+    "개인정보 보호 및 보안 열기"
+  ],
+  "打开「系统设置 → 隐私与安全性」，向下找到「安全性」。": [
+    "Open System Settings → Privacy & Security, then scroll to Security.",
+    "開啟「系統設定 → 隱私權與安全性」，向下找到「安全性」。",
+    "「システム設定 → プライバシーとセキュリティ」を開き、「セキュリティ」までスクロールします。",
+    "시스템 설정 → 개인정보 보호 및 보안을 열고 보안 항목까지 아래로 스크롤하세요."
+  ],
+  "点击「仍要打开」": [
+    "Choose Open Anyway",
+    "點擊「強制打開」",
+    "「このまま開く」を選択",
+    "그래도 열기 선택"
+  ],
+  "找到 Codex Pulse 被阻止的提示，按要求验证密码或 Touch ID，再次确认「打开」。": [
+    "Find the notice blocking Codex Pulse, authenticate with your password or Touch ID, and confirm Open.",
+    "找到 Codex Pulse 遭阻擋的提示，依要求以密碼或 Touch ID 驗證，再確認「打開」。",
+    "Codex Pulse がブロックされた通知を見つけ、パスワードまたは Touch ID で認証し、「開く」を確認します。",
+    "Codex Pulse가 차단되었다는 알림을 찾고 암호 또는 Touch ID로 인증한 뒤 열기를 확인하세요."
+  ],
+  "应用程序": [
+    "Applications",
+    "應用程式",
+    "アプリケーション",
+    "응용 프로그램"
+  ],
+  "无法验证开发者": [
+    "Developer cannot be verified",
+    "無法驗證開發者",
+    "開発元を検証できません",
+    "개발자를 확인할 수 없음"
+  ],
+  "Codex Pulse 尚未经过 Apple 公证。": [
+    "Codex Pulse has not been notarized by Apple.",
+    "Codex Pulse 尚未經過 Apple 公證。",
+    "Codex Pulse は Apple の公証を受けていません。",
+    "Codex Pulse는 Apple 공증을 받지 않았습니다."
+  ],
+  "取消": [
+    "Cancel",
+    "取消",
+    "キャンセル",
+    "취소"
+  ],
+  "完成": [
+    "Done",
+    "完成",
+    "完了",
+    "완료"
+  ],
+  "通用": [
+    "General",
+    "一般",
+    "一般",
+    "일반"
+  ],
+  "外观": [
+    "Appearance",
+    "外觀",
+    "外観",
+    "화면 모드"
+  ],
+  "隐私与安全性": [
+    "Privacy & Security",
+    "隱私權與安全性",
+    "プライバシーとセキュリティ",
+    "개인정보 보호 및 보안"
+  ],
+  "安全性": [
+    "Security",
+    "安全性",
+    "セキュリティ",
+    "보안"
+  ],
+  "已阻止 Codex Pulse 打开，": [
+    "Codex Pulse was blocked",
+    "Codex Pulse 已遭阻擋，",
+    "Codex Pulse はブロックされました。",
+    "Codex Pulse 실행이 차단되었습니다."
+  ],
+  "因为无法验证开发者。": [
+    "because the developer cannot be verified.",
+    "因為無法驗證開發者。",
+    "開発元を検証できません。",
+    "개발자를 확인할 수 없습니다."
+  ],
+  "仍要打开": [
+    "Open Anyway",
+    "強制打開",
+    "このまま開く",
+    "그래도 열기"
+  ],
+  "若仍提示「已损坏」或没有「仍要打开」，请使用最新版并": [
+    "If you still see “damaged” or no “Open Anyway” option, use the latest version and",
+    "若仍提示「已損毀」或沒有「強制打開」，請使用最新版本並",
+    "「壊れている」と表示される場合や「このまま開く」がない場合は、最新版を使用し、",
+    "여전히 손상되었다고 표시되거나 그래도 열기가 없다면 최신 버전을 사용하고"
+  ],
+  "反馈问题": [
+    "report the issue",
+    "回報問題",
+    "問題を報告してください",
+    "문제를 알려주세요"
+  ],
+  "。不需要关闭系统安全保护。": [
+    ". You do not need to disable system security protections.",
+    "。不需要關閉系統安全防護。",
+    "。システムのセキュリティ保護を無効にする必要はありません。",
+    ". 시스템 보안 보호를 끌 필요는 없습니다."
+  ],
+  "Apple 官方操作说明": [
+    "Apple's official guide",
+    "Apple 官方操作說明",
+    "Apple の公式ガイド",
+    "Apple 공식 안내"
+  ],
+  "还有一些，你可能想知道。": [
+    "A few more things to know.",
+    "還有一些，你可能想知道。",
+    "もう少し、知っておきたいこと。",
+    "알아두면 좋은 몇 가지."
+  ],
+  "简单使用，": [
+    "Simple to use.",
+    "簡單使用，",
+    "使いやすく、",
+    "사용은 간단하게,"
+  ],
+  "清楚了解。": [
+    "Clear to understand.",
+    "清楚了解。",
+    "わかりやすく。",
+    "이해는 명확하게."
+  ],
+  "开始使用前，需要准备什么？": [
+    "What do I need to get started?",
+    "開始使用前，需要準備什麼？",
+    "使い始めるには何が必要ですか？",
+    "시작하기 전에 무엇이 필요한가요?"
+  ],
+  "先安装 Codex，并使用 ChatGPT 账号登录。Pulse 会自动查找本机 Codex 可执行文件；如果没有找到，可以在设置中手动选择路径。": [
+    "Install Codex and sign in with your ChatGPT account. Pulse finds your local Codex executable automatically; if it cannot, select its path in Settings.",
+    "先安裝 Codex，並以 ChatGPT 帳號登入。Pulse 會自動尋找本機 Codex 執行檔；若未找到，可在設定中手動選擇路徑。",
+    "Codex をインストールし、ChatGPT アカウントでログインしてください。Pulse はローカルの実行ファイルを自動検出します。見つからない場合は設定でパスを選択できます。",
+    "Codex를 설치하고 ChatGPT 계정으로 로그인하세요. Pulse가 로컬 Codex 실행 파일을 자동으로 찾습니다. 찾지 못하면 설정에서 경로를 직접 선택할 수 있습니다."
+  ],
+  "为什么用量数字与账单可能不同？": [
+    "Why might usage differ from billing?",
+    "為什麼用量數字與帳單可能不同？",
+    "使用量と請求の数値が異なるのはなぜですか？",
+    "사용량과 청구 내역이 다를 수 있는 이유는 무엇인가요?"
+  ],
+  "额度以 Codex 服务端返回的窗口数据为准。Token 统计来自本机已记录的会话事件，可能不完整，也不等同于账单或全部设备的用量。": [
+    "Limits use window data returned by Codex servers. Token counts come from locally recorded session events and may be incomplete. They are not billing totals or usage across all devices.",
+    "額度以 Codex 伺服器回傳的週期資料為準。Token 統計來自本機已記錄的工作階段事件，可能不完整，也不等同於帳單或所有裝置的用量。",
+    "残量は Codex サーバーが返す期間データに基づきます。トークン統計はローカルのセッション記録から取得するため、不完全な場合があり、請求額や全デバイスの使用量とは一致しません。",
+    "한도는 Codex 서버에서 반환하는 기간별 데이터를 기준으로 합니다. 토큰 통계는 로컬 세션 기록에서 가져오므로 불완전할 수 있으며, 청구 내역이나 모든 기기의 사용량과 같지 않습니다."
+  ],
+  "Mac 上如何显示桌面悬浮窗？": [
+    "How do I show the Mac desktop widget?",
+    "Mac 上如何顯示桌面浮動視窗？",
+    "Mac でデスクトップウィジェットを表示するには？",
+    "Mac 바탕 화면 위젯은 어떻게 표시하나요?"
+  ],
+  "Mac 默认使用菜单栏显示额度。打开详情中的「偏好设置 → 悬浮窗」，开启「显示桌面悬浮窗」即可。菜单栏点击打开菜单，移入时展开额度卡片。": [
+    "On Mac, limits appear in the menu bar by default. In the details window, open Preferences → Floating Widget and enable Show Desktop Widget. Click the menu bar item for its menu; hover to preview limits.",
+    "Mac 預設在選單列顯示額度。開啟詳情中的「偏好設定 → 浮動視窗」，啟用「顯示桌面浮動視窗」。點擊選單列項目開啟選單，移入時展開額度卡片。",
+    "Mac ではメニューバーに残量を表示します。詳細ウィンドウの「環境設定 → フローティングウィジェット」でデスクトップ表示を有効にできます。クリックでメニュー、ホバーで残量カードが開きます。",
+    "Mac에서는 기본적으로 메뉴 막대에 한도를 표시합니다. 상세 창의 환경설정 → 플로팅 위젯에서 바탕 화면 위젯 표시를 켜세요. 메뉴 막대 항목을 클릭하면 메뉴가, 마우스를 올리면 한도 카드가 열립니다."
+  ],
+  "它是 OpenAI 官方应用吗？": [
+    "Is this an official OpenAI app?",
+    "這是 OpenAI 官方應用程式嗎？",
+    "OpenAI の公式アプリですか？",
+    "OpenAI 공식 앱인가요?"
+  ],
+  "Codex Pulse 是独立的开源项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。你可以在 GitHub 查看源码、发布记录并反馈问题。": [
+    "Codex Pulse is an independent open-source project, not an official OpenAI product, and is not affiliated with Apple. Find source code, releases and issue reports on GitHub.",
+    "Codex Pulse 是獨立的開源專案，並非 OpenAI 官方產品，也與 Apple 沒有隸屬關係。你可以在 GitHub 查看原始碼、發布紀錄並回報問題。",
+    "Codex Pulse は独立したオープンソースプロジェクトです。OpenAI の公式製品ではなく、Apple との提携関係もありません。ソースコード、リリース、問題報告は GitHub で確認できます。",
+    "Codex Pulse는 독립적인 오픈 소스 프로젝트로, OpenAI 공식 제품이 아니며 Apple과도 제휴 관계가 없습니다. 소스 코드, 릴리스, 문제 제보는 GitHub에서 확인할 수 있습니다."
+  ],
+  "下载": [
+    "Download",
+    "下載",
+    "ダウンロード",
+    "다운로드"
+  ],
+  "数据与隐私": [
+    "Data & privacy",
+    "資料與隱私權",
+    "データとプライバシー",
+    "데이터 및 개인정보"
+  ],
+  "为专注而生。开源构建。": [
+    "Made for focus. Built in the open.",
+    "為專注而生。開源打造。",
+    "集中のために。オープンソースで。",
+    "몰입을 위해. 오픈 소스로."
+  ],
+  "独立开源项目": [
+    "Independent open-source project",
+    "獨立開源專案",
+    "独立したオープンソースプロジェクト",
+    "독립 오픈 소스 프로젝트"
+  ],
+  "文件　编辑　视图": [
+    "File　Edit　View",
+    "檔案　編輯　顯示",
+    "ファイル　編集　表示",
+    "파일　편집　보기"
+  ],
+  "周六 10:24": [
+    "Sat 10:24",
+    "週六 10:24",
+    "土 10:24",
+    "토 10:24"
+  ],
+  "◒　▰　周六 10:24": [
+    "◒　▰　Sat 10:24",
+    "◒　▰　週六 10:24",
+    "◒　▰　土 10:24",
+    "◒　▰　토 10:24"
+  ],
+  "额度概览": [
+    "Limits overview",
+    "額度概覽",
+    "残量の概要",
+    "한도 개요"
+  ],
+  "重置雷达": [
+    "Reset radar",
+    "重設雷達",
+    "リセット時刻",
+    "초기화 알림"
+  ],
+  "今日用量": [
+    "Today's usage",
+    "今日用量",
+    "今日の使用量",
+    "오늘의 사용량"
+  ],
+  "Token 明细": [
+    "Token details",
+    "Token 明細",
+    "トークン詳細",
+    "토큰 상세"
+  ],
+  "本机额度监控": [
+    "Local limits monitor",
+    "本機額度監控",
+    "ローカルの残量モニター",
+    "로컬 한도 모니터"
+  ],
+  "已连接": [
+    "Connected",
+    "已連線",
+    "接続済み",
+    "연결됨"
+  ],
+  "刚刚更新": [
+    "Just updated",
+    "剛剛更新",
+    "更新したばかり",
+    "방금 업데이트"
+  ],
+  "刚刚更新 ↻": [
+    "Just updated ↻",
+    "剛剛更新 ↻",
+    "更新したばかり ↻",
+    "방금 업데이트 ↻"
+  ],
+  "5 小时窗口": [
+    "5-hour window",
+    "5 小時週期",
+    "5 時間の期間",
+    "5시간 한도"
+  ],
+  "每周窗口": [
+    "Weekly window",
+    "每週週期",
+    "週間の期間",
+    "주간 한도"
+  ],
+  "2 小时 17 分钟后重置": [
+    "Resets in 2h 17m",
+    "2 小時 17 分鐘後重設",
+    "2 時間 17 分後にリセット",
+    "2시간 17분 후 초기화"
+  ],
+  "3 天后重置": [
+    "Resets in 3 days",
+    "3 天後重設",
+    "3 日後にリセット",
+    "3일 후 초기화"
+  ],
+  "剩余": [
+    "remaining",
+    "剩餘",
+    "残り",
+    "남음"
+  ],
+  "Codex 额度": [
+    "Codex limits",
+    "Codex 額度",
+    "Codex の残量",
+    "Codex 한도"
+  ],
+  "本轮 Token": [
+    "Tokens this turn",
+    "本輪 Token",
+    "このターンのトークン",
+    "이번 턴 토큰"
+  ],
+  "构建下一个好想法": [
+    "Build your next great idea",
+    "打造下一個好點子",
+    "次のアイデアを、かたちに",
+    "다음 아이디어를 구현하세요"
+  ],
+  "打开详情": [
+    "View details",
+    "開啟詳情",
+    "詳細を開く",
+    "자세히 보기"
+  ],
+  "菜单栏额度卡片示意，示例数据": [
+    "Menu bar limits card with sample data",
+    "選單列額度卡片示意，範例資料",
+    "メニューバーの残量カード、サンプルデータ",
+    "메뉴 막대 한도 카드 예시 데이터"
+  ],
+  "Token 用量示意图，示例数据": [
+    "Token usage chart with sample data",
+    "Token 用量示意圖，範例資料",
+    "トークン使用量グラフ、サンプルデータ",
+    "토큰 사용량 차트 예시 데이터"
+  ],
+  "Codex Pulse 应用图标": [
+    "Codex Pulse app icon",
+    "Codex Pulse 應用程式圖示",
+    "Codex Pulse アプリアイコン",
+    "Codex Pulse 앱 아이콘"
+  ],
+  "Codex Pulse 图标": [
+    "Codex Pulse icon",
+    "Codex Pulse 圖示",
+    "Codex Pulse アイコン",
+    "Codex Pulse 아이콘"
+  ],
+  "Codex Pulse 首页": [
+    "Codex Pulse home",
+    "Codex Pulse 首頁",
+    "Codex Pulse ホーム",
+    "Codex Pulse 홈"
+  ],
+  "主导航": [
+    "Main navigation",
+    "主要導覽",
+    "メインナビゲーション",
+    "주 탐색"
+  ],
+  "产品界面示意平台": [
+    "Demo platform",
+    "介面示意平台",
+    "デモのプラットフォーム",
+    "데모 플랫폼"
+  ],
+  "展开导航": [
+    "Open navigation",
+    "展開導覽",
+    "ナビゲーションを開く",
+    "탐색 열기"
+  ],
+  "收起导航": [
+    "Close navigation",
+    "收合導覽",
+    "ナビゲーションを閉じる",
+    "탐색 닫기"
+  ],
+  "跳转到内容": [
+    "Skip to content",
+    "跳至內容",
+    "コンテンツへスキップ",
+    "본문으로 건너뛰기"
+  ],
+  "语言": [
+    "Language",
+    "語言",
+    "言語",
+    "언어"
+  ],
+  "主题": [
+    "Theme",
+    "主題",
+    "テーマ",
+    "테마"
+  ],
+  "跟随系统": [
+    "System",
+    "跟隨系統",
+    "システム",
+    "시스템"
+  ],
+  "浅色": [
+    "Light",
+    "淺色",
+    "ライト",
+    "라이트"
+  ],
+  "深色": [
+    "Dark",
+    "深色",
+    "ダーク",
+    "다크"
+  ],
+  "轻巧的 Codex 额度与 Token 用量监控工具。在菜单栏看额度，在每一轮看用量。支持 macOS 与 Windows，开源免费。": [
+    "A lightweight Codex limits and token usage monitor. See limits in your menu bar and usage by turn. Free and open source for macOS and Windows.",
+    "輕巧的 Codex 額度與 Token 用量監控工具。在選單列看額度，在每一輪看用量。支援 macOS 與 Windows，免費開源。",
+    "軽量な Codex の残量・トークン使用量モニター。メニューバーで残量、ターンごとの使用量を確認。macOS と Windows に対応、無料・オープンソース。",
+    "가벼운 Codex 한도 및 토큰 사용량 모니터. 메뉴 막대에서 한도를, 매 턴의 사용량을 확인하세요. macOS와 Windows용 무료 오픈 소스."
+  ],
+  "最新公开版本 {version} · 完整更新记录见 GitHub Releases": [
+    "Latest release {version} · Full release notes on GitHub Releases",
+    "最新公開版本 {version} · 完整更新紀錄請見 GitHub Releases",
+    "最新リリース {version} · 更新履歴は GitHub Releases へ",
+    "최신 릴리스 {version} · 전체 변경 사항은 GitHub Releases에서"
+  ]
+}

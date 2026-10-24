@@ -2894,3 +2894,119 @@ p {
     animation: none !important;
   }
 }
+
+/* Display preferences share the same navigation on every locale. */
+:root { color-scheme: light; --surface: #fff; --ink: #1d1d1f; --line: #e7e7eb; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.display-controls { display: flex; gap: 10px; align-items: center; }
+.display-controls .preference-trigger { color: var(--muted); }
+.nav-shell { gap: 18px; }
+.nav-links { gap: 22px; }
+html[lang=en] .hero h1 { letter-spacing: -0.055em; }
+html:not([lang=zh-CN]):not([lang=zh-TW]) .section-intro h2,
+html:not([lang=zh-CN]):not([lang=zh-TW]) .feature-copy h3 { letter-spacing: -0.035em; }
+.demo-nav, .demo-sidebar-bottom, .demo-quota-card > small, .popover-quota > small { overflow-wrap: anywhere; }
+.step-heading h3 { line-height: 1.4; }
+.install-card, .download-card, .feature-card { min-width: 0; }
+html[data-theme=dark] {
+  color-scheme: dark; color: #f5f5f7; background: #101114;
+  --surface: #1d1e22; --ink: #f5f5f7; --line: #34363d;
+  --blue: #75b8ff; --muted: #a5a7b2; --gray: #1b1c21;
+}
+html[data-theme=dark] .site-header { background: #101114df; border-color: #ffffff16; }
+html[data-theme=dark] .nav-links a, html[data-theme=dark] .menu-toggle { color: #d4d5dc; }
+html[data-theme=dark] .hero { background: linear-gradient(180deg,#101114,#111722 70%,#151c29); }
+html[data-theme=dark] .hero-description, html[data-theme=dark] .hero-meta,
+html[data-theme=dark] .section-intro > p:not(.eyebrow), html[data-theme=dark] .section-description,
+html[data-theme=dark] .feature-copy p, html[data-theme=dark] .feature-notes span,
+html[data-theme=dark] .download-card p, html[data-theme=dark] .download-alternative,
+html[data-theme=dark] .release-status, html[data-theme=dark] .download-prerequisite,
+html[data-theme=dark] .install-card > p, html[data-theme=dark] .install-note,
+html[data-theme=dark] .faq-list p, html[data-theme=dark] .footer-top > div,
+html[data-theme=dark] .footer-bottom, html[data-theme=dark] .product-caption p,
+html[data-theme=dark] .hero h1 span { color: #a5a7b2; }
+html[data-theme=dark] .button { background: #2587ed; color: #fff; }
+html[data-theme=dark] .button:hover { background: #3999fa; }
+html[data-theme=dark] .button-secondary { background: #253a52; color: #9dceff; }
+html[data-theme=dark] .platform-switch { background: #252933; }
+html[data-theme=dark] .platform-switch button { color: #a5a7b2; }
+html[data-theme=dark] .platform-switch button[aria-pressed=true] { background: #3b4353; color: #fff; }
+html[data-theme=dark] .feature-card, html[data-theme=dark] .install-section { background: #1b1c21; }
+html[data-theme=dark] .download-card, html[data-theme=dark] .install-card { background: #1d1e22; border-color: #34363d; }
+html[data-theme=dark] .download-card > svg { color: #d7e9ff; }
+html[data-theme=dark] .faq-list details, html[data-theme=dark] .site-footer { border-color: #34363d; }
+html[data-theme=dark] .menubar-art { background: linear-gradient(145deg,#1b2b43,#253b56); }
+html[data-theme=dark] .feature-systembar { background: #d6e4f21a; color: #c6dbf2; }
+html[data-theme=dark] .token-art { background: linear-gradient(145deg,#20242d,#232d3f); }
+html[data-theme=dark] .token-chart-card, html[data-theme=dark] .token-breakdown { background: #181e29; color: #d2dded; }
+html[data-theme=dark] .token-breakdown b { color: #c3d8f3; }
+html[data-theme=dark] .demo-systembar { background: #12233c44; color: #d2e9ff; }
+html[data-theme=dark] .desktop-wallpaper { background: linear-gradient(145deg,#243852,#183153 45%,#184873); }
+html[data-theme=dark] .demo-dashboard { background: #171d29f5; border-color: #566277; color: #e4ecf7; }
+html[data-theme=dark] .demo-sidebar { background: #1f2839dd; border-color: #343e50; }
+html[data-theme=dark] .demo-nav { color: #a9bbd4; }
+html[data-theme=dark] .demo-nav.active { background: #26456b; color: #9aceff; }
+html[data-theme=dark] .demo-quota-card, html[data-theme=dark] .demo-chart-panel { background: #202a3b; border-color: #344156; }
+html[data-theme=dark] .demo-ring { background: conic-gradient(var(--ring-color) calc(var(--percent)*1%),#364153 0); }
+html[data-theme=dark] .demo-ring > span { background: #202a3b; }
+html[data-theme=dark] .quota-popover { background: #1e293af2; color: #ecf3ff; border-color: #4b5b73; }
+html[data-theme=dark] .popover-quota > small, html[data-theme=dark] .popover-tokens small,
+html[data-theme=dark] .popover-footer, html[data-theme=dark] .popover-tokens span { color: #aebdd1; }
+html[data-theme=dark] .popover-tokens { border-color: #435168; }
+html[data-theme=dark] .quota-track { background: #435168; }
+html[data-theme=dark] .step-art { background: #252c39; border-color: #3a4559; }
+html[data-theme=dark] .mini-window-title { background: #303a4b; }
+html[data-theme=dark] .open-notice, html[data-theme=dark] .settings-demo, html[data-theme=dark] .allow-demo { color: #cbd9ec; }
+html[data-theme=dark] .settings-demo aside { background: #2e394d; }
+html[data-theme=dark] .skip-link { background: #1d1e22; }
+@media (max-width: 1050px) {
+  .nav-shell { gap: 12px; }
+  .nav-links { gap: 14px; }
+  .display-controls { gap: 5px; }
+  .wordmark { font-size: 17px; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .nav-shell { margin-inline: 24px; }
+  .nav-links a { font-size: 10px; }
+  .nav-shell > .button { padding: 9px 10px; font-size: 10px; }
+  .wordmark span { display: none; }
+}
+@media (max-width: 640px) {
+  .nav-shell { gap: 10px; margin-inline: 16px; }
+  .wordmark span { display: none; }
+  .display-controls { margin-left: auto; gap: 8px; }
+    .preference-trigger > span[aria-hidden]:first-child { display: none; }
+  .nav-shell > .button { margin-left: 0; max-width: 115px; text-align: center; }
+  html[data-theme=dark] .nav-links { background: #17191ff7; border-color: #34363d; }
+  html[data-theme=dark] .nav-links a { border-color: #34363d; }
+  .hero h1 { font-size: clamp(30px,8.8vw,48px); }
+  .hero h1 span { margin-top: 6px; }
+  .demo-systembar .systembar-word { display: none; }
+}
+
+.preference-menu { position: relative; }
+.preference-trigger { border: 0; background: transparent; display: flex; align-items: center; gap: 6px; padding: 8px 3px; border-radius: 8px; color: var(--ink); font-size: 12px; white-space: nowrap; }
+.preference-trigger:hover, .preference-trigger[aria-expanded=true] { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.preference-chevron { display: block; width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); margin: -3px 4px 0 3px; }
+.preference-options { position: absolute; top: calc(100% + 12px); right: 0; min-width: 166px; padding: 6px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 38px #00000020; z-index: 60; }
+.preference-options[hidden] { display: none; }
+.preference-options > a, .preference-options > button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 22px; border-radius: 8px; padding: 11px 12px; background: transparent; color: inherit; text-align: left; font: inherit; font-size: 13px; white-space: nowrap; }
+.preference-options > :hover, .preference-options > :focus-visible { background: color-mix(in srgb,var(--blue) 10%,transparent); outline: none; color: var(--blue); }
+.preference-options [aria-checked=true] { color: var(--blue); font-weight: 600; }
+.preference-options [aria-checked=false] .preference-check { visibility: hidden; }
+@media (max-width: 640px) { .display-controls .preference-trigger { font-size: 11px; padding: 8px 1px; gap: 3px; } .preference-options { top: calc(100% + 10px); } }
+/* Keyboard focus is distinct from both hover and the saved selection. */
+.preference-trigger:focus-visible, .menu-toggle:focus-visible {
+  outline: none;
+  background: color-mix(in srgb, var(--blue) 9%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--blue) 65%, transparent), 0 0 0 4px color-mix(in srgb, var(--blue) 14%, transparent);
+}
+.preference-options > :focus-visible {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--blue) 12%, var(--surface));
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--blue) 65%, transparent);
+}
+.preference-options [aria-checked=true]:focus-visible { color: var(--blue); }
+
+@media (max-width: 640px) { :root { --header-height: 59px; } .nav-links { top: var(--header-height); } }
+@media (max-width: 360px) { .nav-shell { gap: 7px; } .display-controls { gap: 5px; } }

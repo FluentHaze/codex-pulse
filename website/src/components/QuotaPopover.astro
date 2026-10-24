@@ -1,13 +1,18 @@
 ---
+import { translator, type Locale } from '../i18n';
+
 import Mark from './Mark.astro';
 import Icon from './Icon.astro';
-interface Props { class?: string }
+interface Props { class?: string; locale?: Locale }
 const { class: className = '' } = Astro.props;
+
+const locale = Astro.props.locale ?? 'zh-CN';
+const t = translator(locale);
 ---
-<div class:list={['quota-popover', className]} aria-label="菜单栏额度卡片示意，示例数据">
-  <div class="popover-heading"><span class="mini-app"><Mark size={25}/></span><b>Codex 额度</b><span class="plan">plus</span></div>
-  <div class="popover-quota"><div><span>5 小时窗口</span><strong>88% <small>剩余</small></strong></div><div class="quota-track"><i style="width:88%"></i></div><small>2 小时 17 分钟后重置</small></div>
-  <div class="popover-quota"><div><span>每周窗口</span><strong>65% <small>剩余</small></strong></div><div class="quota-track blue"><i style="width:65%"></i></div><small>3 天后重置</small></div>
-  <div class="popover-tokens"><div><small>本轮 Token</small><span>构建下一个好想法</span></div><strong>12.8k</strong></div>
-  <div class="popover-footer"><span>刚刚更新</span><span>打开详情 <Icon name="arrow" size={12}/></span></div>
+<div class:list={['quota-popover', className]} aria-label={t("菜单栏额度卡片示意，示例数据")}>
+  <div class="popover-heading"><span class="mini-app"><Mark size={25}/></span><b>{t("Codex 额度")}</b><span class="plan">plus</span></div>
+  <div class="popover-quota"><div><span>{t("5 小时窗口")}</span><strong>88% <small>{t("剩余")}</small></strong></div><div class="quota-track"><i style="width:88%"></i></div><small>{t("2 小时 17 分钟后重置")}</small></div>
+  <div class="popover-quota"><div><span>{t("每周窗口")}</span><strong>65% <small>{t("剩余")}</small></strong></div><div class="quota-track blue"><i style="width:65%"></i></div><small>{t("3 天后重置")}</small></div>
+  <div class="popover-tokens"><div><small>{t("本轮 Token")}</small><span>{t("构建下一个好想法")}</span></div><strong>12.8k</strong></div>
+  <div class="popover-footer"><span>{t("刚刚更新")}</span><span>{t("打开详情")} <Icon name="arrow" size={12}/></span></div>
 </div>

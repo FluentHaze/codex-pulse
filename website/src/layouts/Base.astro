@@ -1,8 +1,50 @@
 ---
 import '../styles/global.css';
-interface Props { title?: string; description?: string }
-const { title = 'Codex Pulse — 额度，心中有数。', description = '轻巧的 Codex 额度与 Token 用量监控工具。在菜单栏看额度，在每一轮看用量。支持 macOS 与 Windows，开源免费。' } = Astro.props;
+import { locales, localePath, translator, type Locale } from '../i18n';
+interface Props { locale?: Locale }
+const { locale = 'zh-CN' } = Astro.props;
+const t = translator(locale);
+const title = `Codex Pulse — ${t('额度，心中有数。')}`;
+const description = t('轻巧的 Codex 额度与 Token 用量监控工具。在菜单栏看额度，在每一轮看用量。支持 macOS 与 Windows，开源免费。');
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonical = new URL(localePath(locale), Astro.site);
 ---
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content={description}/><meta name="theme-color" content="#fafafa"/><link rel="canonical" href={canonical}/><link rel="icon" type="image/svg+xml" href={`${base}assets/app.svg`}/><meta property="og:type" content="website"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:locale" content="zh_CN"/><meta property="og:image" content={new URL(`${base}assets/app.svg`, Astro.site)}/><title>{title}</title></head><body><a class="skip-link" href="#main">跳转到内容</a><slot/></body></html>
+<!doctype html>
+<html lang={locale} data-locale={locale} data-base={base}>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content={description}/>
+  <meta name="theme-color" content="#fafafa"/>
+  <script is:inline>
+    // Apply preferences before paint; explicit language URLs remain shareable.
+    (() => {
+      let theme = 'system';
+      let preferred = '';
+      try { theme = localStorage.getItem('pulse-theme') || 'system'; preferred = localStorage.getItem('pulse-language') || ''; } catch {}
+      if (!['system', 'light', 'dark'].includes(theme)) theme = 'system';
+      document.documentElement.dataset.themePreference = theme;
+      document.documentElement.dataset.theme = theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+      const base = document.documentElement.dataset.base || '/';
+      if (location.pathname === base || location.pathname === base.replace(/\/$/, '')) {
+        const supported = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko'];
+        if (!supported.includes(preferred)) {
+          preferred = (navigator.languages || [navigator.language]).map(value => {
+            const language = value.toLowerCase();
+            if (/^zh(?:-|$)/.test(language)) return /hant|tw|hk|mo/.test(language) ? 'zh-TW' : 'zh-CN';
+            return ['en','ja','ko'].find(code => language === code || language.startsWith(code + '-')) || '';
+          }).find(Boolean) || 'en';
+        }
+        if (preferred !== 'zh-CN') location.replace(base + preferred + '/' + location.search + location.hash);
+      }
+    })();
+  </script>
+  <link rel="canonical" href={canonical}/>
+  {locales.map(item => <link rel="alternate" hreflang={item.code} href={new URL(localePath(item.code), Astro.site)}/>)}
+  <link rel="alternate" hreflang="x-default" href={new URL(localePath('en'), Astro.site)}/>
+  <link rel="icon" type="image/svg+xml" href={`${base}assets/app.svg`}/>
+  <meta property="og:type" content="website"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:locale" content={locale.replace('-', '_')}/><meta property="og:image" content={new URL(`${base}assets/app.svg`, Astro.site)}/>
+  <title>{title}</title>
+</head>
+<body><a class="skip-link" href="#main">{t('跳转到内容')}</a><slot/></body>
+</html>

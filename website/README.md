@@ -35,7 +35,7 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 
 将 `dist/` 作为 Pages 构建产物。使用自定义域名时设置 `SITE_URL` 为真实域名，`BASE_PATH=/`。所有静态图片路径都使用 Astro 的 `BASE_URL`，可兼容子路径。
 
-已提供 `.github/workflows/website.yml`，仅支持手动触发，不会因推送代码自动发布。需要部署时先在仓库 Settings → Pages 将 Source 设为 GitHub Actions，再在 Actions 中手动运行 Deploy website to GitHub Pages。当前未触发部署。
+已提供 `.github/workflows/website.yml`：推送到 `main` 且修改 `website/**` 或该工作流时自动部署；仅修改桌面应用不触发。同时保留 Actions 中的手动运行入口。仓库 Settings → Pages 的 Source 需设为 GitHub Actions。
 
 ## 内容与隐私
 
@@ -43,3 +43,13 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 - 没有分析追踪、Cookies、表单或用户数据库。
 - Mac 安装指引明确说明本地签名与 Apple 公证的区别，不引导关闭 Gatekeeper。
 - 示例图中的额度与图表数据用于产品展示，不代表访问者的真实用量。
+
+## 多语言与主题
+
+- 简体中文 `/`、繁体中文 `/zh-TW/`、英语 `/en/`、日语 `/ja/`、韩语 `/ko/`（均相对于部署 base）。
+- 根地址首次按浏览器语言选择，不支持的语言回退英语；显式语言网址不自动跳转。导航切换会记住选择，并保留锚点。
+- 翻译集中在 `src/i18n/messages.json`，每项依次为英语、繁体中文、日语、韩语；中文原文作为 key。页面正文、安装指引、FAQ、示意图和动态下载状态均本地化。
+- 每种语言有独立 canonical、hreflang 和本地化标题/描述，可在禁用 JavaScript 时阅读。
+- 语言与主题使用自定义菜单，支持方向键、Home/End、Enter/空格、Esc、点击外部关闭；键盘焦点使用内描边，已选项使用勾选标记。
+- 主题提供跟随系统（默认）、浅色、深色，首屏前应用偏好；跟随系统时响应系统切换。
+- 只在浏览器本地保存 `pulse-language`、`pulse-theme`，不向服务器发送偏好。
