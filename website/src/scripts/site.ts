@@ -196,3 +196,31 @@ async function loadDownloads() {
   }
 }
 void loadDownloads();
+
+// A fresh visitor stays on a stable, crawlable URL; suggest their browser language.
+const suggestion = document.querySelector<HTMLElement>('.language-suggestion');
+try {
+  const base = document.documentElement.dataset.base || '/';
+  if (suggestion && location.pathname === base && !localStorage.getItem('pulse-language') && !sessionStorage.getItem('pulse-language-suggestion-dismissed')) {
+    const preferred = (navigator.languages || [navigator.language]).map(value => {
+      const language = value.toLowerCase();
+      if (/^zh(?:-|$)/.test(language)) return /hant|tw|hk|mo/.test(language) ? 'zh-TW' : 'zh-CN';
+      return ['en', 'ja', 'ko'].find(code => language === code || language.startsWith(code + '-')) || '';
+    }).find(Boolean) || 'en';
+    const target = locales.find(item => item.code === preferred && item.code !== locale);
+    if (target) {
+      const prompts: Record<string, string> = { 'zh-TW': '以繁體中文瀏覽此頁？', en: 'Read this page in English?', ja: '日本語で表示しますか？', ko: '한국어로 보시겠어요?' };
+      suggestion.querySelector('[data-language-suggestion-text]')!.textContent = prompts[target.code];
+      const link = suggestion.querySelector<HTMLAnchorElement>('[data-language-suggestion-link]')!;
+      link.href = `${base}${target.slug}/` + location.search + location.hash;
+      link.textContent = target.label;
+      link.lang = target.code;
+      link.addEventListener('click', () => { try { localStorage.setItem('pulse-language', target.code); } catch {} });
+      suggestion.hidden = false;
+    }
+  }
+} catch { /* Storage can be unavailable; all locale links remain usable. */ }
+document.querySelector('[data-language-suggestion-close]')?.addEventListener('click', () => {
+  if (suggestion) suggestion.hidden = true;
+  try { sessionStorage.setItem('pulse-language-suggestion-dismissed', '1'); } catch {}
+});

@@ -1,13 +1,25 @@
 ---
 import '../styles/global.css';
+import { seoTitles, ogLocales } from '../i18n/seo';
 import { locales, localePath, translator, type Locale } from '../i18n';
 interface Props { locale?: Locale }
 const { locale = 'zh-CN' } = Astro.props;
 const t = translator(locale);
-const title = `Codex Pulse — ${t('额度，心中有数。')}`;
+const title = seoTitles[locale];
 const description = t('轻巧的 Codex 额度与 Token 用量监控工具。在菜单栏看额度，在每一轮看用量。支持 macOS 与 Windows，开源免费。');
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const canonical = new URL(localePath(locale), Astro.site);
+const image = new URL(`${base}assets/app.png`, Astro.site).href;
+const googleVerification = import.meta.env.GOOGLE_SITE_VERIFICATION;
+const sitemap = new URL(`${base}sitemap.xml`, Astro.site);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'WebSite', '@id': new URL(base, Astro.site).href + '#website', name: 'Codex Pulse', url: new URL(base, Astro.site).href, inLanguage: locales.map(item => item.code) },
+    { '@type': 'WebPage', '@id': canonical.href + '#webpage', url: canonical.href, name: title, description, inLanguage: locale, isPartOf: { '@id': new URL(base, Astro.site).href + '#website' }, mainEntity: { '@id': canonical.href + '#application' } },
+    { '@type': 'SoftwareApplication', '@id': canonical.href + '#application', name: 'Codex Pulse', url: canonical.href, description, inLanguage: locale, applicationCategory: 'DeveloperApplication', operatingSystem: 'macOS, Windows', image, downloadUrl: 'https://github.com/FluentHaze/codex-pulse/releases/latest', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
+  ],
+};
 ---
 <!doctype html>
 <html lang={locale} data-locale={locale} data-base={base}>
@@ -15,6 +27,9 @@ const canonical = new URL(localePath(locale), Astro.site);
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="description" content={description}/>
+  <meta name="robots" content="index, follow, max-image-preview:large"/>
+  <meta name="author" content="Codex Pulse"/>
+  {googleVerification && <meta name="google-site-verification" content={googleVerification}/>}
   <meta name="theme-color" content="#fafafa"/>
   <script is:inline>
     // Apply preferences before paint; explicit language URLs remain shareable.
@@ -28,22 +43,25 @@ const canonical = new URL(localePath(locale), Astro.site);
       const base = document.documentElement.dataset.base || '/';
       if (location.pathname === base || location.pathname === base.replace(/\/$/, '')) {
         const supported = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko'];
-        if (!supported.includes(preferred)) {
-          preferred = (navigator.languages || [navigator.language]).map(value => {
-            const language = value.toLowerCase();
-            if (/^zh(?:-|$)/.test(language)) return /hant|tw|hk|mo/.test(language) ? 'zh-TW' : 'zh-CN';
-            return ['en','ja','ko'].find(code => language === code || language.startsWith(code + '-')) || '';
-          }).find(Boolean) || 'en';
-        }
-        if (preferred !== 'zh-CN') location.replace(base + preferred + '/' + location.search + location.hash);
+        if (supported.includes(preferred) && preferred !== 'zh-CN') location.replace(base + preferred + '/' + location.search + location.hash);
       }
     })();
   </script>
   <link rel="canonical" href={canonical}/>
+  <link rel="sitemap" type="application/xml" href={sitemap}/>
   {locales.map(item => <link rel="alternate" hreflang={item.code} href={new URL(localePath(item.code), Astro.site)}/>)}
   <link rel="alternate" hreflang="x-default" href={new URL(localePath('en'), Astro.site)}/>
   <link rel="icon" type="image/svg+xml" href={`${base}assets/app.svg`}/>
-  <meta property="og:type" content="website"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:locale" content={locale.replace('-', '_')}/><meta property="og:image" content={new URL(`${base}assets/app.svg`, Astro.site)}/>
+  <meta property="og:type" content="website"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:locale" content={ogLocales[locale]}/><meta property="og:image" content={image}/>
+  <meta property="og:url" content={canonical}/>
+  <meta property="og:site_name" content="Codex Pulse"/>
+  <meta property="og:image:alt" content="Codex Pulse"/>
+  {locales.filter(item => item.code !== locale).map(item => <meta property="og:locale:alternate" content={ogLocales[item.code]}/>)}
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content={title}/>
+  <meta name="twitter:description" content={description}/>
+  <meta name="twitter:image" content={image}/>
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData).replaceAll('<', '\\u003c')}/>
   <title>{title}</title>
 </head>
 <body><a class="skip-link" href="#main">{t('跳转到内容')}</a><slot/></body>

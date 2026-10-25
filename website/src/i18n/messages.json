@@ -862,5 +862,11 @@
     "最新公開版本 {version} · 完整更新紀錄請見 GitHub Releases",
     "最新リリース {version} · 更新履歴は GitHub Releases へ",
     "최신 릴리스 {version} · 전체 변경 사항은 GitHub Releases에서"
+  ],
+  "关闭": [
+    "Close",
+    "關閉",
+    "閉じる",
+    "닫기"
   ]
 }

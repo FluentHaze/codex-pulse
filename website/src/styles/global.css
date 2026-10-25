@@ -3044,3 +3044,26 @@ html[data-theme=dark] .rail-track { stroke: #435168; }
   .demo-account { margin-bottom: 8px; }
   .demo-ring { width: 70px; height: 70px; margin-top: 7px; margin-bottom: 4px; }
 }
+
+.language-suggestion { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 10px 20px; background: var(--gray); color: var(--ink); font-size: 12px; border-bottom: 1px solid var(--line); }
+.language-suggestion[hidden] { display: none; }
+.language-suggestion > button { background: transparent; color: var(--muted); padding: 4px 8px; border-radius: 5px; }
+/* Reserve chart space instead of squeezing it between quota cards and the window edge. */
+@media (max-width: 640px) {
+  .product-scene { height: 355px; }
+  .laptop-display { height: 305px; }
+  .demo-dashboard { height: 249px; }
+  .demo-chart-panel .usage-chart { min-height: 58px; }
+}
+@media (max-width: 360px) {
+  .product-scene { height: 335px; }
+  .laptop-display { height: 285px; }
+  .demo-dashboard { height: 234px; }
+  .demo-chart-panel .usage-chart { min-height: 55px; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .product-scene { height: 485px; }
+  .laptop-display { height: 410px; }
+  .demo-dashboard { height: 331px; }
+  .demo-chart-panel .usage-chart { min-height: 76px; }
+}

@@ -47,7 +47,7 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 ## 多语言与主题
 
 - 简体中文 `/`、繁体中文 `/zh-TW/`、英语 `/en/`、日语 `/ja/`、韩语 `/ko/`（均相对于部署 base）。
-- 根地址首次按浏览器语言选择，不支持的语言回退英语；显式语言网址不自动跳转。导航切换会记住选择，并保留锚点。
+- 首次访问根地址保持可抓取的简体中文页面，根据浏览器语言显示切换建议；不强制跳转。已保存的手动选择仍会生效，显式语言网址不自动跳转。导航切换会记住选择，并保留锚点。
 - 翻译集中在 `src/i18n/messages.json`，每项依次为英语、繁体中文、日语、韩语；中文原文作为 key。页面正文、安装指引、FAQ、示意图和动态下载状态均本地化。
 - 每种语言有独立 canonical、hreflang 和本地化标题/描述，可在禁用 JavaScript 时阅读。
 - 语言与主题使用自定义菜单，支持方向键、Home/End、Enter/空格、Esc、点击外部关闭；键盘焦点使用内描边，已选项使用勾选标记。
@@ -57,3 +57,12 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 ## 仓库文档链接
 
 官网各语言的 GitHub 入口分别指向根目录简体中文 README 或 `docs/README.{locale}.md`。中文数据说明保留 `#数据和连接`，其他语言使用稳定的 `#data-and-connection`。修改 README 标题时必须保留这些锚点；发布文档与官网链接时应在同一提交中更新。
+
+## SEO 与 Google 收录
+
+- 所有语言预渲染为完整 HTML，包含本地化标题和描述、独立 canonical、互相对应的 hreflang、Open Graph/Twitter 分享信息及 WebSite/WebPage/SoftwareApplication JSON-LD。
+- 站点地图地址为 `https://fluenthaze.github.io/codex-pulse/sitemap.xml`，包含五种语言及语言互链。使用部署环境的 `SITE_URL` 和 `BASE_PATH` 生成地址，不写死开发服务器。
+- 在 [Google Search Console](https://search.google.com/search-console/) 添加网址前缀资源 `https://fluenthaze.github.io/codex-pulse/`，选择 HTML 标记验证。将 Google 提供的 meta 标记中的 `content` 值保存到仓库 Settings → Secrets and variables → Actions → Variables 的 `GOOGLE_SITE_VERIFICATION`，再手动运行官网工作流，即可将验证标记加入构建后的 HTML。此配置不会自行建立或验证 Search Console 资源。
+- 验证后在「站点地图」提交 `sitemap.xml`，再用「网址检查」检查首页与各语言页面，并按需请求编入索引。抓取、收录和排名由 Google 决定，添加 SEO 标签或提交站点地图不能保证收录时间与排名。
+- GitHub Pages 项目站点的 `robots.txt` 必须位于域名根目录 `https://fluenthaze.github.io/robots.txt` 才生效；项目下的 `/codex-pulse/robots.txt` 无法替代。当前无需设置抓取限制，因此不生成无效的子目录 robots.txt。若将来添加根目录 robots，必须允许官网路径。
+- 首页首次访问不按浏览器语言强制重定向，语言版本通过真实链接互相连接；用户明确保存的语言偏好仍会保留。
