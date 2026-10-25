@@ -8,6 +8,7 @@ A lightweight Codex limits and token usage monitor for macOS and Windows.
 
 ## Features
 
+- Simplified Chinese, Traditional Chinese, English, Japanese and Korean; switch in Preferences or follow the system language.
 - Check limits, reset times and low-limit alerts at a glance.
 - Mac menu bar previews and a Windows desktop widget.
 - Per-turn tokens, daily usage and hourly trends from local conversations.

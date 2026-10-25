@@ -1,3 +1,4 @@
+import { t, setLanguage, resolveLanguage, languages, type Language } from './i18n.js';
 import { menuBarTitle, menuBarOptions } from './menu-bar.js';
 import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, Notification, screen, powerMonitor, dialog, shell, nativeTheme, net } from 'electron';
 import { ResetService, resetSourceUrl } from './reset-data.js';
@@ -28,6 +29,7 @@ let resizeAnchor: { displayId: number; anchor: WindowAnchor } | undefined;
 let resizing = false;
 let peekTimer: ReturnType<typeof setTimeout> | undefined;
 let peekReady = false;
+let peekContentHeight = 310;
 let peekSource: 'float' | 'tray' = 'float';
 let drag: { x: number; y: number; windowX: number; windowY: number } | undefined;
 let state: State = { settings: { ...platformDefaults }, account: null, plan: null, buckets: [], updatedAt: null, refreshing: false, status: '正在连接 Codex', error: null, executable: null, live: null };
@@ -43,11 +45,11 @@ async function refreshLive() {
     const catalog = await tokenStore.list(rescan);
     if (rescan) { liveScanAt = Date.now(); liveSource = source; }
     const id = state.settings.watchedSessionId || catalog.sessions[0]?.id;
-    const live = id ? await tokenStore.live(id) : { sessionId: null, title: '未找到本机聊天', turnId: null, turnNumber: null, tokens: null, status: 'waiting' as const, complete: false, updatedAt: Date.now(), error: null };
+    const live = id ? await tokenStore.live(id) : { sessionId: null, title: '未找到本机聊天', titleKey: '未找到本机聊天', turnId: null, turnNumber: null, tokens: null, status: 'waiting' as const, complete: false, updatedAt: Date.now(), error: null };
     if (source === `${state.settings.sessionPath}|${state.settings.watchedSessionId}` && !quitting) { state.live = live; publish(); }
   } catch (error) {
     if (source === `${state.settings.sessionPath}|${state.settings.watchedSessionId}` && !quitting) {
-      state.live = { sessionId: state.settings.watchedSessionId || null, title: '本机 Token 跟踪', turnId: null, turnNumber: null, tokens: null, status: 'error', complete: false, updatedAt: Date.now(), error: error instanceof Error && /跟踪的聊天|256 MB/.test(error.message) ? error.message : '无法读取本机用量，请检查会话目录或重新选择聊天' }; publish();
+      state.live = { sessionId: state.settings.watchedSessionId || null, title: '本机 Token 跟踪', titleKey: '本机 Token 跟踪', turnId: null, turnNumber: null, tokens: null, status: 'error', complete: false, updatedAt: Date.now(), error: error instanceof Error && /跟踪的聊天|256 MB/.test(error.message) ? error.message : '无法读取本机用量，请检查会话目录或重新选择聊天' }; publish();
     }
   } finally { liveBusy = false; }
 }
@@ -61,9 +63,9 @@ function log(event: string) { try { const path = join(app.getPath('userData'), '
 function publish() {
   for (const win of [floating, details, peekWindow]) if (win && !win.isDestroyed()) win.webContents.send('state', state);
   if (tray && isMac) tray.setTitle(menuBarTitle(state), { fontType: 'monospacedDigit' });
-  if (tray) { const main = state.buckets.find(b => b.limitId === 'codex') ?? state.buckets[0]; const windows = quotaWindows(main); tray.setToolTip(`Codex Pulse · ${windows.length ? windows.map(w => remaining(w) === null ? '暂不可用' : `${remaining(w)}%`).join(' / ') : '暂无额度窗口'}\n${state.status}`); }
+  if (tray) { const main = state.buckets.find(b => b.limitId === 'codex') ?? state.buckets[0]; const windows = quotaWindows(main); tray.setToolTip(`Codex Pulse · ${windows.length ? windows.map(w => remaining(w) === null ? t('暂不可用') : `${remaining(w)}%`).join(' / ') : t('暂无额度窗口')}\n${t(state.status)}`); }
 }
-function announce(body: string) { if (Notification.isSupported()) new Notification({ title: 'Codex Pulse', body }).show(); }
+function announce(body: string) { if (Notification.isSupported()) new Notification({ title: 'Codex Pulse', body: body.split('\n').map(line => t(line)).join('\n') }).show(); }
 function alerts() {
   const messages: string[] = [];
   for (const bucket of state.buckets) for (const slot of ['primary', 'secondary'] as const) {
@@ -98,7 +100,7 @@ async function performRefresh() {
     if (!account || account.type !== 'chatgpt') { identity = null; state.account = null; state.buckets = []; state.updatedAt = null; throw new RpcError('请使用 Codex 的 ChatGPT 账号登录', 401); }
     const key = createHash('sha256').update(`${account.id ?? ''}:${account.email ?? ''}:${account.type}`).digest('hex');
     if (identity !== key) { identity = key; state.buckets = []; state.updatedAt = null; publish(); }
-    state.account = account.email?.replace(/^(.{1,2})[^@]*(@.*)$/, '$1***$2') ?? 'ChatGPT 账号'; state.plan = account.planType ?? null;
+    state.account = account.email?.replace(/^(.{1,2})[^@]*(@.*)$/, '$1***$2') ?? 'ChatGPT'; state.plan = account.planType ?? null;
     const result = await client.request<Limits>('account/rateLimits/read');
     const verification = await client.request<{ account: Account | null }>('account/read', { refreshToken: false });
     const current = verification.account;
@@ -170,7 +172,7 @@ function showTrayPeek() {
   if (!isMac || !state.settings.menuBarHover || !peekReady || !peekWindow) return;
   peekSource = 'tray';
   const bounds = tray.getBounds(), area = screen.getDisplayMatching(bounds).workArea;
-  const width = 320, height = 310;
+  const width = 320, height = Math.min(peekContentHeight, area.height);
   peekWindow.setBounds({ width, height, x: Math.round(Math.max(area.x, Math.min(bounds.x + bounds.width / 2 - width / 2, area.x + area.width - width))), y: Math.round(Math.max(area.y, Math.min(bounds.y + bounds.height + 6, area.y + area.height - height))) });
   peekWindow.setAlwaysOnTop(true, 'pop-up-menu');
   peekWindow.showInactive();
@@ -180,16 +182,30 @@ function showPeek() {
   clearTimeout(peekTimer);
   if (!floating?.isVisible() || !peekWindow || !peekReady || drag || state.settings.clickThrough) return;
   const bounds = floating.getBounds(), area = screen.getDisplayMatching(bounds).workArea;
-  peekWindow.setBounds(sidePanelBounds(bounds, area));
+  peekWindow.setBounds(sidePanelBounds(bounds, area, { width: 320, height: Math.min(peekContentHeight, area.height) }));
   peekWindow.setAlwaysOnTop(state.settings.alwaysOnTop);
   peekWindow.showInactive();
 }
 function openDetails(tab = 'overview') { hidePeek(); if (details) { details.webContents.send('navigate', tab); details.show(); details.focus(); } else createWindow('details', tab); }
 function toggleFloat() { if (floating?.isVisible()) floating.hide(); else floating?.showInactive(); }
+function translatedMenu(items: Electron.MenuItemConstructorOptions[]): Electron.MenuItemConstructorOptions[] {
+  return items.map(item => ({ ...item, ...(item.label ? { label: t(item.label) } : {}), ...(Array.isArray(item.submenu) ? { submenu: translatedMenu(item.submenu) } : {}) }));
+}
 function menu() {
-  return Menu.buildFromTemplate([{ label: '立即刷新', enabled: !state.refreshing, click: () => void refresh() }, { label: '打开详情与设置', click: () => openDetails() }, { type: 'separator' }, ...(isMac ? [{ label: '菜单栏显示', submenu: menuBarOptions.map(option => ({ label: option.label, type: 'radio' as const, checked: state.settings.menuBarDisplay === option.value, click: () => updateSettings({ menuBarDisplay: option.value }) })) }, { label: '移入菜单栏显示悬浮窗', type: 'checkbox' as const, checked: state.settings.menuBarHover, click: () => updateSettings({ menuBarHover: !state.settings.menuBarHover }) }, { type: 'separator' as const }] : []), ...(['alwaysOnTop', 'locked', 'clickThrough'] as const).map((key, i) => ({ label: ['窗口置顶', '锁定位置', '鼠标穿透（从托盘恢复）'][i], type: 'checkbox' as const, checked: state.settings[key], click: () => updateSettings({ [key]: !state.settings[key] }) })), { type: 'separator' }, ...(!isMac ? [{ label: floating?.isVisible() ? '隐藏悬浮窗' : '显示悬浮窗', click: toggleFloat }] : []), { label: '退出应用', click: () => app.quit() }]);
+  return Menu.buildFromTemplate(translatedMenu([{ label: '立即刷新', enabled: !state.refreshing, click: () => void refresh() }, { label: '打开详情与设置', click: () => openDetails() }, { type: 'separator' }, ...(isMac ? [{ label: '菜单栏显示', submenu: menuBarOptions.map(option => ({ label: option.label, type: 'radio' as const, checked: state.settings.menuBarDisplay === option.value, click: () => updateSettings({ menuBarDisplay: option.value }) })) }, { label: '移入菜单栏显示悬浮窗', type: 'checkbox' as const, checked: state.settings.menuBarHover, click: () => updateSettings({ menuBarHover: !state.settings.menuBarHover }) }, { type: 'separator' as const }] : []), ...(['alwaysOnTop', 'locked', 'clickThrough'] as const).map((key, i) => ({ label: ['窗口置顶', '锁定位置', '鼠标穿透（从托盘恢复）'][i], type: 'checkbox' as const, checked: state.settings[key], click: () => updateSettings({ [key]: !state.settings[key] }) })), { type: 'separator' }, ...(!isMac ? [{ label: floating?.isVisible() ? '隐藏悬浮窗' : '显示悬浮窗', click: toggleFloat }] : []), { label: '退出应用', click: () => app.quit() }]));
+}
+function updateApplicationMenu() {
+    Menu.setApplicationMenu(Menu.buildFromTemplate(translatedMenu([
+      ...(isMac ? [{ label: app.name, submenu: [{ role: 'about' as const }, { type: 'separator' as const }, { role: 'services' as const }, { type: 'separator' as const }, { role: 'hide' as const }, { role: 'hideOthers' as const }, { role: 'unhide' as const }, { type: 'separator' as const }, { role: 'quit' as const }] }] : []),
+      { label: '文件', submenu: [{ label: '刷新额度', accelerator: 'CmdOrCtrl+R', click: () => void refresh() }, { label: '打开详情与设置', click: () => openDetails() }, { type: 'separator' }, { label: '关闭窗口', role: 'close' }, { label: '退出应用', click: () => app.quit() }] },
+      { label: '编辑', submenu: [{ label: '撤销', role: 'undo' }, { label: '重做', role: 'redo' }, { type: 'separator' }, { label: '剪切', role: 'cut' }, { label: '复制', role: 'copy' }, { label: '粘贴', role: 'paste' }, { label: '全选', role: 'selectAll' }] },
+      { label: '视图', submenu: [{ label: '放大', role: 'zoomIn' }, { label: '缩小', role: 'zoomOut' }, { label: '实际大小', role: 'resetZoom' }, { type: 'separator' }, { label: '全屏', role: 'togglefullscreen' }] },
+      { label: '窗口', submenu: [{ label: '最小化', role: 'minimize' }, { label: '最大化 / 还原', role: 'zoom' }, { label: '关闭窗口', role: 'close' }, { type: 'separator' }, ...(!isMac ? [{ label: '显示 / 隐藏悬浮窗', click: toggleFloat }] : [])] },
+      { label: '帮助', submenu: [{ label: '关于 Codex Pulse', click: () => { void dialog.showMessageBox({ type: 'info', title: t('关于 Codex Pulse'), message: 'Codex Pulse', detail: t('版本 {0}\n本地 Codex 额度监控 · 数据仅保存在本机', [app.getVersion()]) }); } }] }
+    ])));
 }
 function updateSettings(patch: Partial<Settings>) {
+  const previousLocale = state.locale;
   const previous = state.settings; const next = { ...previous };
   for (const key of ['startup', 'showOnLaunch', 'alwaysOnTop', 'locked', 'clickThrough', 'lowAlerts', 'recoveryAlerts', 'menuBarHover'] as const) if (typeof patch[key] === 'boolean') next[key] = patch[key];
   if (typeof patch.interval === 'number' && Number.isFinite(patch.interval)) next.interval = Math.max(1, Math.min(60, Math.round(patch.interval)));
@@ -197,6 +213,7 @@ function updateSettings(patch: Partial<Settings>) {
   if (menuBarOptions.some(option => option.value === patch.menuBarDisplay)) next.menuBarDisplay = patch.menuBarDisplay!;
   if (patch.menuBarHover === false && peekSource === 'tray') hidePeek();
   if (patch.quotaDisplay === 'remaining' || patch.quotaDisplay === 'used') next.quotaDisplay = patch.quotaDisplay;
+  if (patch.language === 'system' || languages.some(item => item.value === patch.language)) next.language = patch.language!;
   if (patch.theme && ['system', 'dark', 'light'].includes(patch.theme)) next.theme = patch.theme;
   if (typeof patch.codexPath === 'string') next.codexPath = patch.codexPath;
   if (typeof patch.sessionPath === 'string') next.sessionPath = patch.sessionPath;
@@ -204,7 +221,9 @@ function updateSettings(patch: Partial<Settings>) {
   if (previous.sessionPath !== next.sessionPath) next.watchedSessionId = '';
   if (next.clickThrough && !previous.clickThrough) announce('鼠标穿透已开启，可右键系统托盘关闭');
   if (next.clickThrough) hidePeek();
-  state.settings = next; nativeTheme.themeSource = next.theme;
+  state.settings = next; state.locale = resolveLanguage(next.language, app.getLocale()); setLanguage(state.locale);
+  if (previousLocale !== state.locale) updateApplicationMenu();
+  nativeTheme.themeSource = next.theme;
   updateWindowColors();
   if (previous.sessionPath !== next.sessionPath || previous.watchedSessionId !== next.watchedSessionId) { state.live = null; liveScanAt = 0; void refreshLive(); }
   if (previous.startup !== next.startup) app.setLoginItemSettings(isMac ? { openAtLogin: next.startup } : { openAtLogin: next.startup, path: process.execPath, args: app.isPackaged ? [] : [app.getAppPath()] });
@@ -216,32 +235,28 @@ if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => openDetails());
   app.whenReady().then(() => {
+    let initialLanguage: string | undefined;
+    try { initialLanguage = JSON.parse(readFileSync(storage(), 'utf8')).settings?.language; } catch { /* First launch. */ }
+    state.locale = resolveLanguage(initialLanguage ?? state.settings.language, app.getLocale()); setLanguage(state.locale);
     if (isMac && app.isPackaged && !app.isInApplicationsFolder()) {
       try {
         const moved = app.moveToApplicationsFolder({
           conflictHandler: conflict => conflict === 'existsAndRunning' || dialog.showMessageBoxSync({
-            type: 'question', buttons: ['替换并启动', '暂不安装'], defaultId: 0, cancelId: 1,
-            title: '安装 Codex Pulse', message: '应用程序中已有 Codex Pulse，是否替换为当前版本？',
-            detail: '你的设置和本机记录会保留。'
+            type: 'question', buttons: [t('替换并启动'), t('暂不安装')], defaultId: 0, cancelId: 1,
+            title: t('安装 Codex Pulse'), message: t('应用程序中已有 Codex Pulse，是否替换为当前版本？'),
+            detail: t('你的设置和本机记录会保留。')
           }) === 0
         });
         // Electron quits this copy and relaunches the installed application.
         if (moved) return;
       } catch {
         log('install-to-applications-failed');
-        void dialog.showMessageBox({ type: 'warning', title: '安装 Codex Pulse', message: '暂时无法移入应用程序', detail: '本次仍可正常使用，也可以退出后将 Codex Pulse 拖入「应用程序」文件夹。' });
+        void dialog.showMessageBox({ type: 'warning', title: t('安装 Codex Pulse'), message: t('暂时无法移入应用程序'), detail: t('本次仍可正常使用，也可以退出后将 Codex Pulse 拖入「应用程序」文件夹。') });
       }
     }
     app.setAppUserModelId('com.codexpulse.desktop');
-    Menu.setApplicationMenu(Menu.buildFromTemplate([
-      ...(isMac ? [{ label: app.name, submenu: [{ role: 'about' as const }, { type: 'separator' as const }, { role: 'services' as const }, { type: 'separator' as const }, { role: 'hide' as const }, { role: 'hideOthers' as const }, { role: 'unhide' as const }, { type: 'separator' as const }, { role: 'quit' as const }] }] : []),
-      { label: '文件', submenu: [{ label: '刷新额度', accelerator: 'CmdOrCtrl+R', click: () => void refresh() }, { label: '打开详情与设置', click: () => openDetails() }, { type: 'separator' }, { label: '关闭窗口', role: 'close' }, { label: '退出应用', click: () => app.quit() }] },
-      { label: '编辑', submenu: [{ label: '撤销', role: 'undo' }, { label: '重做', role: 'redo' }, { type: 'separator' }, { label: '剪切', role: 'cut' }, { label: '复制', role: 'copy' }, { label: '粘贴', role: 'paste' }, { label: '全选', role: 'selectAll' }] },
-      { label: '视图', submenu: [{ label: '放大', role: 'zoomIn' }, { label: '缩小', role: 'zoomOut' }, { label: '实际大小', role: 'resetZoom' }, { type: 'separator' }, { label: '全屏', role: 'togglefullscreen' }] },
-      { label: '窗口', submenu: [{ label: '最小化', role: 'minimize' }, { label: '最大化 / 还原', role: 'zoom' }, { label: '关闭窗口', role: 'close' }, { type: 'separator' }, ...(!isMac ? [{ label: '显示 / 隐藏悬浮窗', click: toggleFloat }] : [])] },
-      { label: '帮助', submenu: [{ label: '关于 Codex Pulse', click: () => { void dialog.showMessageBox({ type: 'info', title: '关于 Codex Pulse', message: 'Codex Pulse', detail: `版本 ${app.getVersion()}\n本地 Codex 额度监控 · 数据仅保存在本机` }); } }] }
-    ]));
     try { const data = JSON.parse(readFileSync(storage(), 'utf8')); state = { ...state, account: data.account ?? null, plan: data.plan ?? null, buckets: Array.isArray(data.buckets) ? data.buckets : [], updatedAt: data.updatedAt ?? null }; identity = data.identity ?? null; notices = data.notices ?? {}; position = data.position; updateSettings({ ...platformDefaults, ...data.settings, ...(isMac && !data.macMenuBarDefaultApplied ? { showOnLaunch: false } : {}) }); } catch { /* First launch. */ }
+    updateApplicationMenu();
     nativeTheme.themeSource = state.settings.theme;
     nativeTheme.on('updated', updateWindowColors);
     const trayIcon = nativeImage.createFromPath(join(here, isMac ? '../assets/trayTemplate.png' : '../assets/app.png')).resize({ width: isMac ? 18 : 32, height: isMac ? 18 : 32 });
@@ -263,6 +278,11 @@ else {
       if (expanded) { if (event.sender === peekWindow?.webContents && peekSource === 'tray') showTrayPeek(); else showPeek(); } else peekTimer = setTimeout(hidePeek, 300);
     });
     floating?.on('hide', () => { if (peekSource === 'float') hidePeek(); });
+    ipcMain.handle('peek-size', (event, height: unknown) => {
+      if (event.sender !== peekWindow?.webContents || typeof height !== 'number' || !Number.isFinite(height)) return;
+      peekContentHeight = Math.max(200, Math.min(800, Math.ceil(height)));
+      if (peekWindow?.isVisible()) { if (peekSource === 'tray') showTrayPeek(); else showPeek(); }
+    });
     ipcMain.handle('get-state', () => state);
     ipcMain.handle('window-menus', event => event.sender === details?.webContents ? Menu.getApplicationMenu()?.items.map(item => item.label) ?? [] : []);
     ipcMain.handle('window-menu', (event, label: unknown, x: unknown, y: unknown) => {
@@ -294,7 +314,7 @@ else {
       if (action === 'hide') floating?.hide();
       if (action === 'online' && (!state.updatedAt || Date.now() - state.updatedAt >= state.settings.interval * 60_000)) schedule(1000);
       if (action === 'choose') { const result = await dialog.showOpenDialog({ ...(process.platform === 'win32' ? { filters: [{ name: 'Codex', extensions: ['exe'] }] } : {}), properties: ['openFile'] }); if (!result.canceled) updateSettings({ codexPath: result.filePaths[0] }); }
-      if (action === 'choose-sessions') { const result = await dialog.showOpenDialog({ title: '选择 Codex sessions 会话目录', properties: ['openDirectory'] }); if (!result.canceled) updateSettings({ sessionPath: result.filePaths[0] }); }
+      if (action === 'choose-sessions') { const result = await dialog.showOpenDialog({ title: t('选择 Codex sessions 会话目录'), properties: ['openDirectory'] }); if (!result.canceled) updateSettings({ sessionPath: result.filePaths[0] }); }
       if (action === 'install') await shell.openExternal('https://developers.openai.com/codex/cli/');
       if (action === 'login') {
         try { if (!client.alive) await client.start(detectCodex(state.settings.codexPath)); const result = await client.request<{ authUrl?: string }>('account/login/start', { type: 'chatgpt' }); if (result.authUrl) { const url = new URL(result.authUrl); if (url.protocol === 'https:' && ['auth.openai.com', 'auth0.openai.com', 'chatgpt.com'].includes(url.hostname)) await shell.openExternal(url.href); else throw new Error('无法打开登录地址'); } }

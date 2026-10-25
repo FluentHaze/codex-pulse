@@ -75,7 +75,7 @@ export class TokenStore {
     const sessions = [];
     for (const candidate of paths) {
       const id = createHash('sha256').update(candidate.path.replace(/\.zst$/, '')).digest('hex').slice(0, 24);
-      let title = `聊天 ${basename(candidate.path).slice(-18, -6)}`;
+      let title = `Codex ${basename(candidate.path).slice(-18, -6)}`;
       const metadata = this.metadata.get(candidate.path);
       if (metadata?.birth === candidate.birth) {
         if (metadata.internal) continue;
@@ -86,7 +86,7 @@ export class TokenStore {
       try {
         const firstLine = await rolloutHeader(candidate.path);
         const meta = JSON.parse(firstLine) as { type?: string; payload?: { id?: string; cwd?: string; source?: unknown; thread_source?: unknown } };
-        if (meta.type === 'session_meta') { const sessionId = meta.payload?.id ?? ''; project = typeof meta.payload?.cwd === 'string' ? meta.payload.cwd : ''; const fallback = `${basename(project) || 'Codex 聊天'} · ${meta.payload?.id?.slice(-6) ?? id.slice(-6)}`; title = titles.get(sessionId) || fallback; internal = isInternalSession(meta.payload ?? {}); this.metadata.set(candidate.path, { birth: candidate.birth, sessionId, fallback, internal, project }); }
+        if (meta.type === 'session_meta') { const sessionId = meta.payload?.id ?? ''; project = typeof meta.payload?.cwd === 'string' ? meta.payload.cwd : ''; const fallback = `${basename(project) || 'Codex'} · ${meta.payload?.id?.slice(-6) ?? id.slice(-6)}`; title = titles.get(sessionId) || fallback; internal = isInternalSession(meta.payload ?? {}); this.metadata.set(candidate.path, { birth: candidate.birth, sessionId, fallback, internal, project }); }
       } catch { skipped = true; }
       if (internal) continue;
       files.set(id, candidate.path); sessions.push({ id, title, updatedAt: candidate.modified, ...projectFields(this.metadata.get(candidate.path)?.sessionId ?? '', project) });
