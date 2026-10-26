@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
+    "assets:dmg": "electron scripts/create-dmg-background.cjs",
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.electron.json",
     "start": "npm run build && electron .",
@@ -68,7 +69,24 @@
       "identity": "-",
       "hardenedRuntime": false
     },
+    "dmg": {
+      "title": "${productName}",
+      "background": "assets/dmg/background.png",
+      "iconSize": 96,
+      "iconTextSize": 14,
+      "contents": [
+        { "x": 255, "y": 185, "type": "file" },
+        { "x": 545, "y": 185, "type": "link", "path": "/Applications" },
+        {
+          "x": 400,
+          "y": 490,
+          "type": "file",
+          "path": "release/.dmg-assets/打开隐私与安全性.inetloc"
+        }
+      ]
+    },
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "beforePack": "scripts/prepare-mac-dmg.mjs",
     "afterSign": "scripts/verify-mac-signature.mjs"
   },
   "engines": {
