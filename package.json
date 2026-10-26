@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -75,8 +75,17 @@
       "iconSize": 96,
       "iconTextSize": 14,
       "contents": [
-        { "x": 255, "y": 185, "type": "file" },
-        { "x": 545, "y": 185, "type": "link", "path": "/Applications" },
+        {
+          "x": 255,
+          "y": 185,
+          "type": "file"
+        },
+        {
+          "x": 545,
+          "y": 185,
+          "type": "link",
+          "path": "/Applications"
+        },
         {
           "x": 400,
           "y": 490,
