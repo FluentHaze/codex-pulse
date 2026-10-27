@@ -63,7 +63,8 @@ jobs:
                 target_commitish: context.sha, name: `${tag} · Windows Setup 与应用内更新`,
                 body, draft: true, prerelease: false })).data;
             } else {
-              await github.rest.repos.updateRelease({ ...repository, release_id: release.id, target_commitish: context.sha, body });
+              await github.rest.repos.updateRelease({ ...repository, release_id: release.id,
+                tag_name: tag, target_commitish: context.sha, body });
             }
             // Draft assets are replaceable; a public release is never overwritten.
             for (const name of [...files.slice(0, 3), 'SHA256SUMS.txt', 'latest.yml']) {
@@ -77,6 +78,7 @@ jobs:
               if (uploaded.data.size !== data.length) throw new Error(`Upload size mismatch: ${remoteName}`);
               core.info(`Uploaded ${remoteName}`);
             }
-            await github.rest.repos.updateRelease({ ...repository, release_id: release.id,
-              draft: false, make_latest: 'true' });
-            core.notice(`Published ${release.html_url}`);
+            const published = await github.rest.repos.updateRelease({ ...repository, release_id: release.id,
+              tag_name: tag, target_commitish: context.sha, draft: false, make_latest: 'true' });
+            if (published.data.tag_name !== tag) throw new Error('Published tag does not match package version');
+            core.notice(`Published ${published.data.html_url}`);
