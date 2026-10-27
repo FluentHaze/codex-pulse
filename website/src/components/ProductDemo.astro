@@ -1,4 +1,5 @@
 ---
+// 官网产品演示使用展示数据，与真实账号及本机 Codex 连接无关。
 import { translator, type Locale } from '../i18n';
 
 import Mark from './Mark.astro';
@@ -7,26 +8,168 @@ import UsageChart from './UsageChart.astro';
 import QuotaPopover from './QuotaPopover.astro';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
-interface Props { locale?: Locale }
+interface Props {
+  locale?: Locale;
+}
 
 const locale = Astro.props.locale ?? 'zh-CN';
 const t = translator(locale);
 ---
+
 <div class="product-scene" data-platform="mac" id="product-demo">
   <div class="scene-glow"></div>
   <div class="laptop">
     <div class="laptop-display">
-      <div class="laptop-camera"><i></i></div>
-      <div class="desktop-wallpaper"><i></i><i></i><i></i></div>
-      <div class="demo-systembar"><span><Icon name="spark" size={12}/> <b>Codex Pulse</b><span class="systembar-word">{t("文件　编辑　视图")}</span></span><span><span class="systembar-pulse"><Mark size={18}/> 88%</span><span class="systembar-status">◒　▰</span><span>{t("周六 10:24")}</span></span></div>
-      <div class="demo-dashboard">
-        <aside class="demo-sidebar"><div class="demo-window-controls"><i></i><i></i><i></i></div><div class="demo-brand"><Mark size={22}/><b>Codex Pulse</b></div><span class="demo-nav active"><Icon name="chart" size={13}/>{t("额度概览")}</span><span class="demo-nav"><Icon name="clock" size={13}/>{t("重置雷达")}</span><span class="demo-nav"><Icon name="chart" size={13}/>{t("今日用量")}</span><span class="demo-nav"><Icon name="spark" size={13}/>{t("Token 明细")}</span><span class="demo-sidebar-bottom"><i></i>{t("本机额度监控")}</span></aside>
-        <div class="demo-main"><div class="demo-main-title"><h3>{t("额度概览")}</h3><span><i></i>{t("已连接")}</span></div><div class="demo-account"><span class="demo-account-mark"><Mark size={21}/></span><b>Codex <small>Plus</small></b><span>{t("刚刚更新 ↻")}</span></div><div class="demo-quota-grid">{[{ name: t("5 小时窗口"), percent: 88, color: '#50c983', text: t("2 小时 17 分钟后重置") }, { name: t("每周窗口"), percent: 65, color: '#1688ff', text: t("3 天后重置") }].map(quota => <div class="demo-quota-card"><h4>{quota.name}</h4><div class="demo-ring" style={`--percent:${quota.percent};--ring-color:${quota.color}`}><span><b>{quota.percent}<small>%</small></b><em>{t("剩余")}</em></span></div><small>{quota.text}</small></div>)}</div><div class="demo-chart-panel"><div><b>{t("今日 Token 用量")}</b><strong>12.8k</strong></div><div class="chart-legend"><span>{t("输入")}</span><span>{t("输出")}</span><span>{t("缓存")}</span></div><UsageChart locale={locale}/></div></div>
+      <div class="laptop-camera">
+        <i></i>
       </div>
-      <QuotaPopover locale={locale} class="hero-popover"/>
-      <div class="windows-rail"><Mark size={19}/>{[{percent:88,color:'#51c986'},{percent:65,color:'#1688ff'}].map(meter => <span class="rail-meter" style={`--rail-color:${meter.color}`}><svg class="rail-progress" viewBox="0 0 36 36" aria-hidden="true"><circle class="rail-track" cx="18" cy="18" r="15" pathLength="100"/><circle class="rail-fill" cx="18" cy="18" r="15" pathLength="100" stroke-dasharray={`${meter.percent} ${100 - meter.percent}`}/></svg><b class="rail-value">{meter.percent}<small>%</small></b></span>)}<b>12.8k</b></div>
+      <div class="desktop-wallpaper">
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+      <div class="demo-systembar">
+        <span>
+          <Icon name="spark" size={12} /> <b>Codex Pulse</b>
+          <span class="systembar-word">{t('文件　编辑　视图')}</span>
+        </span>
+        <span>
+          <span class="systembar-pulse">
+            <Mark size={18} /> 88%
+          </span>
+          <span class="systembar-status">◒　▰</span>
+          <span>{t('周六 10:24')}</span>
+        </span>
+      </div>
+      <div class="demo-dashboard">
+        <aside class="demo-sidebar">
+          <div class="demo-window-controls">
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+          <div class="demo-brand">
+            <Mark size={22} />
+            <b>Codex Pulse</b>
+          </div>
+          <span class="demo-nav active">
+            <Icon name="chart" size={13} />
+            {t('额度概览')}
+          </span>
+          <span class="demo-nav">
+            <Icon name="clock" size={13} />
+            {t('重置雷达')}
+          </span>
+          <span class="demo-nav">
+            <Icon name="chart" size={13} />
+            {t('今日用量')}
+          </span>
+          <span class="demo-nav">
+            <Icon name="spark" size={13} />
+            {t('Token 明细')}
+          </span>
+          <span class="demo-sidebar-bottom">
+            <i></i>
+            {t('本机额度监控')}
+          </span>
+        </aside>
+        <div class="demo-main">
+          <div class="demo-main-title">
+            <h3>{t('额度概览')}</h3>
+            <span>
+              <i></i>
+              {t('已连接')}
+            </span>
+          </div>
+          <div class="demo-account">
+            <span class="demo-account-mark">
+              <Mark size={21} />
+            </span>
+            <b>
+              Codex <small>Plus</small>
+            </b>
+            <span>{t('刚刚更新 ↻')}</span>
+          </div>
+          <div class="demo-quota-grid">
+            {[
+              {
+                name: t('5 小时窗口'),
+                percent: 88,
+                color: '#50c983',
+                text: t('2 小时 17 分钟后重置'),
+              },
+              { name: t('每周窗口'), percent: 65, color: '#1688ff', text: t('3 天后重置') },
+            ].map((quota) => (
+              <div class="demo-quota-card">
+                <h4>{quota.name}</h4>
+                <div
+                  class="demo-ring"
+                  style={`--percent:${quota.percent};--ring-color:${quota.color}`}
+                >
+                  <span>
+                    <b>
+                      {quota.percent}
+                      <small>%</small>
+                    </b>
+                    <em>{t('剩余')}</em>
+                  </span>
+                </div>
+                <small>{quota.text}</small>
+              </div>
+            ))}
+          </div>
+          <div class="demo-chart-panel">
+            <div>
+              <b>{t('今日 Token 用量')}</b>
+              <strong>12.8k</strong>
+            </div>
+            <div class="chart-legend">
+              <span>{t('输入')}</span>
+              <span>{t('输出')}</span>
+              <span>{t('缓存')}</span>
+            </div>
+            <UsageChart locale={locale} />
+          </div>
+        </div>
+      </div>
+      <QuotaPopover locale={locale} class="hero-popover" />
+      <div class="windows-rail">
+        <Mark size={19} />
+        {[
+          { percent: 88, color: '#51c986' },
+          { percent: 65, color: '#1688ff' },
+        ].map((meter) => (
+          <span class="rail-meter" style={`--rail-color:${meter.color}`}>
+            <svg class="rail-progress" viewBox="0 0 36 36" aria-hidden="true">
+              <circle class="rail-track" cx="18" cy="18" r="15" pathLength="100" />
+              <circle
+                class="rail-fill"
+                cx="18"
+                cy="18"
+                r="15"
+                pathLength="100"
+                stroke-dasharray={`${meter.percent} ${100 - meter.percent}`}
+              />
+            </svg>
+            <b class="rail-value">
+              {meter.percent}
+              <small>%</small>
+            </b>
+          </span>
+        ))}
+        <b>12.8k</b>
+      </div>
     </div>
-    <div class="laptop-base"><i></i></div><div class="laptop-bottom"></div>
+    <div class="laptop-base">
+      <i></i>
+    </div>
+    <div class="laptop-bottom"></div>
   </div>
-  <img src={`${base}assets/app.svg`} width="136" height="136" class="hero-app-icon" alt={t("Codex Pulse 应用图标")} />
+  <img
+    src={`${base}assets/app.svg`}
+    width="136"
+    height="136"
+    class="hero-app-icon"
+    alt={t('Codex Pulse 应用图标')}
+  />
 </div>

@@ -1,12 +1,206 @@
-.hourly-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 19px 20px 13px; margin: 18px 0; }
-.hourly-card>header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }.hourly-card h2 { font-size: 12px; font-weight: 600; margin: 0; }.hourly-card header p { font-size: 11px; margin: 5px 0 0; min-height: 18px; }.hourly-card header button { font-size: 11px; padding: 5px 9px; }
-.hourly-plot { display: flex; height: 150px; gap: 10px; margin-top: 22px; }.chart-scale { display: flex; flex-direction: column; justify-content: space-between; width: 30px; flex-shrink: 0; padding-bottom: 23px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
-.hourly-bars { flex: 1; display: grid; grid-template-columns: repeat(24,minmax(0,1fr)); gap: 5px; min-width: 0; position: relative; background: repeating-linear-gradient(to top, transparent 0,transparent calc(50% - 1px),var(--line) calc(50% - 1px),var(--line) 50%) 0 0 / 100% calc(100% - 23px) no-repeat; }
-.hour-bar { position: relative; display: flex; flex-direction: column; gap: 6px; height: 100%; min-width: 0; padding: 0; border: 0; border-radius: 3px 3px 0 0; background: transparent; }.hour-bar:hover { background: transparent; }.bar-column { display: flex; flex: 1; width: 100%; align-items: flex-end; border-bottom: 1px solid var(--line); }.bar-column i { display: block; width: 100%; max-width: 22px; margin: 0 auto; border-radius: 3px 3px 0 0; background: var(--chart); transition: background-color var(--feedback-duration); }.hour-bar.active .bar-column i,.hour-bar.current .bar-column i { background: var(--chart-active); }.bar-label { height: 17px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }.hour-bar.current .bar-label { color: var(--accent); }.hour-bar.future .bar-column { border-bottom-style: dashed; }.hour-bar:focus-visible { outline-offset: 1px; }
-.hourly-card>footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--muted); font-size: 11px; margin-top: 10px; }.hourly-card footer>span:first-child { display: flex; align-items: center; gap: 6px; }.hourly-card footer i { width: 6px; height: 6px; border-radius: 2px; background: var(--chart); }
-.hourly-total { display: flex; align-items: baseline; gap: 10px; margin: 14px 0 0; }.hourly-total strong { font-size: 27px; font-weight: 550; letter-spacing: -.8px; font-variant-numeric: tabular-nums; }.hourly-total>span { font-size: 11px; color: var(--muted); }.hourly-total small { margin-left: auto; font-size: 10px; color: var(--muted); }
-.hourly-plot { height: 125px; margin-top: 17px; }
-.hour-bar.active .bar-column { background: var(--accent-soft); border-radius: 4px 4px 0 0; }
-.chart-tooltip { position: absolute; z-index: 2; top: -6px; transform: translate(-50%,-100%); min-width: 152px; padding: 11px 14px; background: var(--floating-surface); border: 1px solid var(--floating-line); border-radius: 10px; box-shadow: 0 6px 24px #0002; pointer-events: none; white-space: nowrap; }
-.chart-tooltip span,.chart-tooltip small { display: block; font-size: 10px; color: var(--muted); }.chart-tooltip strong { display: block; font-size: 13px; color: var(--ink); margin: 4px 0; font-weight: 550; font-variant-numeric: tabular-nums; }
-@media(max-width:700px) { .hourly-card { padding: 16px 13px 12px; }.hourly-bars { gap: 3px; }.hourly-plot { gap: 6px; }.hourly-card header p { font-size: 11px; }.chart-scale { width: 25px; } }
+/* 每小时用量柱图、提示层和键盘选中状态样式。 */
+.hourly-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 19px 20px 13px;
+  margin: 18px 0;
+}
+.hourly-card > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.hourly-card h2 {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0;
+}
+.hourly-card header p {
+  font-size: 11px;
+  margin: 5px 0 0;
+  min-height: 18px;
+}
+.hourly-card header button {
+  font-size: 11px;
+  padding: 5px 9px;
+}
+.hourly-plot {
+  display: flex;
+  height: 150px;
+  gap: 10px;
+  margin-top: 22px;
+}
+.chart-scale {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  flex-shrink: 0;
+  padding-bottom: 23px;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.hourly-bars {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: 5px;
+  min-width: 0;
+  position: relative;
+  background: repeating-linear-gradient(
+      to top,
+      transparent 0,
+      transparent calc(50% - 1px),
+      var(--line) calc(50% - 1px),
+      var(--line) 50%
+    )
+    0 0 / 100% calc(100% - 23px) no-repeat;
+}
+.hour-bar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px 3px 0 0;
+  background: transparent;
+}
+.hour-bar:hover {
+  background: transparent;
+}
+.bar-column {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--line);
+}
+.bar-column i {
+  display: block;
+  width: 100%;
+  max-width: 22px;
+  margin: 0 auto;
+  border-radius: 3px 3px 0 0;
+  background: var(--chart);
+  transition: background-color var(--feedback-duration);
+}
+.hour-bar.active .bar-column i,
+.hour-bar.current .bar-column i {
+  background: var(--chart-active);
+}
+.bar-label {
+  height: 17px;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.hour-bar.current .bar-label {
+  color: var(--accent);
+}
+.hour-bar.future .bar-column {
+  border-bottom-style: dashed;
+}
+.hour-bar:focus-visible {
+  outline-offset: 1px;
+}
+.hourly-card > footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 10px;
+}
+.hourly-card footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hourly-card footer i {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--chart);
+}
+.hourly-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+.hourly-total strong {
+  font-size: 27px;
+  font-weight: 550;
+  letter-spacing: -0.8px;
+  font-variant-numeric: tabular-nums;
+}
+.hourly-total > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.hourly-total small {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--muted);
+}
+.hourly-plot {
+  height: 125px;
+  margin-top: 17px;
+}
+.hour-bar.active .bar-column {
+  background: var(--accent-soft);
+  border-radius: 4px 4px 0 0;
+}
+.chart-tooltip {
+  position: absolute;
+  z-index: 2;
+  top: -6px;
+  transform: translate(-50%, -100%);
+  min-width: 152px;
+  padding: 11px 14px;
+  background: var(--floating-surface);
+  border: 1px solid var(--floating-line);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px #0002;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.chart-tooltip span,
+.chart-tooltip small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+}
+.chart-tooltip strong {
+  display: block;
+  font-size: 13px;
+  color: var(--ink);
+  margin: 4px 0;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 700px) {
+  .hourly-card {
+    padding: 16px 13px 12px;
+  }
+  .hourly-bars {
+    gap: 3px;
+  }
+  .hourly-plot {
+    gap: 6px;
+  }
+  .hourly-card header p {
+    font-size: 11px;
+  }
+  .chart-scale {
+    width: 25px;
+  }
+}

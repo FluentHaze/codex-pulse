@@ -1,0 +1,15 @@
+# Dependencies, compiled artifacts and local release packages.
+**/node_modules/
+**/dist/
+dist-electron/
+release/
+website/.astro/
+.idea/
+
+# Binary/generated assets, lockfiles and documentation diagrams.
+assets/
+website/public/
+docs/diagrams/
+**/package-lock.json
+**/*.svg
+**/*.md

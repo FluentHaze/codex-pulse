@@ -24,10 +24,12 @@ function ico(images) {
   return Buffer.concat([header, ...images]);
 }
 
-app.whenReady().then(async () => {
-  const mark = await readFile(join(assets, 'mark.svg'), 'utf8');
-  const glyph = mark.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
-  const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 128 128" fill="none">
+app
+  .whenReady()
+  .then(async () => {
+    const mark = await readFile(join(assets, 'mark.svg'), 'utf8');
+    const glyph = mark.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+    const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 128 128" fill="none">
   <defs>
     <linearGradient id="tile" x1="64" y1="6" x2="64" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#e5e9ef"/></linearGradient>
     <linearGradient id="blue" x1="40" y1="30" x2="90" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#32a5ff"/><stop offset="1" stop-color="#0055d4"/></linearGradient>
@@ -37,11 +39,14 @@ app.whenReady().then(async () => {
   <rect x="6.75" y="6.75" width="114.5" height="114.5" rx="26.25" stroke="#fff" stroke-width="1.5"/>
   <g stroke="url(#blue)">${glyph.replaceAll('stroke="currentColor"', '')}</g>
 </svg>\n`;
-  const window = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
-  try {
-    await window.loadURL('data:text/html,<html><body></body></html>');
-    const render = async (svg, size) => {
-      const data = await window.webContents.executeJavaScript(`(async () => {
+    const window = new BrowserWindow({
+      show: false,
+      webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false },
+    });
+    try {
+      await window.loadURL('data:text/html,<html><body></body></html>');
+      const render = async (svg, size) => {
+        const data = await window.webContents.executeJavaScript(`(async () => {
         const image = new Image();
         image.src = ${JSON.stringify('data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64'))};
         await image.decode();
@@ -50,16 +55,21 @@ app.whenReady().then(async () => {
         canvas.getContext('2d').drawImage(image, 0, 0, ${size}, ${size});
         return canvas.toDataURL('image/png').split(',')[1];
       })()`);
-      return Buffer.from(data, 'base64');
-    };
-    await writeFile(join(assets, 'app.svg'), icon);
-    await writeFile(join(assets, 'app.png'), await render(icon, 1024));
-    const images = [];
-    for (const size of sizes) images.push(await render(icon, size));
-    await writeFile(join(assets, 'app.ico'), ico(images));
-    await writeFile(join(assets, 'trayTemplate.png'), await render(mark, 36));
-    console.log('Generated SVG, 1024px PNG, multi-resolution ICO and monochrome tray icon');
-  } finally {
-    window.destroy();
-  }
-}).then(() => app.quit()).catch(error => { console.error(error); app.exit(1); });
+        return Buffer.from(data, 'base64');
+      };
+      await writeFile(join(assets, 'app.svg'), icon);
+      await writeFile(join(assets, 'app.png'), await render(icon, 1024));
+      const images = [];
+      for (const size of sizes) images.push(await render(icon, size));
+      await writeFile(join(assets, 'app.ico'), ico(images));
+      await writeFile(join(assets, 'trayTemplate.png'), await render(mark, 36));
+      console.log('Generated SVG, 1024px PNG, multi-resolution ICO and monochrome tray icon');
+    } finally {
+      window.destroy();
+    }
+  })
+  .then(() => app.quit())
+  .catch((error) => {
+    console.error(error);
+    app.exit(1);
+  });

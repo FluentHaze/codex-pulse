@@ -1,19 +1,232 @@
-.floating-rail { height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 8px 5px; background: var(--floating-surface); color: var(--ink); border: 1px solid var(--floating-line); border-radius: 30px; user-select: none; touch-action: none; }
-.rail-grip { width: 36px; height: 17px; display: flex; align-items: center; justify-content: center; gap: 3px; cursor: grab; }
-.rail-grip:active { cursor: grabbing; }.rail-grip.locked { cursor: default; }.rail-grip i { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); }
-.rail-rings { width: 100%; display: flex; flex: 1; flex-direction: column; justify-content: center; gap: 8px; }
-.rail-item { width: 100%; flex-direction: column; gap: 0; padding: 0; background: transparent; border: 0; border-radius: 22px; }
-.rail-item:hover { background: var(--accent-soft); }.rail-item:focus-visible { outline-offset: 0; }
-.rail-item .quota-ring { width: 48px; height: 48px; }.rail-item .quota-ring circle { stroke-width: 7; }.rail-item .ring-number { font-size: 13px; letter-spacing: -.4px; }.rail-item .ring-number small { font-size: 8px; margin-left: 1px; color: var(--ink); }.rail-item .ring-number em { display: none; }
-.rail-item>span:last-child { font-size: 9px; color: var(--muted); line-height: 18px; }
-.rail-token { width: 46px; min-height: 24px; border: 0; border-top: 1px solid var(--line); border-radius: 0 0 18px 18px; padding: 5px 0 0; margin-top: 3px; background: transparent; color: var(--accent); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.rail-placeholder { display: grid; place-items: center; width: 46px; height: 46px; border: 3px solid var(--rail); border-radius: 50%; font-size: 18px; color: var(--muted); }
-.peek-window { height: 100vh; color: var(--ink); background: var(--floating-surface); border: 1px solid var(--floating-line); border-radius: 20px; padding: 19px 20px 13px; overflow-y: auto; }
-.peek-window header { display: flex; align-items: center; gap: 9px; margin-bottom: 15px; }.peek-window header b { font-size: 14px; font-weight: 600; }.peek-logo { display: grid; place-items: center; color: var(--accent); }.peek-window .plan-badge { margin-left: auto; }
-.peek-quota { margin: 12px 0; }.peek-quota>div:first-child { display: flex; justify-content: space-between; gap: 10px; align-items: center; }.peek-quota b { font-size: 11px; font-weight: 500; }.peek-quota strong { font-size: 11px; color: var(--quota); font-weight: 600; font-variant-numeric: tabular-nums; }.peek-quota>span { display: block; font-size: 10px; color: var(--muted); margin-top: 5px; }
-.peek-progress { height: 5px; background: var(--rail); border-radius: 9px; overflow: hidden; margin-top: 8px; }.peek-progress i { display: block; height: 100%; background: var(--quota); border-radius: inherit; }
-.peek-session { display: flex; width: 100%; text-align: left; justify-content: space-between; gap: 10px; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 12px 0 10px; margin-top: 14px; background: transparent; }.peek-session>span { min-width: 0; }.peek-session small { display: block; font-size: 10px; color: var(--muted); }.peek-session b { display: block; font-weight: 400; font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 3px; }.peek-session>strong { font-size: 21px; color: var(--accent); font-weight: 550; font-variant-numeric: tabular-nums; }
-.peek-window footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; }.peek-window footer button { border: 0; background: transparent; font-size: 10px; padding: 4px 0; }.peek-error { font-size: 10px; color: var(--warning); }.peek-empty { font-size: 11px; padding: 15px 0; }
+/* 桌面浮动栏及悬浮详情样式，尺寸需与主进程的窗口边界约定一致。 */
+.floating-rail {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 5px;
+  background: var(--floating-surface);
+  color: var(--ink);
+  border: 1px solid var(--floating-line);
+  border-radius: 30px;
+  user-select: none;
+  touch-action: none;
+}
+.rail-grip {
+  width: 36px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: grab;
+}
+.rail-grip:active {
+  cursor: grabbing;
+}
+.rail-grip.locked {
+  cursor: default;
+}
+.rail-grip i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.rail-rings {
+  width: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.rail-item {
+  width: 100%;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 22px;
+}
+.rail-item:hover {
+  background: var(--accent-soft);
+}
+.rail-item:focus-visible {
+  outline-offset: 0;
+}
+.rail-item .quota-ring {
+  width: 48px;
+  height: 48px;
+}
+.rail-item .quota-ring circle {
+  stroke-width: 7;
+}
+.rail-item .ring-number {
+  font-size: 13px;
+  letter-spacing: -0.4px;
+}
+.rail-item .ring-number small {
+  font-size: 8px;
+  margin-left: 1px;
+  color: var(--ink);
+}
+.rail-item .ring-number em {
+  display: none;
+}
+.rail-item > span:last-child {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 18px;
+}
+.rail-token {
+  width: 46px;
+  min-height: 24px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 18px 18px;
+  padding: 5px 0 0;
+  margin-top: 3px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.rail-placeholder {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 3px solid var(--rail);
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--muted);
+}
+.peek-window {
+  height: 100vh;
+  color: var(--ink);
+  background: var(--floating-surface);
+  border: 1px solid var(--floating-line);
+  border-radius: 20px;
+  padding: 19px 20px 13px;
+  overflow-y: auto;
+}
+.peek-window header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 15px;
+}
+.peek-window header b {
+  font-size: 14px;
+  font-weight: 600;
+}
+.peek-logo {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+.peek-window .plan-badge {
+  margin-left: auto;
+}
+.peek-quota {
+  margin: 12px 0;
+}
+.peek-quota > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.peek-quota b {
+  font-size: 11px;
+  font-weight: 500;
+}
+.peek-quota strong {
+  font-size: 11px;
+  color: var(--quota);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.peek-quota > span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.peek-progress {
+  height: 5px;
+  background: var(--rail);
+  border-radius: 9px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.peek-progress i {
+  display: block;
+  height: 100%;
+  background: var(--quota);
+  border-radius: inherit;
+}
+.peek-session {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 12px 0 10px;
+  margin-top: 14px;
+  background: transparent;
+}
+.peek-session > span {
+  min-width: 0;
+}
+.peek-session small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+}
+.peek-session b {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-top: 3px;
+}
+.peek-session > strong {
+  font-size: 21px;
+  color: var(--accent);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.peek-window footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.peek-window footer button {
+  border: 0;
+  background: transparent;
+  font-size: 10px;
+  padding: 4px 0;
+}
+.peek-error {
+  font-size: 10px;
+  color: var(--warning);
+}
+.peek-empty {
+  font-size: 11px;
+  padding: 15px 0;
+}
 
 .peek-overview {
   cursor: pointer;
@@ -21,16 +234,29 @@
   margin: -9px -10px 0;
   padding: 9px 10px 10px;
   border-radius: 13px;
-  transition: background-color 140ms ease, box-shadow 140ms ease;
+  transition:
+    background-color 140ms ease,
+    box-shadow 140ms ease;
 }
-.peek-overview .peek-quota:last-child { margin-bottom: 0; }
+.peek-overview .peek-quota:last-child {
+  margin-bottom: 0;
+}
 .peek-overview:hover {
   background: color-mix(in srgb, var(--ink) 4%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
 }
-.peek-overview:active { background: color-mix(in srgb, var(--ink) 7%, transparent); }
-.peek-overview:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { .peek-overview { transition: none; } }
+.peek-overview:active {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.peek-overview:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .peek-overview {
+    transition: none;
+  }
+}
 
 /* Keep the separator outside the Token row's rounded hover surface. */
 .peek-session {
@@ -53,15 +279,32 @@
   background: var(--line);
   pointer-events: none;
 }
-.peek-session:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
-.peek-session:active { background: color-mix(in srgb, var(--ink) 7%, transparent); }
-.peek-session:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.peek-session>strong { flex-shrink: 0; }
+.peek-session:hover {
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+.peek-session:active {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.peek-session:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.peek-session > strong {
+  flex-shrink: 0;
+}
 .peek-window footer button {
   margin-right: -8px;
   padding: 5px 8px;
   border-radius: 7px;
   transition: background-color 140ms ease;
 }
-.peek-window footer button:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); border-color: transparent; }
-@media (prefers-reduced-motion: reduce) { .peek-session, .peek-window footer button { transition: none; } }
+.peek-window footer button:hover {
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border-color: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  .peek-session,
+  .peek-window footer button {
+    transition: none;
+  }
+}

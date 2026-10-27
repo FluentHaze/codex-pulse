@@ -60,7 +60,7 @@ npm run pack:mac    # release/mac/
 
 打包自动递增一次补丁版本；普通构建不递增。应用使用 Electron + React + TypeScript，官网使用 Astro。
 
-[技术文档与平台验收](docs/technical.zh-CN.md) · [官网开发与部署](website/README.md)
+[技术文档与平台验收](docs/technical.zh-CN.md) · [代码格式与注释约定](docs/code-style.zh-CN.md) · [官网开发与部署](website/README.md)
 
 Codex Pulse 是独立项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。
 

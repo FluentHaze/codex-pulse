@@ -1,14 +1,46 @@
+/* 多语言长度差异的布局补偿，避免长文案撑破按钮和固定宽度窗口。 */
 /* Let translated labels grow without pushing controls outside their cards. */
-.app { overflow-wrap: break-word; }
-.app-toolbar { overflow-y: auto; scrollbar-width: thin; }
-.logo b { min-width: 0; white-space: normal; }
-.logo small { white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
-nav button { height: auto; line-height: 1.5; }
-.local-label { line-height: 1.5; }
-.page-heading > div, .workspace-bar > div, .setting-row > span { min-width: 0; }
-.page-heading .primary { height: auto; min-height: 36px; flex-shrink: 0; max-width: 42%; }
-.setting-row > span { flex: 1; }
-.setting-row > input, .setting-row > select { flex-shrink: 0; }
+.app {
+  overflow-wrap: break-word;
+}
+.app-toolbar {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.logo b {
+  min-width: 0;
+  white-space: normal;
+}
+.logo small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+nav button {
+  height: auto;
+  line-height: 1.5;
+}
+.local-label {
+  line-height: 1.5;
+}
+.page-heading > div,
+.workspace-bar > div,
+.setting-row > span {
+  min-width: 0;
+}
+.page-heading .primary {
+  height: auto;
+  min-height: 36px;
+  flex-shrink: 0;
+  max-width: 42%;
+}
+.setting-row > span {
+  flex: 1;
+}
+.setting-row > input,
+.setting-row > select {
+  flex-shrink: 0;
+}
 .app select {
   appearance: none;
   padding-right: 34px;
@@ -17,34 +49,113 @@ nav button { height: auto; line-height: 1.5; }
   background-position: right 12px center;
   text-overflow: ellipsis;
 }
-.setting-row select { max-width: 50%; min-width: 105px; }
-.setting-row small { line-height: 1.6; }
-.actions, .workspace-bar > div, .overview-controls, .calendar-toolbar, .token-tracking { flex-wrap: wrap; }
-.token-controls select { min-width: 0; max-width: 100%; }
-.daily-toolbar > button, .token-tracking > button { flex-shrink: 0; }
-.reset-attribution > span { min-width: 0; overflow-wrap: anywhere; }
-.reset-attribution > span:last-child { flex-shrink: 1; }
-.calendar-toolbar { gap: 12px; }
-.calendar-toolbar .segmented { flex-wrap: wrap; }
-.forecast-last strong { font-size: clamp(22px, 3vw, 38px); overflow-wrap: anywhere; }
-.command-results button > span:first-child { min-width: 0; }
-.command-results small { white-space: normal; overflow-wrap: anywhere; }
-.command-dialog { max-height: calc(100vh - 40px); }
-.command-dialog footer { flex-wrap: wrap; }
-.peek-overview header > b { min-width: 0; line-height: 1.4; }
-.peek-quota > div:first-child { flex-wrap: wrap; gap: 4px 10px; }
-.peek-quota strong { flex-shrink: 0; }
-.peek-window footer { flex-wrap: wrap; }
-.peek-window footer button { max-width: 100%; }
-.rail-item > span:last-child { max-width: 54px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-@media (max-width: 850px) {
-  .workspace-bar { height: auto; min-height: 59px; padding-block: 10px; flex-wrap: wrap; }
-  .setting-row { flex-wrap: wrap; }
-  .setting-row > span { flex-basis: 55%; }
-  .setting-row select { max-width: 100%; }
-  .overview-controls { align-items: flex-start; }
-  .reset-section-heading { flex-wrap: wrap; }
-  .calendar-layout { grid-template-columns: minmax(0, 1fr); }
-  .calendar-detail { border-left: 0; border-top: 1px solid var(--line); padding: 16px 0 0; }
+.setting-row select {
+  max-width: 50%;
+  min-width: 105px;
 }
-.account-strip > div > small { padding-left: 0; margin-left: 0; }
+.setting-row small {
+  line-height: 1.6;
+}
+.actions,
+.workspace-bar > div,
+.overview-controls,
+.calendar-toolbar,
+.token-tracking {
+  flex-wrap: wrap;
+}
+.token-controls select {
+  min-width: 0;
+  max-width: 100%;
+}
+.daily-toolbar > button,
+.token-tracking > button {
+  flex-shrink: 0;
+}
+.reset-attribution > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.reset-attribution > span:last-child {
+  flex-shrink: 1;
+}
+.calendar-toolbar {
+  gap: 12px;
+}
+.calendar-toolbar .segmented {
+  flex-wrap: wrap;
+}
+.forecast-last strong {
+  font-size: clamp(22px, 3vw, 38px);
+  overflow-wrap: anywhere;
+}
+.command-results button > span:first-child {
+  min-width: 0;
+}
+.command-results small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.command-dialog {
+  max-height: calc(100vh - 40px);
+}
+.command-dialog footer {
+  flex-wrap: wrap;
+}
+.peek-overview header > b {
+  min-width: 0;
+  line-height: 1.4;
+}
+.peek-quota > div:first-child {
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.peek-quota strong {
+  flex-shrink: 0;
+}
+.peek-window footer {
+  flex-wrap: wrap;
+}
+.peek-window footer button {
+  max-width: 100%;
+}
+.rail-item > span:last-child {
+  max-width: 54px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+@media (max-width: 850px) {
+  .workspace-bar {
+    height: auto;
+    min-height: 59px;
+    padding-block: 10px;
+    flex-wrap: wrap;
+  }
+  .setting-row {
+    flex-wrap: wrap;
+  }
+  .setting-row > span {
+    flex-basis: 55%;
+  }
+  .setting-row select {
+    max-width: 100%;
+  }
+  .overview-controls {
+    align-items: flex-start;
+  }
+  .reset-section-heading {
+    flex-wrap: wrap;
+  }
+  .calendar-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .calendar-detail {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 16px 0 0;
+  }
+}
+.account-strip > div > small {
+  padding-left: 0;
+  margin-left: 0;
+}

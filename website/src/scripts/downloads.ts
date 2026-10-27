@@ -1,3 +1,6 @@
+/**
+ * 官网的桌面平台识别与安装包匹配规则；只接受本项目 GitHub Release 的下载地址。
+ */
 export type DownloadPlatform = 'windows' | 'mac' | 'unknown';
 
 export function detectDownloadPlatform(platform: string, userAgent: string): DownloadPlatform {
@@ -22,6 +25,13 @@ export function releaseDownloadUrl(value: unknown): string | null {
   try {
     if (typeof value !== 'string') return null;
     const url = new URL(value);
-    return url.origin === 'https://github.com' && !url.username && !url.password && url.pathname.startsWith('/FluentHaze/codex-pulse/releases/download/') ? url.href : null;
-  } catch { return null; }
+    return url.origin === 'https://github.com' &&
+      !url.username &&
+      !url.password &&
+      url.pathname.startsWith('/FluentHaze/codex-pulse/releases/download/')
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
 }
