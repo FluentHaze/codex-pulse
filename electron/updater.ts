@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain, shell, net } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
 import { MacUpdateDownload, newerMacVersion } from './mac-update.js';
 import updater from 'electron-updater';
+import { fetchUpdate } from './update-fetch.js';
 import type { UpdateState } from './types.js';
 
 export function initializeUpdater() {
@@ -13,7 +14,7 @@ export function initializeUpdater() {
     state = { ...state, ...patch };
     for (const win of BrowserWindow.getAllWindows()) win.webContents.send('update-state', state);
   };
-  const macDownload = isMac ? new MacUpdateDownload(join(app.getPath('userData'), 'mac-update'), process.arch, app.getVersion(), (input, init) => net.fetch(input instanceof URL ? input.href : input, init), percent => publish({ status: 'downloading', percent })) : undefined;
+  const macDownload = isMac ? new MacUpdateDownload(join(app.getPath('userData'), 'mac-update'), process.arch, app.getVersion(), fetchUpdate, percent => publish({ status: 'downloading', percent })) : undefined;
   // Mac uses the manifest checker only; Squirrel would require a signing identity.
   autoUpdater.autoDownload = !isMac;
   autoUpdater.autoInstallOnAppQuit = false;

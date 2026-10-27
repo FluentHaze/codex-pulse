@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -14,7 +14,8 @@
     "probe": "tsx scripts/probe.ts",
     "pack:mac": "node scripts/pack.mjs mac",
     "pack:all": "node scripts/pack.mjs all",
-    "pack:win": "node scripts/pack.mjs win"
+    "pack:win": "node scripts/pack.mjs win",
+    "test:update-transport": "npm run build && electron scripts/test-update-fetch.cjs"
   },
   "dependencies": {
     "electron-updater": "^6.8.11",

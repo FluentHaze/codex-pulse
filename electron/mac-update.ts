@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { lstat, mkdir, open, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const releaseBase = 'https://github.com/FluentHaze/codex-pulse/releases/download/';
 const maxSize = 2 * 1024 ** 3;
@@ -65,8 +66,19 @@ export class MacUpdateDownload {
   }
   download(info: unknown): Promise<string> {
     if (this.active) return this.active;
-    this.active = this.performDownload(info).finally(() => { this.active = undefined; });
+    this.active = this.downloadWithRetry(info).finally(() => { this.active = undefined; });
     return this.active;
+  }
+  private async downloadWithRetry(info: unknown): Promise<string> {
+    for (let attempt = 0; ; attempt++) {
+      try { return await this.performDownload(info); }
+      catch (error) {
+        // Restart only transient transport failures; never retry invalid manifests or hashes.
+        const transient = error instanceof Error && /net::ERR_(CONNECTION_CLOSED|CONNECTION_RESET|CONNECTION_ABORTED|TIMED_OUT|NETWORK_CHANGED)|fetch failed/.test(error.message);
+        if (!transient || attempt >= 2 || this.controller.signal.aborted) throw error;
+        await delay(500 * (attempt + 1), undefined, { signal: this.controller.signal });
+      }
+    }
   }
   private async performDownload(info: unknown): Promise<string> {
     const asset = selectMacAsset(info, this.arch, this.current);

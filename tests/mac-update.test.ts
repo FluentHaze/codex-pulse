@@ -93,3 +93,20 @@ test('quit cancellation interrupts an in-flight Mac download', async () => temp(
   await assert.rejects(pending);
   await assert.rejects(() => service.installerPath());
 }));
+
+
+test('transient transport failures retry, while integrity failures are not retried', async () => temp(async root => {
+  let calls = 0;
+  const service = new MacUpdateDownload(root, 'arm64', '0.1.27', async () => {
+    if (++calls < 3) throw new Error('net::ERR_CONNECTION_CLOSED');
+    return new Response(bytes);
+  }, () => {});
+  assert.equal(await service.download(manifest()), '0.1.28');
+  assert.equal(calls, 3);
+  let invalidCalls = 0;
+  const invalid = new MacUpdateDownload(join(root, 'invalid'), 'arm64', '0.1.27', async () => {
+    invalidCalls++; return new Response(Buffer.alloc(bytes.length));
+  }, () => {});
+  await assert.rejects(invalid.download(manifest()), /integrity/);
+  assert.equal(invalidCalls, 1);
+}));
