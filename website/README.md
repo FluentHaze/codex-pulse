@@ -70,3 +70,9 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 - 首页首次访问不按浏览器语言强制重定向，语言版本通过真实链接互相连接；用户明确保存的语言偏好仍会保留。
 
 各平台可独立发布：最新 Release 缺少某个平台附件时，会从最近 10 个公开正式 Release 查找该目标最新可用的附件，并在卡片显示其版本；不会将旧版 Mac 包冒充为新版。
+
+## 项目流程图
+
+官网导航和页脚提供「项目流程图」入口，访问路径为 `${BASE_PATH}/flow/`（项目站点为 `/codex-pulse/flow/`）。`public/flow/index.html` 是用户确认过的 Archify 独立页面，支持主题切换、缩放及点击节点查看固定提交的源码依据。
+
+源规范保存在 `docs/diagrams/codex-pulse-project.workflow.json`；当前源码快照为 `d4c3b161caec3d7daef2cdaedbc90cfea3dddbf1`。流程图不是实时生成的，新功能或发布状态变化后应重新审阅并生成页面。

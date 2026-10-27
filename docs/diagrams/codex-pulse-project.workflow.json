@@ -1,0 +1,621 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Codex Pulse · 项目运行流程",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": ".archify/workflow-codex-pulse-project-20261027-110000/codex-pulse-project.html",
+    "repository": {
+      "url": "https://github.com/FluentHaze/codex-pulse.git",
+      "revision": "d4c3b161caec3d7daef2cdaedbc90cfea3dddbf1"
+    }
+  },
+  "lanes": [
+    {
+      "id": "quota",
+      "label": "额度监控 · 持续刷新"
+    },
+    {
+      "id": "tokens",
+      "label": "Token 统计 · 本机记录"
+    },
+    {
+      "id": "radar",
+      "label": "重置雷达 · 按需读取"
+    },
+    {
+      "id": "updates",
+      "label": "版本更新 · 后台下载"
+    },
+    {
+      "id": "user",
+      "label": "用户操作 · 条件分支",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "launch",
+    "connect",
+    "quota",
+    "display",
+    "poll"
+  ],
+  "nodes": [
+    {
+      "id": "launch",
+      "lane": "quota",
+      "col": 0,
+      "type": "backend",
+      "label": "启动 Pulse",
+      "sublabel": "恢复设置，创建托盘与窗口",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 238,
+          "end_line": 276
+        }
+      ]
+    },
+    {
+      "id": "connect",
+      "lane": "quota",
+      "col": 1,
+      "type": "backend",
+      "label": "连接本机 Codex",
+      "sublabel": "启动 app-server，使用 RPC",
+      "sources": [
+        {
+          "path": "electron/codex.ts",
+          "line": 37,
+          "end_line": 58
+        },
+        {
+          "path": "electron/main.ts",
+          "line": 94,
+          "end_line": 101
+        }
+      ]
+    },
+    {
+      "id": "quota",
+      "lane": "quota",
+      "col": 2,
+      "type": "backend",
+      "label": "读取账号与额度",
+      "sublabel": "需 ChatGPT 登录，复核账号",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 99,
+          "end_line": 110
+        }
+      ]
+    },
+    {
+      "id": "display",
+      "lane": "quota",
+      "col": 3,
+      "type": "frontend",
+      "label": "更新监控界面",
+      "sublabel": "菜单栏、悬浮窗、详情与通知",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 64,
+          "end_line": 69
+        },
+        {
+          "path": "electron/main.ts",
+          "line": 110,
+          "end_line": 124
+        }
+      ]
+    },
+    {
+      "id": "poll",
+      "lane": "quota",
+      "col": 4,
+      "type": "backend",
+      "label": "等待下一次刷新",
+      "sublabel": "按设置周期或退避等待",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 88,
+          "end_line": 92
+        },
+        {
+          "path": "electron/main.ts",
+          "line": 110,
+          "end_line": 122
+        },
+        {
+          "path": "electron/main.ts",
+          "line": 309,
+          "end_line": 310
+        }
+      ]
+    },
+    {
+      "id": "errors",
+      "lane": "quota",
+      "col": 2,
+      "type": "security",
+      "label": "分类处理连接错误",
+      "sublabel": "鉴权或协议错误暂停，其他退避",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 112,
+          "end_line": 124
+        }
+      ],
+      "yOffset": 116
+    },
+    {
+      "id": "sessions",
+      "lane": "tokens",
+      "col": 0,
+      "type": "database",
+      "label": "读取本机会话",
+      "sublabel": "扫描 sessions，过滤内部会话",
+      "sources": [
+        {
+          "path": "electron/token-store.ts",
+          "line": 34,
+          "end_line": 56
+        },
+        {
+          "path": "electron/token-store.ts",
+          "line": 87,
+          "end_line": 94
+        }
+      ]
+    },
+    {
+      "id": "parse",
+      "lane": "tokens",
+      "col": 1,
+      "type": "backend",
+      "label": "解析 Token 事件",
+      "sublabel": "按轮解析，并保留不完整提示",
+      "sources": [
+        {
+          "path": "electron/token-parser.ts",
+          "line": 5,
+          "end_line": 28
+        },
+        {
+          "path": "electron/token-store.ts",
+          "line": 175,
+          "end_line": 184
+        }
+      ]
+    },
+    {
+      "id": "summary",
+      "lane": "tokens",
+      "col": 2,
+      "type": "backend",
+      "label": "汇总本机用量",
+      "sublabel": "今日、小时与选定聊天统计",
+      "sources": [
+        {
+          "path": "electron/token-store.ts",
+          "line": 104,
+          "end_line": 121
+        },
+        {
+          "path": "electron/token-store.ts",
+          "line": 135,
+          "end_line": 167
+        }
+      ]
+    },
+    {
+      "id": "usage",
+      "lane": "tokens",
+      "col": 3,
+      "type": "frontend",
+      "label": "展示用量明细",
+      "sublabel": "实时轮次、今日趋势与聊天详情",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 40,
+          "end_line": 55
+        },
+        {
+          "path": "src/TokenDetails.tsx",
+          "line": 42,
+          "end_line": 74
+        },
+        {
+          "path": "src/use-today-usage.ts",
+          "line": 1,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "radarRequest",
+      "lane": "radar",
+      "col": 0,
+      "type": "frontend",
+      "label": "打开重置雷达",
+      "sublabel": "界面通过 IPC 请求数据",
+      "sources": [
+        {
+          "path": "src/ResetTracker.tsx",
+          "line": 19,
+          "end_line": 39
+        },
+        {
+          "path": "electron/main.ts",
+          "line": 297,
+          "end_line": 298
+        }
+      ]
+    },
+    {
+      "id": "publicData",
+      "lane": "radar",
+      "col": 1,
+      "type": "cloud",
+      "label": "读取公开重置数据",
+      "sublabel": "第三方 forecast 与 timeline",
+      "sources": [
+        {
+          "path": "electron/reset-data.ts",
+          "line": 43,
+          "end_line": 69
+        }
+      ]
+    },
+    {
+      "id": "radarView",
+      "lane": "radar",
+      "col": 2,
+      "type": "frontend",
+      "label": "展示预测与日历",
+      "sublabel": "失败保留缓存，预测仅供参考",
+      "sources": [
+        {
+          "path": "electron/reset-data.ts",
+          "line": 68,
+          "end_line": 75
+        },
+        {
+          "path": "src/ResetTracker.tsx",
+          "line": 54,
+          "end_line": 90
+        }
+      ]
+    },
+    {
+      "id": "updateCheck",
+      "lane": "updates",
+      "col": 0,
+      "type": "backend",
+      "label": "判断更新方式",
+      "sublabel": "已打包的 Mac 与 Win 安装版",
+      "sources": [
+        {
+          "path": "electron/updater.ts",
+          "line": 7,
+          "end_line": 20
+        },
+        {
+          "path": "electron/updater.ts",
+          "line": 68,
+          "end_line": 72
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "lane": "updates",
+      "col": 1,
+      "type": "cloud",
+      "label": "检查正式新版本",
+      "sublabel": "启动 15 秒后，再每 6 小时",
+      "sources": [
+        {
+          "path": "electron/updater.ts",
+          "line": 32,
+          "end_line": 42
+        },
+        {
+          "path": "electron/updater.ts",
+          "line": 68,
+          "end_line": 70
+        },
+        {
+          "path": "package.json",
+          "line": 108,
+          "end_line": 112
+        }
+      ]
+    },
+    {
+      "id": "download",
+      "lane": "updates",
+      "col": 2,
+      "type": "backend",
+      "label": "后台下载与校验",
+      "sublabel": "Mac 缓存 DMG，Win 使用 updater",
+      "sources": [
+        {
+          "path": "electron/updater.ts",
+          "line": 18,
+          "end_line": 25
+        },
+        {
+          "path": "electron/updater.ts",
+          "line": 37,
+          "end_line": 42
+        },
+        {
+          "path": "electron/mac-update.ts",
+          "line": 69,
+          "end_line": 126
+        }
+      ]
+    },
+    {
+      "id": "ready",
+      "lane": "updates",
+      "col": 3,
+      "type": "frontend",
+      "label": "侧栏显示更新提示",
+      "sublabel": "下载完成后，由用户点击",
+      "sources": [
+        {
+          "path": "src/AppUpdate.tsx",
+          "line": 24,
+          "end_line": 37
+        },
+        {
+          "path": "electron/updater.ts",
+          "line": 56,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "manual",
+      "lane": "user",
+      "col": 0,
+      "type": "external",
+      "label": "前往下载页面",
+      "sublabel": "便携版或开发模式手动下载",
+      "sources": [
+        {
+          "path": "electron/updater.ts",
+          "line": 10,
+          "end_line": 11
+        },
+        {
+          "path": "electron/updater.ts",
+          "line": 45,
+          "end_line": 48
+        }
+      ]
+    },
+    {
+      "id": "login",
+      "lane": "quota",
+      "col": 1,
+      "type": "external",
+      "label": "重新登录或调整路径",
+      "sublabel": "鉴权失败需登录；协议错误需升级",
+      "sources": [
+        {
+          "path": "electron/main.ts",
+          "line": 116,
+          "end_line": 122
+        },
+        {
+          "path": "electron/main.ts",
+          "line": 318,
+          "end_line": 325
+        }
+      ],
+      "yOffset": 116
+    },
+    {
+      "id": "windows",
+      "lane": "user",
+      "col": 3,
+      "type": "external",
+      "label": "Windows 重启更新",
+      "sublabel": "安装版静默安装并重新启动",
+      "sources": [
+        {
+          "path": "electron/updater.ts",
+          "line": 56,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "mac",
+      "lane": "user",
+      "col": 5,
+      "type": "external",
+      "label": "Mac 打开 DMG",
+      "sublabel": "退出旧版、拖入替换并授权",
+      "sources": [
+        {
+          "path": "electron/updater.ts",
+          "line": 59,
+          "end_line": 63
+        },
+        {
+          "path": "src/AppUpdate.tsx",
+          "line": 40,
+          "end_line": 44
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "launch",
+      "to": "connect",
+      "role": "main"
+    },
+    {
+      "from": "connect",
+      "to": "quota",
+      "role": "main"
+    },
+    {
+      "from": "quota",
+      "to": "display",
+      "label": "读取成功",
+      "role": "main"
+    },
+    {
+      "from": "display",
+      "to": "poll",
+      "role": "main"
+    },
+    {
+      "from": "poll",
+      "to": "connect",
+      "label": "下次刷新",
+      "role": "return",
+      "fromSide": "top",
+      "toSide": "top",
+      "route": "up-channel"
+    },
+    {
+      "from": "connect",
+      "to": "errors",
+      "label": "连接失败",
+      "role": "error"
+    },
+    {
+      "from": "quota",
+      "to": "errors",
+      "label": "读取异常",
+      "role": "error",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "from": "errors",
+      "to": "poll",
+      "label": "仅可重试错误",
+      "role": "branch"
+    },
+    {
+      "from": "errors",
+      "to": "login",
+      "label": "需用户处理",
+      "role": "branch",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "from": "login",
+      "to": "connect",
+      "label": "处理后刷新",
+      "role": "return",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "straight"
+    },
+    {
+      "from": "sessions",
+      "to": "parse",
+      "role": "main"
+    },
+    {
+      "from": "parse",
+      "to": "summary",
+      "role": "main"
+    },
+    {
+      "from": "summary",
+      "to": "usage",
+      "role": "main"
+    },
+    {
+      "from": "radarRequest",
+      "to": "publicData",
+      "role": "main"
+    },
+    {
+      "from": "publicData",
+      "to": "radarView",
+      "role": "main"
+    },
+    {
+      "from": "updateCheck",
+      "to": "release",
+      "label": "支持应用内更新",
+      "role": "main"
+    },
+    {
+      "from": "updateCheck",
+      "to": "manual",
+      "label": "其余模式",
+      "role": "branch",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "from": "release",
+      "to": "download",
+      "label": "发现较新正式版",
+      "role": "main"
+    },
+    {
+      "from": "download",
+      "to": "ready",
+      "label": "完整下载后",
+      "role": "main"
+    },
+    {
+      "from": "ready",
+      "to": "windows",
+      "label": "Win 安装版：点击",
+      "role": "branch",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "from": "ready",
+      "to": "mac",
+      "label": "Mac：点击",
+      "role": "branch",
+      "fromSide": "right",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "如何阅读",
+      "items": [
+        "四条主线按各自触发条件运行，并非顺序执行。额度监控与实时 Token 跟踪随应用启动；明细统计和重置雷达按界面请求读取。",
+        "Token 来自本机记录，可能不完整，不等同于账单或所有设备用量。额度以 Codex 服务端返回值为准。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "范围与版本",
+      "items": [
+        "依据当前已提交源码绘制，点击节点可查看对应源文件。省略渲染组件、窗口定位和打包部署细节。",
+        "Mac 更新流程已在源码实现，但新 Mac 二进制包尚未发布且需真机验收；现有公开 Mac 包不能据此认定已支持该流程。",
+        "重置预测来自第三方公开数据，不构成服务端重置保证；读取失败时保留旧缓存并提示错误。"
+      ]
+    }
+  ]
+}
