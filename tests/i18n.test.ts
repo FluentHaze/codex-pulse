@@ -18,7 +18,7 @@ test('all translated messages preserve placeholders, and UI keys have four compl
     const slots = (value: string) => [...value.matchAll(/\{\d+\}/g)].map(match=>match[0]).sort();
     for (const translation of translations) { assert.ok(translation.trim(),source); assert.deepEqual(slots(translation),slots(source),source); }
   }
-  const sources=['main','Floating','Quota','TokenDetails','TodayUsage','HourlyUsage','ResetTracker','CommandPalette','DesktopChrome'];
+  const sources=['main','Floating','Quota','TokenDetails','TodayUsage','HourlyUsage','ResetTracker','CommandPalette','DesktopChrome','AppUpdate'];
   for(const name of sources) for(const match of readFileSync(new URL(`../src/${name}.tsx`,import.meta.url),'utf8').matchAll(/\bt\(("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g)) {
     const key=match[1][0]==='"'?JSON.parse(match[1]):match[1].slice(1,-1);
     assert.ok(key in messages,`${name}: missing ${key}`);

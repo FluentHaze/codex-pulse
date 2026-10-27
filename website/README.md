@@ -23,7 +23,9 @@ npm run preview
 
 ## 下载链接
 
-所有下载按钮默认指向项目的公开 GitHub Releases 列表。页面加载后尝试读取 GitHub 最新的公开正式 Release，并根据架构匹配 DMG、ZIP、EXE；只有属于本仓库的 GitHub 下载 URL 会被采用。草稿、预发布、接口失败、限流或缺少对应附件时，保留有效的 Releases 页面入口。不会引用草稿附件，也不会把本机文件路径写进网站。
+所有下载按钮默认指向项目的公开 GitHub Releases 列表。页面加载后尝试读取 GitHub 最新的公开正式 Release，并根据架构分别匹配 DMG、ZIP、Windows Setup 安装版和便携版 EXE；只有属于本仓库的 GitHub 下载 URL 会被采用。草稿、预发布、接口失败、限流或缺少对应附件时，保留有效的 Releases 页面入口。不会引用草稿附件，也不会把本机文件路径写进网站。Windows 主入口仅匹配 `Codex Pulse-Setup-版本-x64.exe`（空格或连字符均支持），支持应用内更新；便携版作为次要入口，需手动更新。正式 Release 尚未上传 Setup 时，主入口继续指向 Releases，不会误用便携版。
+
+Windows 访问者高亮 Windows 主下载按钮；Mac 浏览器无法可靠判断芯片架构，因此两个 Mac 按钮保持同等优先级，由用户选择。未知系统和禁用 JavaScript 时不默认推荐某个安装包。
 
 ## GitHub Pages
 
@@ -66,3 +68,5 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 - 验证后在「站点地图」提交 `sitemap.xml`，再用「网址检查」检查首页与各语言页面，并按需请求编入索引。抓取、收录和排名由 Google 决定，添加 SEO 标签或提交站点地图不能保证收录时间与排名。
 - GitHub Pages 项目站点的 `robots.txt` 必须位于域名根目录 `https://fluenthaze.github.io/robots.txt` 才生效；项目下的 `/codex-pulse/robots.txt` 无法替代。当前无需设置抓取限制，因此不生成无效的子目录 robots.txt。若将来添加根目录 robots，必须允许官网路径。
 - 首页首次访问不按浏览器语言强制重定向，语言版本通过真实链接互相连接；用户明确保存的语言偏好仍会保留。
+
+各平台可独立发布：最新 Release 缺少某个平台附件时，会从最近 10 个公开正式 Release 查找该目标最新可用的附件，并在卡片显示其版本；不会将旧版 Mac 包冒充为新版。

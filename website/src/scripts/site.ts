@@ -1,4 +1,5 @@
 import { translator, locales, type Locale } from '../i18n';
+import { detectDownloadPlatform, downloadRules, releaseDownloadUrl } from './downloads';
 const locale = (document.documentElement.lang || 'en') as Locale;
 const t = translator(locale);
 const preferenceMenus = document.querySelectorAll<HTMLElement>('.preference-menu');
@@ -120,7 +121,14 @@ platformButtons.forEach((button) =>
     );
   }),
 );
-if (/Windows/i.test(navigator.userAgent)) {
+const clientPlatform = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform || '';
+const detectedPlatform = detectDownloadPlatform(clientPlatform, navigator.userAgent);
+document.querySelectorAll<HTMLElement>('[data-download-card]').forEach(card => {
+  // Browsers do not reliably expose Mac CPU architecture; do not guess Apple Silicon.
+  const recommended = detectedPlatform === 'windows' && card.dataset.downloadCard === 'win-x64';
+  card.querySelector('.button')?.classList.toggle('button-secondary', !recommended);
+});
+if (detectedPlatform === 'windows') {
   const primary = document.querySelector("[data-primary-download]");
   const secondary = document.querySelector("[data-secondary-download]");
   if (primary) primary.textContent = t("下载 Windows 版");
@@ -156,39 +164,39 @@ async function loadDownloads() {
     const release: PublicRelease = await response.json();
     if (release.draft || release.prerelease || !Array.isArray(release.assets))
       return;
-    let matched = 0;
-    const rules: Record<string, RegExp> = {
-      "mac-arm64-dmg": /mac-arm64\.dmg$/i,
-      "mac-arm64-zip": /mac-arm64\.zip$/i,
-      "mac-x64-dmg": /mac-x64\.dmg$/i,
-      "mac-x64-zip": /mac-x64\.zip$/i,
-      "win-x64-exe": /win-x64\.exe$/i,
-    };
-    document
-      .querySelectorAll<HTMLAnchorElement>("a[data-download]")
-      .forEach((link) => {
-        const rule = rules[link.dataset.download ?? ""];
-        const asset = release.assets.find(
-          (asset) => typeof asset.name === "string" && rule?.test(asset.name),
-        );
-        if (!asset || typeof asset.browser_download_url !== "string") return;
-        const url = new URL(asset.browser_download_url);
-        if (
-          url.origin !== "https://github.com" ||
-          !url.pathname.startsWith("/FluentHaze/codex-pulse/releases/download/")
-        )
-          return;
-        link.href = url.href;
-        if (link.classList.contains("button")) {
+    const matched = new Set<string>();
+    function applyRelease(item: PublicRelease) {
+      if (!item || item.draft || item.prerelease || !Array.isArray(item.assets)) return;
+      document.querySelectorAll<HTMLAnchorElement>('a[data-download]').forEach(link => {
+        const key = link.dataset.download ?? '';
+        if (matched.has(key)) return;
+        const rule = downloadRules[key];
+        const asset = item.assets.find(asset => asset && typeof asset.name === 'string' && rule?.test(asset.name) && releaseDownloadUrl(asset.browser_download_url));
+        const url = asset && releaseDownloadUrl(asset.browser_download_url);
+        if (!url) return;
+        link.href = url;
+        if (link.classList.contains('button')) {
           const text = link.firstChild;
-          if (text?.nodeType === Node.TEXT_NODE)
-            text.textContent = t("下载安装包") + " ";
+          if (text?.nodeType === Node.TEXT_NODE) text.textContent = t('下载安装包') + ' ';
+          const version = link.closest('[data-download-card]')?.querySelector('[data-download-version]');
+          if (version) version.textContent = item.tag_name;
         }
-        matched++;
+        matched.add(key);
       });
-    const status = document.querySelector("#release-status");
-    if (matched && status)
-      status.textContent = t("最新公开版本 {version} · 完整更新记录见 GitHub Releases").replace("{version}", release.tag_name);
+    }
+    applyRelease(release);
+    // Platforms can ship independently; label each package's actual release version.
+    if (matched.size < Object.keys(downloadRules).length) {
+      const history = await fetch('https://api.github.com/repos/FluentHaze/codex-pulse/releases?per_page=10', {
+        signal: controller.signal, headers: { Accept: 'application/vnd.github+json' },
+      }).catch(() => null);
+      if (history?.ok) {
+        const items: unknown = await history.json();
+        if (Array.isArray(items)) items.forEach(applyRelease);
+      }
+    }
+    const status = document.querySelector('#release-status');
+    if (matched.size && status) status.textContent = t('最新公开版本 {version} · 完整更新记录见 GitHub Releases').replace('{version}', release.tag_name);
   } catch {
     /* Downloads still link to the repository's public release list. */
   } finally {

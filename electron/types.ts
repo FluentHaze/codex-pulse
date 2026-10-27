@@ -23,3 +23,4 @@ export function remaining(window?: QuotaWindow | null) { return typeof window?.u
 export function bucketsFrom(value: Limits): Bucket[] { const buckets = Object.values(value.rateLimitsByLimitId ?? {}); return buckets.length ? buckets : value.rateLimits ? [value.rateLimits] : []; }
 export function severity(value: number) { return value <= 0 ? 0 : value <= 10 ? 10 : value <= 20 ? 20 : null; }
 
+export interface UpdateState { currentVersion: string; status: 'idle' | 'checking' | 'available' | 'latest' | 'downloading' | 'downloaded' | 'error' | 'manual'; version?: string; percent?: number; error?: string; installMode?: 'dmg' | 'restart' }

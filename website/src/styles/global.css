@@ -3067,3 +3067,5 @@ html[data-theme=dark] .rail-track { stroke: #435168; }
   .demo-dashboard { height: 331px; }
   .demo-chart-panel .usage-chart { min-height: 76px; }
 }
+
+.download-card h3 [data-download-version] { font-size: 11px; font-weight: 400; color: var(--muted, #86868b); white-space: nowrap; }

@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -17,6 +17,7 @@
     "pack:win": "node scripts/pack.mjs win"
   },
   "dependencies": {
+    "electron-updater": "^6.8.11",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -44,7 +45,10 @@
       "assets/**/*"
     ],
     "win": {
-      "target": "portable",
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "assets/app.ico"
     },
     "mac": {
@@ -96,7 +100,17 @@
     },
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "beforePack": "scripts/prepare-mac-dmg.mjs",
-    "afterSign": "scripts/verify-mac-signature.mjs"
+    "afterSign": "scripts/verify-mac-signature.mjs",
+    "nsis": {
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "FluentHaze",
+      "repo": "codex-pulse"
+    }
   },
   "engines": {
     "node": ">=22.16.0"

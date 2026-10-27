@@ -52,7 +52,7 @@ try {
   for (const platform of platforms) {
     const output = join(release, platform);
     console.log(`\n正在打包 ${platform} → ${output}`);
-    const args = platform === 'win' ? ['--win', 'portable', '--x64'] : ['--mac'];
+    const args = platform === 'win' ? ['--win', 'nsis', 'portable', '--x64'] : ['--mac'];
     try {
       await run(require.resolve('electron-builder/cli.js'), [...args, '--publish', 'never', `--config.directories.output=${output}`]);
       console.log(`${platform} 打包完成：${output}`);

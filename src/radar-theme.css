@@ -79,3 +79,18 @@ button:not(:disabled):active { filter: brightness(.96); }
 @media(max-width:700px) { .app { grid-template-columns: 62px minmax(0,1fr); }.app-toolbar { padding: 22px 8px; }.logo { justify-content: center; padding: 0; }.logo b,.nav-caption,.sidebar-bottom { display: none; }nav { margin-top: 28px; }nav button { font-size: 0; padding: 11px; gap: 0; justify-content: center; }nav button .icon { width: 19px; height: 19px; }.workspace-bar { padding-inline: 16px; }.workspace-bar .command-trigger span,.workspace-bar kbd { display: none; }main { padding: 24px 18px; }h1 { font-size: 25px; }.page-heading p { font-size: 12px; }.quota-grid { grid-template-columns: 1fr; }.quota-visual { flex-direction: row; }.quota-summary { text-align: left; }.overview-shortcuts { grid-template-columns: 1fr; }.overview-controls { flex-wrap: wrap; }.reset-entry { padding: 18px; }.reset-entry b { font-size: 14px; } }
 @media(max-width:400px) { .workspace-bar>div { gap: 0; }.workspace-bar button { padding-inline: 5px; font-size: 11px; }.page-heading { flex-wrap: wrap; }.quota-visual { gap: 12px; }.quota-summary strong { font-size: 12px; }.connection { font-size: 11px; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation: none!important; transition: none!important; } }
+.sidebar-update { margin: 16px 0 4px; min-width: 0; }
+.sidebar-update button { width: 100%; min-height: 44px; justify-content: flex-start; text-align: left; background: var(--accent-soft); color: var(--accent); border-color: transparent; padding: 10px; }
+.sidebar-update button:disabled { opacity: 1; cursor: default; }
+.sidebar-update button svg { flex-shrink: 0; }
+.sidebar-update button span { min-width: 0; }
+.sidebar-update b,.sidebar-update small { display: block; overflow-wrap: anywhere; }
+.sidebar-update b { font-size: 12px; font-weight: 600; }
+.sidebar-update small { font-size: 11px; margin-top: 3px; color: var(--muted); }
+.sidebar-update progress { display: block; width: 100%; height: 4px; margin-top: 6px; accent-color: var(--accent); }
+@media(max-width:700px) {
+  .app-toolbar .sidebar-bottom { display: block; }
+  .sidebar-bottom .local-label,.sidebar-bottom .sidebar-account { display: none; }
+  .sidebar-update button { justify-content: center; padding: 8px; }
+  .sidebar-update button span { display: none; }
+}

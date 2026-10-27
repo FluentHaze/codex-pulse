@@ -1,9 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { State, Settings, TokenCatalog, TokenSession, DailyStats } from './types.js';
+import type { UpdateState, State, Settings, TokenCatalog, TokenSession, DailyStats } from './types.js';
 import type { ResetData } from './reset-data.js';
 ipcRenderer.on('navigate', (_event, tab: string) => window.dispatchEvent(new CustomEvent('pulse-navigate', { detail: tab })));
 contextBridge.exposeInMainWorld('pulse', {
   platform: process.platform,
+  getUpdate: (): Promise<UpdateState> => ipcRenderer.invoke('update-state'),
+  update: (action: 'check' | 'download' | 'install' | 'manual'): Promise<void> => ipcRenderer.invoke('update-action', action),
+  subscribeUpdate: (callback: (state: UpdateState) => void) => { const listener = (_event: Electron.IpcRendererEvent, state: UpdateState) => callback(state); ipcRenderer.on('update-state', listener); return () => ipcRenderer.removeListener('update-state', listener); },
   windowMenus: (): Promise<string[]> => ipcRenderer.invoke('window-menus'),
   windowMenu: (label: string, x: number, y: number): Promise<void> => ipcRenderer.invoke('window-menu', label, x, y),
   getState: (): Promise<State> => ipcRenderer.invoke('get-state'),

@@ -1,5 +1,6 @@
 import { t, setLanguage, resolveLanguage, languages, type Language } from './i18n.js';
 import { menuBarTitle, menuBarOptions } from './menu-bar.js';
+import { initializeUpdater } from './updater.js';
 import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, Notification, screen, powerMonitor, dialog, shell, nativeTheme, net } from 'electron';
 import { ResetService, resetSourceUrl } from './reset-data.js';
 import { readFileSync, writeFileSync, existsSync, renameSync, appendFileSync, statSync } from 'node:fs';
@@ -255,6 +256,7 @@ else {
       }
     }
     app.setAppUserModelId('com.codexpulse.desktop');
+    initializeUpdater();
     try { const data = JSON.parse(readFileSync(storage(), 'utf8')); state = { ...state, account: data.account ?? null, plan: data.plan ?? null, buckets: Array.isArray(data.buckets) ? data.buckets : [], updatedAt: data.updatedAt ?? null }; identity = data.identity ?? null; notices = data.notices ?? {}; position = data.position; updateSettings({ ...platformDefaults, ...data.settings, ...(isMac && !data.macMenuBarDefaultApplied ? { showOnLaunch: false } : {}) }); } catch { /* First launch. */ }
     updateApplicationMenu();
     nativeTheme.themeSource = state.settings.theme;
