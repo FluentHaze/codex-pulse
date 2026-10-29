@@ -95,10 +95,6 @@
 .star-guide::backdrop {
   background: #080d1766;
 }
-/* 原生窗口控制按钮位于网页上方，遮罩从内容区开始，保持整个标题栏一致。 */
-.app:has(> .desktop-chrome) .star-guide::backdrop {
-  top: 61px;
-}
 .star-guide:focus {
   outline: none;
 }

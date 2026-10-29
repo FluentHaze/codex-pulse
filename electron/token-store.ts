@@ -48,6 +48,10 @@ export class TokenStore {
     string,
     { stamp: string; samples: UsageSample[]; warnings: string[] }
   >();
+  private scopeCache = new Map<
+    string,
+    { stamp: string; samples: UsageSample[]; warnings: string[] }
+  >();
   private titleCache?: { path: string; stamp: string; values: Map<string, string> };
   constructor(private customPath: () => string) {}
   private root() {
@@ -216,6 +220,8 @@ export class TokenStore {
     const existingPaths = new Set(paths.map((item) => item.path));
     for (const path of this.metadata.keys())
       if (!existingPaths.has(path)) this.metadata.delete(path);
+    for (const path of this.scopeCache.keys())
+      if (!existingPaths.has(path)) this.scopeCache.delete(path);
     return this.catalog;
   }
   read(id: string): Promise<TokenSession> {
@@ -231,7 +237,9 @@ export class TokenStore {
     const accumulator = new DailyAccumulator({ start: -Infinity, end: Infinity, date: '全部历史' });
     let scanned = 0,
       skipped = 0;
-    for (const id of new Set(ids)) {
+    const selectedIds = [...new Set(ids)];
+    const cachePaths = new Set(selectedIds.slice(0, 128).map((id) => this.files.get(id)));
+    for (const id of selectedIds) {
       if (root !== this.root()) throw new Error('会话目录已切换，请刷新统计');
       const path = this.files.get(id);
       if (!path) throw new Error('聊天记录已变更，请刷新列表');
@@ -241,10 +249,21 @@ export class TokenStore {
           skipped++;
           continue;
         }
-        let index = 0;
-        const parser = new TokenParser(false, (sample) => accumulator.add(sample, path, index++));
-        for await (const line of rolloutLines(path, info.size)) parser.push(line);
-        if (parser.warnings.size) accumulator.warnings.add('部分记录不完整，合计可能存在遗漏');
+        const stamp = `${info.birthtimeMs}:${info.mtimeMs}:${info.size}`;
+        let cached = this.scopeCache.get(path);
+        if (!cached || cached.stamp !== stamp) {
+          const samples: UsageSample[] = [];
+          const parser = new TokenParser(false, (sample) => samples.push(sample));
+          for await (const line of rolloutLines(path, info.size)) parser.push(line);
+          cached = { stamp, samples, warnings: [...parser.warnings] };
+          if (cachePaths.has(path)) {
+            if (this.scopeCache.size >= 128)
+              this.scopeCache.delete(this.scopeCache.keys().next().value!);
+            this.scopeCache.set(path, cached);
+          }
+        }
+        cached.samples.forEach((sample, index) => accumulator.add(sample, path, index));
+        if (cached.warnings.length) accumulator.warnings.add('部分记录不完整，合计可能存在遗漏');
         scanned++;
       } catch {
         skipped++;

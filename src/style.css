@@ -134,8 +134,16 @@
 .token-table tr:last-child > * {
   border-bottom: 0;
 }
-.token-table tbody tr:hover {
-  background: var(--bg);
+.token-table tbody th,
+.token-table tbody td {
+  transition: background-color var(--feedback-duration) var(--ease-out);
+}
+/* Statistics and the message disclosure belong to the same conversation turn. */
+.token-table .token-turn:hover > *,
+.token-table .token-turn:hover + .message-detail > *,
+.token-table .token-turn:has(+ .message-detail:is(:hover, :focus-within)) > *,
+.token-table .message-detail:is(:hover, :focus-within) > * {
+  background: var(--hover);
 }
 .token-table tbody td[colspan] {
   text-align: center;

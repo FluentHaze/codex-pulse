@@ -50,8 +50,16 @@
   border: 0;
   border-radius: 22px;
 }
-.rail-item:hover {
-  background: var(--accent-soft);
+.floating-rail .rail-item:hover,
+.floating-rail .rail-token:hover,
+.floating-rail .rail-item:not(:disabled):active,
+.floating-rail .rail-token:not(:disabled):active {
+  background: transparent;
+  filter: none;
+}
+.floating-rail .rail-token:hover {
+  border-color: transparent;
+  border-top-color: var(--line);
 }
 .rail-item:focus-visible {
   outline-offset: 0;

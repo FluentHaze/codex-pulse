@@ -40,6 +40,9 @@
   "build": {
     "appId": "com.codexpulse.desktop",
     "productName": "Codex Pulse",
+    "asarUnpack": [
+      "dist-electron/**/*.js"
+    ],
     "directories": {
       "output": "release"
     },

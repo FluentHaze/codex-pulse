@@ -1,4 +1,8 @@
+import { resetMessages } from './reset-messages.js';
+import { interfaceMessages } from './interface-messages.js';
 export const messages: Record<string, readonly string[]> = {
+  ...resetMessages,
+  ...interfaceMessages,
   '喜欢 Pulse 吗？': [
     'Enjoying Pulse?',
     '喜歡 Pulse 嗎？',

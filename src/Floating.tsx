@@ -21,27 +21,13 @@ export function Floating({
   useLanguage();
   const content = useRef<HTMLDivElement>(null);
   const hoverActive = useRef(false);
-  const keyboardNavigation = useRef(false);
   useEffect(() => {
-    const keyDown = (event: KeyboardEvent) => {
-      keyboardNavigation.current = event.key === 'Tab';
-    };
-    const resetKeyboard = () => {
-      keyboardNavigation.current = false;
-    };
     const blur = () => {
-      resetKeyboard();
       hoverActive.current = false;
       void window.pulse?.peek(false).catch(() => {});
     };
-    window.addEventListener('keydown', keyDown, true);
-    window.addEventListener('keyup', resetKeyboard, true);
-    window.addEventListener('pointerdown', resetKeyboard, true);
     window.addEventListener('blur', blur);
     return () => {
-      window.removeEventListener('keydown', keyDown, true);
-      window.removeEventListener('keyup', resetKeyboard, true);
-      window.removeEventListener('pointerdown', resetKeyboard, true);
       window.removeEventListener('blur', blur);
     };
   }, []);
@@ -78,9 +64,9 @@ export function Floating({
     total == null
       ? '—'
       : total >= 1e6
-        ? `${+(total / 1e6).toFixed(1)}m`
+        ? `${+(total / 1e6).toFixed(1)}M`
         : total >= 1000
-          ? `${+(total / 1000).toFixed(1)}k`
+          ? `${+(total / 1000).toFixed(1)}K`
           : total.toString();
   const peek = (show: boolean) => {
     if (!show) hoverActive.current = false;
@@ -105,9 +91,6 @@ export function Floating({
         onPointerLeave={() => {
           hoverActive.current = false;
           peek(false);
-        }}
-        onFocus={() => {
-          if (keyboardNavigation.current) peek(true);
         }}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) peek(false);
@@ -145,7 +128,7 @@ export function Floating({
                 value = left === null ? null : used ? 100 - left : left;
               return (
                 <section
-                  className={`peek-quota ${left === null ? 'muted' : left <= 10 ? 'danger' : left <= 20 ? 'warning' : 'good'}`}
+                  className={`peek-quota ${left === 0 ? 'exhausted' : left === null ? 'muted' : left <= 10 ? 'danger' : left <= 20 ? 'warning' : 'good'}`}
                   key={index}
                 >
                   <div>
@@ -204,10 +187,6 @@ export function Floating({
       onPointerLeave={() => {
         hoverActive.current = false;
         if (!gesture.current.dragging) peek(false);
-      }}
-      onFocus={() => {
-        // 系统截图结束会恢复焦点；仅主动键盘导航可以通过焦点展开。
-        if (keyboardNavigation.current && !gesture.current.dragging) peek(true);
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) peek(false);

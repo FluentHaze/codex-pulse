@@ -8,9 +8,9 @@ import type { DailyStats } from '../electron/types';
 import { useTodayUsage } from './use-today-usage';
 const compact = (value: number) =>
   value >= 1e6
-    ? `${+(value / 1e6).toFixed(1)}m`
+    ? `${+(value / 1e6).toFixed(1)}M`
     : value >= 1000
-      ? `${+(value / 1000).toFixed(1)}k`
+      ? `${+(value / 1000).toFixed(1)}K`
       : `${value}`;
 export function HourlyChart({
   stats,
@@ -31,6 +31,16 @@ export function HourlyChart({
   const hours = stats?.hourly ?? [],
     max = Math.max(1, ...hours.map((hour) => hour.total ?? 0));
   const currentHour = new Date().getHours();
+  const recordedHours = hours.filter((hour) => hour.records > 0);
+  const splitSupported =
+    recordedHours.length > 0 &&
+    recordedHours.every(
+      (hour) =>
+        hour.input != null &&
+        hour.output != null &&
+        hour.total != null &&
+        hour.input + hour.output === hour.total,
+    );
   const active = selected === null ? undefined : hours[selected];
   const description = !stats
     ? error || t('正在读取本机记录…')
@@ -80,6 +90,11 @@ export function HourlyChart({
                     : `${active.total.toLocaleString()} Token`}
               </strong>
               <small>{t('{0} 条用量记录', [active.records])}</small>
+              {active.input != null && active.output != null && (
+                <small>
+                  {t('输入 {0} · 输出 {1}', [compact(active.input), compact(active.output)])}
+                </small>
+              )}
             </div>
           )}
           {Array.from({ length: 24 }, (_, hour) => {
@@ -145,10 +160,23 @@ export function HourlyChart({
               >
                 <span className="bar-column">
                   <i
+                    className="hour-stack"
                     style={{
                       height: `${missing || future ? 0 : Math.max(bucket.total! > 0 ? 2 : 0, (bucket.total! / max) * 100)}%`,
                     }}
-                  />
+                  >
+                    {splitSupported &&
+                      bucket?.input != null &&
+                      bucket.output != null &&
+                      bucket.total != null &&
+                      bucket.total > 0 &&
+                      bucket.input + bucket.output === bucket.total && (
+                        <em
+                          className="bar-output"
+                          style={{ height: `${(bucket.output / bucket.total) * 100}%` }}
+                        />
+                      )}
+                  </i>
                 </span>
                 <span className="bar-label" aria-hidden="true">
                   {hour % 3 === 0 || hour === 23 ? String(hour).padStart(2, '0') : ''}
@@ -161,7 +189,13 @@ export function HourlyChart({
       <footer>
         <span>
           <i />
-          {t('已记录 Token')}
+          {splitSupported ? t('输入') : t('已记录 Token')}
+          {splitSupported && (
+            <>
+              <i className="legend-output" />
+              {t('输出')}
+            </>
+          )}
         </span>
         <span>
           {!stats

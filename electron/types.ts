@@ -37,6 +37,8 @@ export interface Settings {
   opacity: number;
   lowAlerts: boolean;
   recoveryAlerts: boolean;
+  globalResetAlerts: boolean;
+  resetReminder: boolean;
   theme: 'system' | 'dark' | 'light';
   quotaDisplay: 'remaining' | 'used';
   codexPath: string;
@@ -69,6 +71,8 @@ export const defaults: Settings = {
   opacity: 1,
   lowAlerts: true,
   recoveryAlerts: true,
+  globalResetAlerts: false,
+  resetReminder: false,
   theme: 'dark',
   quotaDisplay: 'remaining',
   codexPath: '',
@@ -117,6 +121,8 @@ export interface UsageSample {
 export interface HourlyUsage {
   hour: number;
   total: number | null;
+  input?: number | null;
+  output?: number | null;
   records: number;
 }
 export interface DailyStats {

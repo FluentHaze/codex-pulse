@@ -21,6 +21,8 @@ import {
   net,
 } from 'electron';
 import { ResetService, resetSourceUrl } from './reset-data.js';
+import type { ResetData } from './reset-data.js';
+import { newestConfirmedReset, resetReminderCandidates } from './reset-alerts.js';
 import {
   readFileSync,
   writeFileSync,
@@ -33,7 +35,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { CodexClient, detectCodex, RpcError } from './codex.js';
-import { TokenStore } from './token-store.js';
+import { TokenService } from './token-service.js';
 import {
   captureAnchor,
   anchoredBounds,
@@ -75,6 +77,7 @@ const resetService = new ResetService((input, init) =>
 );
 let identity: string | null = null;
 let notices: Record<string, number> = {};
+let lastGlobalResetAt: string | null = null;
 let starGuideShown = false;
 let starGuidePreview = !app.isPackaged && process.argv.includes('--preview-star-guide');
 let position: { x: number; y: number } | undefined;
@@ -97,7 +100,7 @@ let state: State = {
   executable: null,
   live: null,
 };
-const tokenStore = new TokenStore(() => state.settings.sessionPath);
+const tokenStore = new TokenService(() => state.settings.sessionPath);
 let liveBusy = false,
   liveScanAt = 0,
   liveSource = '';
@@ -179,6 +182,7 @@ function save() {
         buckets: state.buckets,
         updatedAt: state.updatedAt,
         notices,
+        lastGlobalResetAt,
         starGuideShown,
       }),
     );
@@ -219,6 +223,35 @@ function announce(body: string) {
         .map((line) => t(line))
         .join('\n'),
     }).show();
+}
+function radarNotification(body: string) {
+  if (!Notification.isSupported()) return;
+  const notification = new Notification({ title: 'Codex Pulse', body });
+  notification.on('click', () => openDetails('resets'));
+  notification.show();
+}
+function checkGlobalReset(data: ResetData) {
+  const at = newestConfirmedReset(data, Date.now());
+  if (!at || (lastGlobalResetAt && Date.parse(at) <= Date.parse(lastGlobalResetAt))) return;
+  // Seed the first successful snapshot silently; old announcements never replay.
+  const previous = lastGlobalResetAt;
+  lastGlobalResetAt = at;
+  if (!save()) {
+    lastGlobalResetAt = previous;
+    return;
+  }
+  if (previous && state.settings.globalResetAlerts)
+    radarNotification(
+      t('已确认新的全局重置，请刷新查看个人额度。') + '\n' + t('数据：') + ' codex-reset.com',
+    );
+}
+function checkResetReminders() {
+  for (const { key, name } of resetReminderCandidates(state, identity, Date.now())) {
+    if (notices[key]) continue;
+    notices[key] = Date.now();
+    if (save()) radarNotification(t('{0} 额度窗口将在 15 分钟内到期，以服务端刷新为准。', [name]));
+    else delete notices[key];
+  }
 }
 function alerts() {
   const messages: string[] = [];
@@ -414,7 +447,7 @@ function applyWindow() {
 function windowColors() {
   return nativeTheme.shouldUseDarkColors
     ? { color: '#242426', symbolColor: '#f5f5f7', height: 32 }
-    : { color: '#ececf0', symbolColor: '#1d1d1f', height: 32 };
+    : { color: '#f0f2f5', symbolColor: '#1d1d1f', height: 32 };
 }
 function updateWindowColors() {
   if (!details || details.isDestroyed()) return;
@@ -426,10 +459,13 @@ function createWindow(kind: 'float' | 'details' | 'peek', tab = 'overview') {
   const main = state.buckets.find((bucket) => bucket.limitId === 'codex') ?? state.buckets[0];
   const size = floatingSize(quotaWindows(main).length);
   const small = kind !== 'details';
+  const detailArea = small ? null : screen.getPrimaryDisplay().workAreaSize;
   const win = new BrowserWindow({
     icon: join(here, '../assets/app.png'),
-    width: kind === 'float' ? size.width : kind === 'peek' ? 320 : 1020,
-    height: kind === 'float' ? size.height : kind === 'peek' ? 310 : 860,
+    width:
+      kind === 'float' ? size.width : kind === 'peek' ? 320 : Math.min(1320, detailArea!.width),
+    height:
+      kind === 'float' ? size.height : kind === 'peek' ? 310 : Math.min(900, detailArea!.height),
     minWidth: small ? 40 : 700,
     minHeight: small ? 40 : 550,
     ...(small
@@ -685,6 +721,8 @@ function updateSettings(patch: Partial<Settings>) {
     'clickThrough',
     'lowAlerts',
     'recoveryAlerts',
+    'globalResetAlerts',
+    'resetReminder',
     'menuBarHover',
   ] as const)
     if (typeof patch[key] === 'boolean') next[key] = patch[key];
@@ -711,6 +749,7 @@ function updateSettings(patch: Partial<Settings>) {
   if (next.clickThrough && !previous.clickThrough) announce('鼠标穿透已开启，可右键系统托盘关闭');
   if (next.clickThrough) hidePeek();
   state.settings = next;
+  if (next.globalResetAlerts && !previous.globalResetAlerts) lastGlobalResetAt = null;
   state.locale = resolveLanguage(next.language, app.getLocale());
   setLanguage(state.locale);
   if (previousLocale !== state.locale) updateApplicationMenu();
@@ -741,6 +780,8 @@ function updateSettings(patch: Partial<Settings>) {
   applyWindow();
   save();
   publish();
+  if (next.globalResetAlerts && !previous.globalResetAlerts)
+    void resetService.read(state.locale).then(checkGlobalReset);
   if (previous.codexPath !== next.codexPath) {
     invalidate();
     client.stop();
@@ -800,6 +841,11 @@ else {
       };
       identity = data.identity ?? null;
       notices = data.notices ?? {};
+      lastGlobalResetAt =
+        typeof data.lastGlobalResetAt === 'string' &&
+        Number.isFinite(Date.parse(data.lastGlobalResetAt))
+          ? data.lastGlobalResetAt
+          : null;
       starGuideShown = data.starGuideShown === true;
       position = data.position;
       updateSettings({
@@ -906,7 +952,11 @@ else {
         }),
       );
     });
-    ipcMain.handle('reset-data', () => resetService.read());
+    ipcMain.handle('reset-data', async () => {
+      const data = await resetService.read(state.locale);
+      checkGlobalReset(data);
+      return data;
+    });
     ipcMain.handle('reset-source', async (_event, value: unknown) => {
       const url = resetSourceUrl(value);
       if (!url) throw new Error('无效的来源链接');
@@ -1022,6 +1072,7 @@ else {
     screen.on('display-removed', displayChanged);
     screen.on('display-metrics-changed', displayChanged);
     setInterval(() => {
+      checkResetReminders();
       if (!state.updatedAt || state.refreshing || paused) return;
       const resets = state.buckets
         .flatMap((b) => [b.primary?.resetsAt, b.secondary?.resetsAt])
@@ -1037,6 +1088,12 @@ else {
         void refresh();
       }
     }, 1000).unref();
+    const pollReset = async () => {
+      if (!state.settings.globalResetAlerts || quitting) return;
+      checkGlobalReset(await resetService.read(state.locale));
+    };
+    setInterval(() => void pollReset(), 60000).unref();
+    void pollReset();
     if (starGuidePreview) openDetails();
     void refresh();
     liveTimer = setInterval(() => void refreshLive(), 1000);
@@ -1050,6 +1107,7 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {});
 app.on('before-quit', () => {
   quitting = true;
+  tokenStore.stop();
   clearTimeout(peekTimer);
   clearTimeout(timer);
   clearInterval(liveTimer);

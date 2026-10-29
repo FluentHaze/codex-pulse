@@ -8,14 +8,14 @@
 .light {
   --bg: #f5f5f7;
   --surface: #fff;
-  --sidebar: #ececf0;
+  --sidebar: #f0f2f5;
   --ink: #1d1d1f;
   --muted: #68686d;
   --line: #dedee3;
   --rail: #e5e5ea;
-  --accent: #0066cc;
+  --accent: #0067d9;
   --on-accent: #fff;
-  --accent-soft: #e6f0fc;
+  --accent-soft: #e8f2ff;
   --positive: #24813c;
   --positive-soft: #e8f5eb;
   --warning: #996000;
@@ -23,8 +23,8 @@
   --hover: #efeff3;
   --pressed: #e2e2e8;
   --control-border: #a1a1aa;
-  --chart: #6aa7ed;
-  --chart-active: #0066cc;
+  --chart: #3994ff;
+  --chart-active: #007aff;
   --floating-surface: #f8f8fa;
   --floating-line: #c9c9d0;
   --shadow: 0 2px 8px #1d1d1f06;
@@ -67,7 +67,7 @@
   backdrop-filter: blur(24px);
 }
 .app:has(> .desktop-chrome) > .app-toolbar {
-  height: calc(100vh - 61px);
+  height: calc(100vh - 33px);
 }
 .logo {
   padding: 0 8px;

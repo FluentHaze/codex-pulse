@@ -319,13 +319,13 @@ try {
   await detail.screenshot({ path: 'release/today-preview.png' });
   await detail.getByRole('button', { name: 'Token 明细', exact: true }).click();
   await detail.getByRole('heading', { name: 'Token 明细', exact: true }).waitFor();
-  await detail.locator('#token-session option').first().waitFor({ state: 'attached' });
+  await detail.locator('.token-session-option').first().waitFor();
   const tokenDeadline = Date.now() + 30000;
   let sessionIds = [];
   do {
     sessionIds = await detail
-      .locator('#token-session option')
-      .evaluateAll((elements) => elements.map((element) => element.value).filter(Boolean));
+      .locator('.token-session-option')
+      .evaluateAll((elements) => elements.map((element) => element.dataset.id).filter(Boolean));
     if (sessionIds.length) break;
     await new Promise((resolve) => setTimeout(resolve, 250));
   } while (Date.now() < tokenDeadline);
@@ -348,11 +348,11 @@ try {
   );
   await detail.screenshot({ path: 'release/project-summary-preview.png' });
   assert.equal(
-    await detail.locator('#token-session').inputValue(),
-    '',
+    await detail.locator('.token-session-option[aria-pressed="true"]').count(),
+    0,
     'default scope selects no chat',
   );
-  await detail.locator('#token-session').selectOption(sessionIds[0]);
+  await detail.locator(`.token-session-option[data-id="${sessionIds[0]}"]`).click();
   await detail.locator('.token-table tbody tr th').first().waitFor();
   await detail
     .getByRole('searchbox', { name: '搜索聊天', exact: true })
@@ -364,33 +364,28 @@ try {
     'empty search never displays stale conversation details',
   );
   await detail.getByRole('button', { name: '清空筛选条件', exact: true }).click();
-  await detail.locator('#token-session').selectOption(sessionIds[0]);
+  await detail.locator(`.token-session-option[data-id="${sessionIds[0]}"]`).click();
   await detail.locator('.token-table tbody tr th').first().waitFor();
-  const projectOptions = await detail
-    .getByLabel('筛选项目', { exact: true })
-    .locator('option')
-    .evaluateAll((elements) => elements.map((element) => element.value));
+  await detail.getByRole('combobox', { name: '筛选项目', exact: true }).click();
+  const projectOptions = await detail.getByRole('option').allTextContents();
+  await detail.keyboard.press('Escape');
   if (projectOptions.length > 1) {
-    await detail
-      .getByLabel('筛选项目', { exact: true })
-      .selectOption(
-        await detail.evaluate(
-          async () =>
-            (await window.pulse.tokenCatalog()).sessions.find((session) => session.project)
-              ?.project || '',
-        ),
-      );
+    await detail.getByRole('combobox', { name: '筛选项目', exact: true }).click();
+    await detail.getByRole('option').nth(1).click();
     assert.equal(
-      await detail.locator('#token-session').inputValue(),
-      '',
+      await detail.locator('.token-session-option[aria-pressed="true"]').count(),
+      0,
       'project change clears chat selection',
     );
     await detail.getByText('当前项目总用量', { exact: true }).waitFor();
-    await detail.getByLabel('筛选项目', { exact: true }).selectOption('*');
-    await detail.locator('#token-session').selectOption(sessionIds[0]);
+    await detail.getByRole('combobox', { name: '筛选项目', exact: true }).click();
+    await detail.getByRole('option', { name: '全部项目', exact: true }).click();
+    await detail.locator(`.token-session-option[data-id="${sessionIds[0]}"]`).click();
   }
-  await detail.getByLabel('筛选更新时间', { exact: true }).selectOption('today');
-  await detail.getByLabel('筛选更新时间', { exact: true }).selectOption('all');
+  for (const period of ['今天', '全部时间']) {
+    await detail.getByRole('combobox', { name: '筛选更新时间', exact: true }).click();
+    await detail.getByRole('option', { name: period, exact: true }).click();
+  }
   await detail.locator('.token-table tbody tr th').first().waitFor();
   assert.ok(await detail.locator('.token-table tbody tr th').count(), 'turn rows rendered');
   assert.ok(await detail.locator('.turn-message-preview').count(), 'message summaries rendered');
@@ -412,7 +407,7 @@ try {
   );
   await detail.screenshot({ path: 'release/tokens-preview.png' });
   if (sessionIds.length > 1) {
-    await detail.locator('#token-session').selectOption(sessionIds[1]);
+    await detail.locator(`.token-session-option[data-id="${sessionIds[1]}"]`).click();
     await detail.locator('.token-table tbody tr th').first().waitFor();
   }
   await detail.getByRole('button', { name: '刷新记录', exact: true }).click();
@@ -436,7 +431,7 @@ try {
   await detail.getByRole('heading', { name: '未找到本地聊天记录', exact: true }).waitFor();
   await detail.screenshot({ path: 'release/tokens-empty-preview.png' });
   await floating.evaluate((sessionPath) => window.pulse.settings({ sessionPath }), uiRoot);
-  await detail.locator('#token-session').selectOption(sessionIds[0]);
+  await detail.locator(`.token-session-option[data-id="${sessionIds[0]}"]`).click();
   await detail.locator('.token-table tbody tr th').first().waitFor();
   await detail.getByRole('button', { name: '偏好设置' }).click();
   await detail.getByText('监控与提醒', { exact: true }).waitFor();
@@ -616,7 +611,7 @@ try {
   );
   await detail.screenshot({ path: 'release/details-small-preview.png', fullPage: true });
   await detail.getByRole('button', { name: 'Token 明细', exact: true }).click();
-  await detail.locator('#token-session').selectOption(sessionIds[0]);
+  await detail.locator(`.token-session-option[data-id="${sessionIds[0]}"]`).click();
   await detail.locator('.token-table tbody tr th').first().waitFor();
   assert.equal(
     await detail.evaluate(() => document.documentElement.scrollWidth > innerWidth),

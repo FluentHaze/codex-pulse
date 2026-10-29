@@ -48,6 +48,8 @@ test('all translated messages preserve placeholders, and UI keys have four compl
     'TodayUsage',
     'HourlyUsage',
     'ResetTracker',
+    'ResetPanels',
+    'RecentSessions',
     'CommandPalette',
     'DesktopChrome',
     'AppUpdate',

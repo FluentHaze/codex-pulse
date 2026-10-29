@@ -12,7 +12,14 @@ body {
   margin: 0;
   font: 13px/1.5 var(--font);
   -webkit-font-smoothing: antialiased;
+  user-select: none;
   background: transparent;
+}
+input,
+textarea,
+[contenteditable='true'],
+.message-bubble pre {
+  user-select: text;
 }
 button,
 select,

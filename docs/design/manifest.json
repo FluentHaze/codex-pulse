@@ -1,0 +1,75 @@
+{
+  "archivedOn": "2026-10-29",
+  "images": [
+    {
+      "file": "01-reset-radar-initial.png",
+      "title": "重置雷达 · 初版功能布局",
+      "note": "历史方案：包含早期服务状态、多区块布局",
+      "originalFile": "exec-2e2ac03b-b78e-44b9-a8b2-3e3a0f878b60.png",
+      "sha256": "365eb28361af83acdc59fbaca23d8cbc3aa40bf96b9ef0b8c50e29b59dedf8c5"
+    },
+    {
+      "file": "02-reset-radar-compact-tabs.png",
+      "title": "重置雷达 · 紧凑标签布局",
+      "note": "历史方案：预测与个人恢复、公告标签布局",
+      "originalFile": "exec-0e639b52-60f5-4e2c-9b33-059c5c6611f0.png",
+      "sha256": "4ebabfb5f0fcf4617d2e295dd071933155b56dc82b311b545a91f314c5111a0b"
+    },
+    {
+      "file": "03-overview-neutral.png",
+      "title": "首页 · 中性色方案",
+      "note": "历史方案：后续按反馈改为 Apple 配色",
+      "originalFile": "exec-83681e33-53e3-49d8-aefe-9b1f6ea2219d.png",
+      "sha256": "d58100ab053b800a4ec33753235c7a9b064396ac8afc4e270706d232c932dbc0"
+    },
+    {
+      "file": "04-overview-apple-light.png",
+      "title": "首页 · Apple 浅色",
+      "note": "三栏额度卡片、小时图表、最近聊天与日历入口",
+      "originalFile": "exec-033f310e-2624-4de0-b02d-560d99f72872.png",
+      "sha256": "a17aeb6b6cf550696dc18e28d1e32cf0e6cc414c71fa9d7ee5cdd1b9b9cfd796"
+    },
+    {
+      "file": "05-token-details-apple-light.png",
+      "title": "Token 明细 · Apple 浅色",
+      "note": "后台加载提示、筛选与列表详情分栏",
+      "originalFile": "exec-eb9619c6-9c56-452f-b435-e341ecabba8f.png",
+      "sha256": "d1abedf121e8e7dc39f92451b2c5b36eccdd31cb101eecf6b9c866fcaf38de0b"
+    },
+    {
+      "file": "06-reset-calendar-boxed.png",
+      "title": "重置日历 · 方格方案",
+      "note": "历史方案：后续改为无边框日历",
+      "originalFile": "exec-041bd8cc-1d9a-49ee-b698-1c5b74386e38.png",
+      "sha256": "9052bd3a71cfcdf4253d18be076f3569d9a65391ee7915f06930388d5a22230d"
+    },
+    {
+      "file": "07-reset-calendar-borderless.png",
+      "title": "重置日历 · 无边框方案",
+      "note": "四项指标、太阳月亮切换、日历与当日记录",
+      "originalFile": "exec-33cd3357-762c-4d95-850f-5318d424c235.png",
+      "sha256": "4229a9e70693fa9aeaea1d9dca8decf14e8d63a1d96f0fc4220d29ade0f56e81"
+    },
+    {
+      "file": "08-today-usage-light.png",
+      "title": "今日用量 · 浅色",
+      "note": "总量、输入输出、小时图表与用量构成",
+      "originalFile": "exec-b87e9da1-1ecc-4b16-9eb2-a9204ed88da1.png",
+      "sha256": "7050ab21f794292181fa1814c2960402482e190b947711fc49fc3d3b044c9fc1"
+    },
+    {
+      "file": "09-today-usage-dark.png",
+      "title": "今日用量 · 深色",
+      "note": "对应浅色布局的深色方案",
+      "originalFile": "exec-1e423188-1b65-4343-8273-11a09dc65181.png",
+      "sha256": "96bd4508870588e9ea52e02211bc2aaa42f4edbd76edb1ae8313661dbe24cc74"
+    },
+    {
+      "file": "10-floating-theme-update-board.png",
+      "title": "悬浮窗、主题与版本更新",
+      "note": "深浅色悬浮条、悬浮卡片、主题入口与更新状态设计板",
+      "originalFile": "exec-f269f619-25a3-42de-9622-881b30036af5.png",
+      "sha256": "0957e01229433bdf2d49dbfb56659d541403dae3dd63b10de76ed3d65d4dfd9e"
+    }
+  ]
+}

@@ -60,6 +60,8 @@ test('daily totals use event time across midnight, deduplicate copied history, a
   assert.equal(range.end, new Date(2026, 9, 23).getTime());
   assert.equal(result.hourly?.length, 24);
   assert.equal(result.hourly?.[0].total, 250);
+  assert.equal(result.hourly?.[0].input, 200);
+  assert.equal(result.hourly?.[0].output, 50);
   assert.equal(result.hourly?.[0].records, 2);
   assert.equal(
     result.hourly?.reduce((sum, hour) => sum + (hour.total ?? 0), 0),

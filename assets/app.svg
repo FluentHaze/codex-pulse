@@ -1,13 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 128 128" fill="none">
-  <defs>
-    <linearGradient id="tile" x1="64" y1="6" x2="64" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#e5e9ef"/></linearGradient>
-    <linearGradient id="blue" x1="40" y1="30" x2="90" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#32a5ff"/><stop offset="1" stop-color="#0055d4"/></linearGradient>
-  </defs>
-  <rect x="6" y="8" width="116" height="116" rx="27" fill="#101e38" opacity=".12"/>
-  <rect x="6" y="6" width="116" height="116" rx="27" fill="url(#tile)"/>
-  <rect x="6.75" y="6.75" width="114.5" height="114.5" rx="26.25" stroke="#fff" stroke-width="1.5"/>
-  <g stroke="url(#blue)">
-  <path d="M89.46 89.46a36 36 0 1 1 0-50.92"  stroke-width="10" stroke-linecap="round"/>
-  <path d="M51 65v10m13-26v30m13-20v14"  stroke-width="8" stroke-linecap="round"/>
+  <defs><linearGradient id="tile" x1="22" y1="1" x2="100" y2="127" gradientUnits="userSpaceOnUse"><stop stop-color="#38adff"/><stop offset=".5" stop-color="#087fff"/><stop offset="1" stop-color="#0759dc"/></linearGradient></defs>
+  <path id="tile-shape" d="M40 1h48c26 0 39 13 39 39v48c0 26-13 39-39 39H40C14 127 1 114 1 88V40C1 14 14 1 40 1Z" fill="url(#tile)"/>
+  <use href="#tile-shape" fill="none" stroke="#ffffff" stroke-opacity=".2" stroke-width="1"/>
+  <g color="#fff">
+  <path d="M22 65h17l10-23 17 46 14-63 12 40h14" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </svg>

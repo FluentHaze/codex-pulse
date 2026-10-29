@@ -46,7 +46,7 @@ export function QuotaRing({
   const tone = left === null ? 'muted' : left <= 10 ? 'danger' : left <= 20 ? 'warning' : 'good';
   return (
     <span
-      className={`quota-ring ${tone} ${mini ? 'mini' : ''}`}
+      className={`quota-ring ${tone} ${left === 0 ? 'exhausted' : ''} ${mini ? 'mini' : ''}`}
       role="meter"
       aria-label={t('{0}{1}额度', [duration(quota), used ? t('已用') : t('剩余')])}
       aria-valuemin={0}
@@ -90,7 +90,7 @@ export function Quota({
     value = left === null ? null : used ? 100 - left : left;
   const tone = left === null ? 'muted' : left <= 10 ? 'danger' : left <= 20 ? 'warning' : 'good';
   return (
-    <div className={`quota ${tone}`}>
+    <div className={`quota ${tone} ${left === 0 ? 'exhausted' : ''}`}>
       <div className="quota-label">
         <span>{t('{0}窗口', [duration(quota)])}</span>
         <span className="quota-condition">
@@ -105,34 +105,26 @@ export function Quota({
         </span>
       </div>
       <div className="quota-visual">
+        <div className="quota-amount">
+          <strong>{value === null ? '—' : `${+value.toFixed(1)}%`}</strong>
+          <span>{used ? t('已用') : t('剩余')}</span>
+        </div>
         <QuotaRing quota={quota} used={used} />
-        <div className="quota-summary">
-          <span>{t('下次重置')}</span>
-          <strong>{resetText(quota.resetsAt, now, true)}</strong>
-          <time
-            dateTime={quota.resetsAt ? new Date(quota.resetsAt * 1000).toISOString() : undefined}
-          >
-            {quota.resetsAt
-              ? new Date(quota.resetsAt * 1000).toLocaleString(getLanguage(), {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                })
-              : t('等待服务端返回时间')}
-          </time>
-        </div>
       </div>
-      <div className="quota-footer">
-        <span>{used ? t('已用比例') : t('可用比例')}</span>
-        <div className="capacity" aria-hidden="true">
-          <i
-            className={value !== null && value > 0 ? 'filled' : ''}
-            style={{ width: `${value ?? 0}%` }}
-          />
-        </div>
-        <span>{value === null ? '—' : `${+value.toFixed(1)}%`}</span>
+      <div className="quota-summary">
+        <span>{t('下次重置')}</span>
+        <strong>{resetText(quota.resetsAt, now, true)}</strong>
+        <time dateTime={quota.resetsAt ? new Date(quota.resetsAt * 1000).toISOString() : undefined}>
+          {quota.resetsAt
+            ? new Date(quota.resetsAt * 1000).toLocaleString(getLanguage(), {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })
+            : t('等待服务端返回时间')}
+        </time>
       </div>
     </div>
   );

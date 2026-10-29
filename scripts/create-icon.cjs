@@ -4,7 +4,8 @@ const { readFile, writeFile } = require('node:fs/promises');
 const { join } = require('node:path');
 
 const assets = join(__dirname, '../assets');
-const sizes = [16, 24, 32, 48, 64, 128, 256];
+// Include 125% and 150% Windows scale factors without relying on OS resampling.
+const sizes = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256];
 
 function ico(images) {
   const header = Buffer.alloc(6 + images.length * 16);
@@ -30,14 +31,10 @@ app
     const mark = await readFile(join(assets, 'mark.svg'), 'utf8');
     const glyph = mark.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
     const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 128 128" fill="none">
-  <defs>
-    <linearGradient id="tile" x1="64" y1="6" x2="64" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#e5e9ef"/></linearGradient>
-    <linearGradient id="blue" x1="40" y1="30" x2="90" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#32a5ff"/><stop offset="1" stop-color="#0055d4"/></linearGradient>
-  </defs>
-  <rect x="6" y="8" width="116" height="116" rx="27" fill="#101e38" opacity=".12"/>
-  <rect x="6" y="6" width="116" height="116" rx="27" fill="url(#tile)"/>
-  <rect x="6.75" y="6.75" width="114.5" height="114.5" rx="26.25" stroke="#fff" stroke-width="1.5"/>
-  <g stroke="url(#blue)">${glyph.replaceAll('stroke="currentColor"', '')}</g>
+  <defs><linearGradient id="tile" x1="22" y1="1" x2="100" y2="127" gradientUnits="userSpaceOnUse"><stop stop-color="#38adff"/><stop offset=".5" stop-color="#087fff"/><stop offset="1" stop-color="#0759dc"/></linearGradient></defs>
+  <path id="tile-shape" d="M40 1h48c26 0 39 13 39 39v48c0 26-13 39-39 39H40C14 127 1 114 1 88V40C1 14 14 1 40 1Z" fill="url(#tile)"/>
+  <use href="#tile-shape" fill="none" stroke="#ffffff" stroke-opacity=".2" stroke-width="1"/>
+  <g color="#fff">${glyph}</g>
 </svg>\n`;
     const window = new BrowserWindow({
       show: false,

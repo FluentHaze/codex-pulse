@@ -3,7 +3,11 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 61px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  padding-right: 145px;
+  -webkit-app-region: drag;
   background: var(--bg);
   color: var(--ink);
   border-bottom: 1px solid var(--line);
@@ -14,11 +18,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 150px 0 12px;
-  font:
-    12px/1 'Segoe UI',
-    'Microsoft YaHei UI',
-    sans-serif;
+  padding: 0 16px 0 12px;
+  font: 12px/1 var(--font);
   -webkit-app-region: drag;
 }
 .desktop-title-icon {
@@ -47,10 +48,7 @@
   min-height: 24px;
   padding: 3px 10px;
   color: var(--muted);
-  font:
-    12px/1.4 'Segoe UI',
-    'Microsoft YaHei UI',
-    sans-serif;
+  font: 12px/1.4 var(--font);
 }
 .desktop-menu button:hover,
 .desktop-menu button[aria-expanded='true'] {
@@ -65,8 +63,13 @@
   font-size: 11px;
   margin-left: 12px;
 }
+/* Native caption buttons sit above the web view and cannot be blurred by a dialog.
+   Keep the entire caption row clear instead of leaving only the buttons exposed. */
+.app:has(> .desktop-chrome) dialog::backdrop {
+  inset: 33px 0 0;
+}
 .app:has(> .desktop-chrome) > .app-toolbar {
-  top: 61px;
+  top: 33px;
 }
 .app:has(> .desktop-chrome) :is(button, a, input, select) {
   scroll-margin-top: 180px;

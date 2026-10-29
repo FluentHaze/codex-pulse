@@ -1,16 +1,19 @@
 /**
  * 仅在页面可见时定期刷新今日统计；卸载或目录切换后的响应不会回写旧状态。
  */
-import { t, getLanguage } from '../electron/i18n';
 import { useEffect, useState } from 'react';
 import type { DailyStats } from '../electron/types';
+const snapshots = new Map<string, DailyStats>();
+const cacheKey = (path: string) => `${path}|${new Date().toLocaleDateString('en-CA')}`;
 export function useTodayUsage(sessionPath: string) {
-  const [stats, setStats] = useState<DailyStats>();
+  const [stats, setStats] = useState<DailyStats | undefined>(() =>
+    snapshots.get(cacheKey(sessionPath)),
+  );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [reload, setReload] = useState(0);
   useEffect(() => {
-    setStats(undefined);
+    setStats(snapshots.get(cacheKey(sessionPath)));
     setError('');
   }, [sessionPath]);
   useEffect(() => {
@@ -23,6 +26,8 @@ export function useTodayUsage(sessionPath: string) {
       try {
         const result = await window.pulse!.todayUsage(force);
         if (current) {
+          if (snapshots.size >= 4) snapshots.delete(snapshots.keys().next().value!);
+          snapshots.set(cacheKey(sessionPath), result);
           setStats(result);
           setError('');
         }
@@ -33,7 +38,7 @@ export function useTodayUsage(sessionPath: string) {
         if (current) setBusy(false);
       }
     };
-    void read(true);
+    void read(reload > 0);
     const timer = setInterval(() => {
       if (document.visibilityState === 'visible') void read();
     }, 30000);

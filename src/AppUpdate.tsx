@@ -5,7 +5,15 @@ import { useEffect, useRef, useState } from 'react';
 import type { UpdateState } from '../electron/types';
 import { t } from '../electron/i18n';
 
-export function AppUpdate({ compact = false }: { compact?: boolean }) {
+export function AppUpdate({
+  compact = false,
+  currentVersion,
+  onOpen,
+}: {
+  compact?: boolean;
+  currentVersion?: string;
+  onOpen?: () => void;
+}) {
   const [state, setState] = useState<UpdateState>();
   const [error, setError] = useState(false);
   const mounted = useRef(false);
@@ -61,46 +69,25 @@ export function AppUpdate({ compact = false }: { compact?: boolean }) {
                   ? '发现新版后自动后台下载，点击安装更新'
                   : '发现新版后自动后台下载，点击重启更新';
   if (compact) {
-    if (!error && !['downloading', 'downloaded', 'error'].includes(status ?? '')) return null;
-    const label =
-      error || status === 'error'
-        ? t('更新失败，点击重试')
-        : status === 'downloaded'
-          ? dmg
-            ? t('安装更新')
-            : t('重启更新')
-          : t('后台下载中…');
+    const attention =
+      error || ['available', 'downloading', 'downloaded', 'error'].includes(status ?? '');
+    const label = error ? t('更新失败，点击重试') : t(message);
     return (
-      <div className="sidebar-update" role="status">
-        <button
-          disabled={status === 'downloading'}
-          title={`${label}${state?.version ? ` · v${state.version}` : ''}`}
-          aria-label={label}
-          onClick={() => run(status === 'downloaded' ? 'install' : 'check')}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.7"
+      <button
+        className="sidebar-version"
+        aria-label={`${t('版本更新')} · ${label}`}
+        title={`${t('版本更新')} · ${label}${status === 'downloading' ? ` ${Math.floor(state?.percent ?? 0)}%` : ''}`}
+        onClick={onOpen}
+      >
+        <span>v{state?.currentVersion ?? currentVersion ?? '—'}</span>
+        {attention && (
+          <i
+            className={error || status === 'error' ? 'update-dot failed' : 'update-dot'}
             aria-hidden="true"
-          >
-            <path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" />
-          </svg>
-          <span>
-            <b>{label}</b>
-            <small>
-              {state?.version ? `v${state.version}` : ''}
-              {status === 'downloading' ? ` · ${Math.floor(state?.percent ?? 0)}%` : ''}
-            </small>
-          </span>
-        </button>
-        {status === 'downloading' && (
-          <progress aria-label={t('更新下载进度')} max={100} value={state?.percent ?? 0} />
+          />
         )}
-      </div>
+        <span className="version-link">{t('版本更新')}</span>
+      </button>
     );
   }
   return (

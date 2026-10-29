@@ -20,6 +20,8 @@ export class DailyAccumulator {
   private hourly: HourlyUsage[] = Array.from({ length: 24 }, (_, hour) => ({
     hour,
     total: 0,
+    input: 0,
+    output: 0,
     records: 0,
   }));
   readonly warnings = new Set<string>();
@@ -50,6 +52,14 @@ export class DailyAccumulator {
         bucket.total === null || sample.tokens.total === null
           ? null
           : bucket.total + sample.tokens.total;
+      bucket.input =
+        bucket.input == null || sample.tokens.input === null
+          ? null
+          : bucket.input + sample.tokens.input;
+      bucket.output =
+        bucket.output == null || sample.tokens.output === null
+          ? null
+          : bucket.output + sample.tokens.output;
     }
     this.turns.add(sample.dedupable ? sample.turnId : `${source}:${sample.turnId}`);
     if (!sample.dedupable) this.warnings.add('部分旧记录没有稳定轮次标识，跨文件去重可能不完整');
