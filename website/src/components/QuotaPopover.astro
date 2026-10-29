@@ -7,14 +7,21 @@ import Icon from './Icon.astro';
 interface Props {
   class?: string;
   locale?: Locale;
+  preview?: boolean;
 }
-const { class: className = '' } = Astro.props;
+const { class: className = '', preview = false } = Astro.props;
 
 const locale = Astro.props.locale ?? 'zh-CN';
 const t = translator(locale);
 ---
 
-<div class:list={['quota-popover', className]} aria-label={t('菜单栏额度卡片示意，示例数据')}>
+<div
+  hidden={preview}
+  data-demo-peek={preview ? '' : undefined}
+  id={preview ? 'hero-quota-preview' : undefined}
+  class:list={['quota-popover', className]}
+  aria-label={t('菜单栏额度卡片示意，示例数据')}
+>
   <div class="popover-heading">
     <span class="mini-app">
       <Mark size={25} />
@@ -41,7 +48,7 @@ const t = translator(locale);
         65% <small>{t('剩余')}</small>
       </strong>
     </div>
-    <div class="quota-track blue">
+    <div class="quota-track">
       <i style="width:65%"></i>
     </div>
     <small>{t('3 天后重置')}</small>
@@ -51,7 +58,7 @@ const t = translator(locale);
       <small>{t('本轮 Token')}</small>
       <span>{t('构建下一个好想法')}</span>
     </div>
-    <strong>12.8k</strong>
+    <strong>128K</strong>
   </div>
   <div class="popover-footer">
     <span>{t('刚刚更新')}</span>

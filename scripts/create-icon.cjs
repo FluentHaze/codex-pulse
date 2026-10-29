@@ -60,6 +60,8 @@ app
       for (const size of sizes) images.push(await render(icon, size));
       await writeFile(join(assets, 'app.ico'), ico(images));
       await writeFile(join(assets, 'trayTemplate.png'), await render(mark, 36));
+      const { syncBrand } = await import('./sync-brand.mjs');
+      await syncBrand();
       console.log('Generated SVG, 1024px PNG, multi-resolution ICO and monochrome tray icon');
     } finally {
       window.destroy();

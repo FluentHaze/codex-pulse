@@ -33,6 +33,7 @@ export class LiveTokenReader {
         const turn = this.parser.turns.at(-1);
         return {
           sessionId: session.id,
+          turnStartedAt: turn?.startedAt ?? null,
           title: session.title,
           turnId: turn?.id ?? null,
           turnNumber: turn?.number ?? null,
@@ -91,6 +92,7 @@ export class LiveTokenReader {
             : turn.status;
       return {
         sessionId: session.id,
+        turnStartedAt: turn?.startedAt ?? null,
         title: session.title,
         turnId: caughtUp ? (turn?.id ?? null) : null,
         turnNumber: caughtUp ? (turn?.number ?? null) : null,

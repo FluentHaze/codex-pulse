@@ -1,6 +1,7 @@
 /* 基础布局、交互控件与颜色变量；具体主题覆盖放在 radar-theme.css。 */
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
 }
 :root {
   --feedback-duration: 140ms;
@@ -912,8 +913,9 @@ select {
   color: #a4afa8;
 }
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  display: none;
+  width: 0;
+  height: 0;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

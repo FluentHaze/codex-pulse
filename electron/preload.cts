@@ -31,6 +31,8 @@ contextBridge.exposeInMainWorld('pulse', {
   claimStarGuide: (): Promise<boolean> => ipcRenderer.invoke('claim-star-guide'),
   resetData: (): Promise<ResetData> => ipcRenderer.invoke('reset-data'),
   resetSource: (url: string): Promise<void> => ipcRenderer.invoke('reset-source', url),
+  messageImage: (id: string, path: string): Promise<string> =>
+    ipcRenderer.invoke('message-image', id, path),
   tokenCatalog: (force = false): Promise<TokenCatalog> =>
     ipcRenderer.invoke('token-catalog', force),
   tokenSession: (id: string): Promise<TokenSession> => ipcRenderer.invoke('token-session', id),

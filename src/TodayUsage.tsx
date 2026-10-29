@@ -68,13 +68,19 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
         </section>
         <section className="daily-input">
           <span>{t('输入 Token')}</span>
-          <strong>{format(tokens?.input)}</strong>
-          <p>{t('其中缓存输入 {0}', [format(tokens?.cachedInput)])}</p>
+          <strong>
+            {format(tokens?.input)}
+            <small>Token</small>
+          </strong>
+          <p>{t('其中缓存输入 {0}', [`${format(tokens?.cachedInput)} Token`])}</p>
         </section>
         <section className="daily-output">
           <span>{t('输出 Token')}</span>
-          <strong>{format(tokens?.output)}</strong>
-          <p>{t('其中推理 {0}', [format(tokens?.reasoning)])}</p>
+          <strong>
+            {format(tokens?.output)}
+            <small>Token</small>
+          </strong>
+          <p>{t('其中推理 {0}', [`${format(tokens?.reasoning)} Token`])}</p>
         </section>
       </div>
       <div className="daily-analysis">

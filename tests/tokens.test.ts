@@ -271,3 +271,35 @@ test('store supports titles, appended records, safe identifiers, empty directori
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('alternating live sessions retain independent progress beyond the per-read budget', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'pulse-live-progress-'));
+  try {
+    const padding = (JSON.stringify({ type: 'ignored', value: 'x'.repeat(1024) }) + '\n').repeat(
+      8500,
+    );
+    for (const id of ['a', 'b']) {
+      await writeFile(
+        join(root, `rollout-${id}.jsonl`),
+        JSON.stringify({ type: 'session_meta', payload: { id, source: 'vscode' } }) +
+          '\n' +
+          event('task_started', { turn_id: id }) +
+          '\n' +
+          padding +
+          token(usage(10, 2), usage(10, 2)) +
+          '\n',
+      );
+    }
+    const store = new TokenStore(() => root);
+    const { sessions } = await store.list(true);
+    assert.equal(sessions.length, 2);
+    for (const session of sessions) assert.equal((await store.live(session.id)).status, 'waiting');
+    for (const session of sessions) {
+      const result = await store.live(session.id);
+      assert.equal(result.status, 'collecting');
+      assert.equal(result.tokens?.total, 12);
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

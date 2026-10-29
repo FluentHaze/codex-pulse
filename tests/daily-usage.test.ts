@@ -178,3 +178,37 @@ test('today scans beyond the chat-list cap, excludes internal sessions and dedup
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('today comparison separates calendar days and deduplicates yesterday history', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'pulse-comparison-'));
+  try {
+    const today = localDayRange();
+    const previousDate = new Date(today.start);
+    previousDate.setDate(previousDate.getDate() - 1);
+    const yesterday = localDayRange(previousDate);
+    const yesterdayTime = yesterday.start + 1000;
+    const todayTime = today.start + 1000;
+    const meta = (id: string) =>
+      JSON.stringify({ type: 'session_meta', payload: { id, source: 'vscode' } });
+    const history = [start('previous-turn'), token(100, 20, yesterdayTime)];
+    await writeFile(
+      join(root, 'rollout-main.jsonl'),
+      [meta('main'), ...history, start('today-turn'), token(150, 30, todayTime, 50, 10)].join(
+        '\n',
+      ) + '\n',
+    );
+    await writeFile(join(root, 'rollout-copy.jsonl'), [meta('copy'), ...history].join('\n') + '\n');
+    const store = new TokenStore(() => root);
+    const result = await store.today(true);
+    assert.equal(result.date, today.date);
+    assert.equal(result.tokens.total, 60);
+    assert.equal(result.yesterday?.date, yesterday.date);
+    assert.equal(result.yesterday?.tokens.total, 120);
+    assert.equal(result.yesterday?.duplicateRecords, 1);
+    assert.equal(result.hourly?.[0].total, 60);
+    assert.equal(result.yesterday?.hourly?.[0].total, 120);
+    assert.equal((await store.today()).yesterday?.tokens.total, 120);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

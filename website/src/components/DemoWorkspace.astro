@@ -1,0 +1,308 @@
+---
+import { translator, type Locale } from '../i18n';
+import Mark from './Mark.astro';
+import Icon from './Icon.astro';
+import UsageChart from './UsageChart.astro';
+const t = translator(Astro.props.locale ?? 'zh-CN');
+const locale = Astro.props.locale ?? 'zh-CN';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const views = [
+  { id: 'overview', label: t('额度概览'), icon: 'chart' },
+  { id: 'resets', label: t('重置雷达'), icon: 'clock' },
+  { id: 'today', label: t('今日用量'), icon: 'chart' },
+  { id: 'tokens', label: t('Token 明细'), icon: 'spark' },
+];
+const conversations = [t('构建下一个好想法'), t('优化项目界面'), t('分析本机用量')];
+const days = Array.from({ length: 35 }, (_, index) => (index < 3 || index > 33 ? null : index - 2));
+interface Props {
+  locale?: Locale;
+}
+---
+
+<div class="demo-dashboard modern-demo" data-demo-workspace>
+  <aside class="demo-sidebar">
+    <div class="demo-window-controls">
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+    <div class="demo-brand">
+      <Mark size={22} />
+      <b>Codex Pulse</b>
+    </div>
+    <nav role="tablist" aria-label={t('产品功能演示')} aria-orientation="vertical">
+      {views.map((view, index) => (
+        <button
+          type="button"
+          class:list={['demo-nav', { active: index === 0 }]}
+          role="tab"
+          id={`demo-tab-${view.id}`}
+          aria-controls={`demo-panel-${view.id}`}
+          aria-selected={index === 0 ? 'true' : 'false'}
+          tabindex={index === 0 ? 0 : -1}
+          data-demo-tab={view.id}
+        >
+          <Icon name={view.icon} size={13} />
+          {view.label}
+        </button>
+      ))}
+    </nav>
+    <div class="demo-account-bottom">
+      <span class="demo-user-avatar">P</span>
+      <div>
+        <b>Pulse</b>
+        <small>Plus · {t('本机额度监控')}</small>
+      </div>
+      <i></i>
+    </div>
+  </aside>
+  <div class="demo-main">
+    <section
+      id="demo-panel-overview"
+      role="tabpanel"
+      aria-labelledby="demo-tab-overview"
+      data-demo-panel="overview"
+    >
+      <div class="demo-main-title">
+        <h3>{t('额度概览')}</h3>
+        <div class="demo-quota-toggle" role="group" aria-label={t('额度显示方式')}>
+          <button type="button" data-demo-display="remaining" aria-pressed="true">
+            {t('剩余')}
+          </button>
+          <button type="button" data-demo-display="used" aria-pressed="false">
+            {t('已用')}
+          </button>
+        </div>
+      </div>
+      <p class="demo-view-description">{t('查看可用额度与下一次重置时间')}</p>
+      <div class="demo-quota-grid">
+        {[
+          { name: t('5 小时窗口'), value: 88, text: t('2 小时 17 分钟后重置') },
+          { name: t('每周窗口'), value: 65, text: t('3 天后重置') },
+        ].map((quota) => (
+          <article class="demo-quota-card" style="--ring-color:var(--demo-green)">
+            <header>
+              <h4>{quota.name}</h4>
+              <span>{t('额度充足')}</span>
+            </header>
+            <div class="demo-quota-visual">
+              <div>
+                <strong data-demo-value={quota.value}>{quota.value}%</strong>
+                <small data-demo-display-label>{t('剩余')}</small>
+              </div>
+              <div
+                class="demo-ring"
+                data-demo-ring={quota.value}
+                style={`--percent:${quota.value}`}
+              >
+                <span>
+                  <b data-demo-value={quota.value}>{quota.value}%</b>
+                </span>
+              </div>
+            </div>
+            <footer>{quota.text}</footer>
+          </article>
+        ))}
+      </div>
+      <div class="demo-chart-panel">
+        <div>
+          <b>{t('每小时 Token 消耗')}</b>
+          <strong>
+            2.4M <small>Token</small>
+          </strong>
+        </div>
+        <UsageChart locale={locale} />
+      </div>
+    </section>
+    <section
+      id="demo-panel-today"
+      role="tabpanel"
+      aria-labelledby="demo-tab-today"
+      data-demo-panel="today"
+      hidden
+    >
+      <div class="demo-main-title">
+        <h3>{t('今日用量')}</h3>
+        <span>{t('本机已记录')}</span>
+      </div>
+      <p class="demo-view-description">{t('今日柱形，昨日虚线，同小时对比。')}</p>
+      <div class="demo-metrics">
+        <div>
+          <span>{t('今日 Token 用量')}</span>
+          <strong>
+            2.4M <small>Token</small>
+          </strong>
+        </div>
+        <div>
+          <span>{t('输入')}</span>
+          <strong>
+            2.1M <small>Token</small>
+          </strong>
+        </div>
+        <div>
+          <span>{t('输出')}</span>
+          <strong>
+            300K <small>Token</small>
+          </strong>
+        </div>
+      </div>
+      <div class="demo-chart-panel demo-daily-chart">
+        <div>
+          <b>{t('每小时 Token 消耗')}</b>
+          <span>Asia/Shanghai</span>
+        </div>
+        <UsageChart locale={locale} />
+      </div>
+    </section>
+    <section
+      id="demo-panel-resets"
+      role="tabpanel"
+      aria-labelledby="demo-tab-resets"
+      data-demo-panel="resets"
+      hidden
+    >
+      <div class="demo-main-title">
+        <h3>{t('重置雷达')}</h3>
+        <span>{t('示例数据')}</span>
+      </div>
+      <p class="demo-view-description">{t('全局预测与个人恢复，一眼看清。')}</p>
+      <div class="demo-forecast">
+        <div>
+          <span>{t('未来 24 小时')}</span>
+          <strong>46%</strong>
+          <i>
+            <em style="width:46%"></em>
+          </i>
+        </div>
+        <div>
+          <span>{t('未来 48 小时')}</span>
+          <strong>71%</strong>
+          <i>
+            <em style="width:71%"></em>
+          </i>
+        </div>
+        <div>
+          <span>{t('我的下次恢复')}</span>
+          <strong>2h 17m</strong>
+          <small>{t('实验性预测，仅供参考')}</small>
+        </div>
+      </div>
+      <div class="demo-calendar-layout">
+        <div class="demo-calendar">
+          <b>2026 / 10</b>
+          <div class="demo-week">
+            {['一', '二', '三', '四', '五', '六', '日'].map((day) => (
+              <span>{t(day)}</span>
+            ))}
+          </div>
+          <div class="demo-days">
+            {days.map((day) =>
+              day ? (
+                <button
+                  type="button"
+                  class:list={{
+                    marked: [3, 7, 11, 13, 15, 18, 20, 23, 24, 25, 26, 28].includes(day),
+                  }}
+                  data-demo-day={day}
+                  aria-pressed={day === 30 ? 'true' : 'false'}
+                  aria-label={`2026-10-${String(day).padStart(2, '0')}`}
+                >
+                  {day}
+                </button>
+              ) : (
+                <span></span>
+              ),
+            )}
+          </div>
+        </div>
+        <div class="demo-calendar-record">
+          <b data-demo-selected-day>2026 / 10 / 30</b>
+          <span>{t('当日记录')}</span>
+          <p data-demo-day-record>{t('个人窗口到期')}</p>
+          <small>{t('以服务端刷新确认为准')}</small>
+        </div>
+      </div>
+    </section>
+    <section
+      id="demo-panel-tokens"
+      role="tabpanel"
+      aria-labelledby="demo-tab-tokens"
+      data-demo-panel="tokens"
+      hidden
+    >
+      <div class="demo-main-title">
+        <h3>{t('Token 明细')}</h3>
+        <span>{t('点击轮次查看消息')}</span>
+      </div>
+      <p class="demo-view-description">{t('独立会话、紧凑轮次、消息抽屉。')}</p>
+      <div class="demo-conversation-workspace">
+        <aside>
+          {conversations.map((name, index) => (
+            <button
+              type="button"
+              data-demo-conversation={name}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              <b>{name}</b>
+              <small>GitHub · 10/30</small>
+            </button>
+          ))}
+        </aside>
+        <div>
+          <header>
+            <b data-demo-conversation-title>{conversations[0]}</b>
+            <strong>
+              2.4M <small>Token</small>
+            </strong>
+          </header>
+          <div class="demo-turn-head">
+            <span>{t('消息 / 轮次')}</span>
+            <span>{t('合计')}</span>
+          </div>
+          {[t('优化项目界面'), t('分析本机用量'), t('构建下一个好想法')].map((name, index) => (
+            <button type="button" class="demo-turn" data-demo-message={index + 1}>
+              <span>
+                <b>{name}</b>
+                <small>
+                  {t('第 {0} 轮').replace('{0}', String(3 - index))} · {t('已完成')}
+                </small>
+              </span>
+              <strong>{['860K', '640K', '900K'][index]}</strong>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div class="demo-message-panel" role="dialog" aria-label={t('消息详情')} hidden>
+        <header>
+          <b>{t('消息详情')}</b>
+          <button type="button" data-demo-close aria-label={t('关闭')}>
+            ×
+          </button>
+        </header>
+        <div class="demo-message-stats">
+          <span>
+            {t('输入')} <b>820K</b>
+          </span>
+          <span>
+            {t('输出')} <b>40K</b>
+          </span>
+          <span>
+            {t('合计')} <b>860K</b>
+          </span>
+        </div>
+        <div class="demo-chat user">
+          <span>P</span>
+          <p>{t('优化项目界面')}</p>
+        </div>
+        <div class="demo-chat assistant">
+          <img src={`${base}assets/gpt-avatar.svg`} width="20" height="20" alt="GPT" />
+          <p>{t('配色、布局与交互，已经同步更新。')}</p>
+        </div>
+        <div class="demo-chat assistant continued">
+          <span></span>
+          <p>{t('消息与图片仅在本机查看。')}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

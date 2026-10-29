@@ -1,10 +1,13 @@
+import { MessageBody } from './MessageBody';
+import { avatarDataUrl } from './avatar';
+import gptAvatar from '../assets/gpt-avatar.svg';
 import { Select } from './Select';
 /**
  * 本机会话列表与逐轮明细。目录、筛选条件和当前会话各自刷新，过期响应不覆盖新选择。
  */
 import { useLanguage } from './use-language';
 import { t, getLanguage } from '../electron/i18n';
-import { Fragment, memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import type { TokenCatalog, TokenSession, TokenCounts, DailyStats } from '../electron/types';
 import { filterSessions, type DateFilter } from './session-filter';
 const count = (value: number | null | undefined) =>
@@ -26,6 +29,15 @@ const date = (value: string | number | null) =>
       })
     : t('时间未知');
 
+// 附件包装保留在展开的原文中；列表摘要优先展示用户的实际请求。
+const messagePreview = (text: string | undefined) =>
+  text
+    ?.split(/(?:^|\n)## My request:\s*\n/)
+    .at(-1)
+    ?.replace(/<\/?image\b[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim() || t('用户消息未记录');
+
 const catalogs = new Map<string, TokenCatalog>();
 const details = new Map<string, TokenSession>();
 const scopes = new Map<string, DailyStats>();
@@ -37,10 +49,12 @@ export const TokenDetails = memo(function TokenDetails({
   sessionPath,
   watchedSessionId,
   initialSessionId = '',
+  account = '',
 }: {
   sessionPath: string;
   watchedSessionId: string;
   initialSessionId?: string;
+  account?: string;
 }) {
   const language = useLanguage();
   const statusNames = {
@@ -60,8 +74,12 @@ export const TokenDetails = memo(function TokenDetails({
   const [query, setQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(100);
   const [turnPage, setTurnPage] = useState(0);
+  const [openedTurn, setOpenedTurn] = useState<string | null>(null);
+  const drawer = useRef<HTMLDialogElement>(null);
+  const drawerBackdropPressed = useRef(false);
   useEffect(() => {
     setTurnPage(0);
+    setOpenedTurn(null);
   }, [selected, sessionPath]);
   const [project, setProject] = useState('*');
   const [period, setPeriod] = useState<DateFilter>('all');
@@ -83,7 +101,11 @@ export const TokenDetails = memo(function TokenDetails({
               ] as const,
           ),
         ]).entries(),
-      ].sort((a, b) => a[1].localeCompare(b[1], getLanguage())),
+      ].sort((a, b) => {
+        const rank = ([id, label]: [string, string]) =>
+          !id ? 2 : /^(?:\/|[a-z]:[\\/]|\\\\)/i.test(label) ? 1 : 0;
+        return rank(a) - rank(b) || a[1].localeCompare(b[1], getLanguage());
+      }),
     [catalog, language],
   );
   useEffect(() => {
@@ -109,6 +131,16 @@ export const TokenDetails = memo(function TokenDetails({
     turnPage,
     Math.max(0, Math.ceil((detail?.turns.length ?? 0) / 30) - 1),
   );
+  const activeTurn = detail?.turns.find((turn) => turn.id === openedTurn);
+  useEffect(() => {
+    const dialog = drawer.current;
+    if (activeTurn && dialog && !dialog.open) dialog.showModal();
+    if (!activeTurn && dialog?.open) dialog.close();
+  }, [activeTurn]);
+  const panelScroll = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    panelScroll.current?.scrollTo({ top: 0, left: 0 });
+  }, [selected, currentTurnPage]);
   const catalogRequest = useRef(0);
   const selectLatest = useRef(!initialSessionId);
   const mounted = useRef(true);
@@ -341,7 +373,11 @@ export const TokenDetails = memo(function TokenDetails({
       </div>
       <div className="token-workspace">
         <aside className="token-session-list" aria-label={t('选择聊天')}>
-          <button className={!selected ? 'active' : ''} onClick={() => setSelected('')}>
+          <button
+            className={!selected ? 'active' : ''}
+            aria-pressed={!selected}
+            onClick={() => setSelected('')}
+          >
             {t('全部匹配聊天的总用量')}
           </button>
           {visibleSessions.slice(0, visibleCount).map((session) => (
@@ -355,7 +391,6 @@ export const TokenDetails = memo(function TokenDetails({
               onClick={() => {
                 setSelected(session.id);
                 setError('');
-                document.querySelector('.token-table-scroll')?.scrollTo({ top: 0 });
               }}
               key={session.id}
             >
@@ -376,7 +411,7 @@ export const TokenDetails = memo(function TokenDetails({
             </p>
           )}
         </aside>
-        <div className="token-detail-panel" aria-busy={busy}>
+        <div className="token-detail-panel" aria-busy={busy} ref={panelScroll}>
           {busy && (selected ? !detail : !scope) && (
             <div className="token-content-loading" role="status">
               <span className="token-loading-line" />
@@ -389,26 +424,59 @@ export const TokenDetails = memo(function TokenDetails({
             </div>
           )}
           {selected && (
-            <h2 className="token-selected-title">
-              {visibleSessions.find((session) => session.id === selected)?.title}
-            </h2>
+            <header className="token-detail-heading">
+              <div className="token-heading-name">
+                <h2
+                  className="token-selected-title"
+                  title={visibleSessions.find((session) => session.id === selected)?.title}
+                >
+                  {visibleSessions.find((session) => session.id === selected)?.title ||
+                    t('匹配聊天总用量')}
+                </h2>
+                <span>
+                  {detail
+                    ? t('{0} 轮对话，{1} 轮有统计', [detail.turns.length, totals?.count ?? 0])
+                    : t('正在读取轮次…')}
+                </span>
+              </div>
+              {selected && (
+                <strong
+                  className="token-heading-total"
+                  title={`${count(totals?.count ? totals.tokens : null)} Token`}
+                >
+                  {totals?.count ? compactCount(totals.tokens) : '—'}
+                  <small>Token</small>
+                </strong>
+              )}
+              <button
+                className="token-pin"
+                aria-label={t('固定跟踪此聊天')}
+                title={t(
+                  watchedSessionId === selected ? '悬浮窗已固定跟踪当前聊天' : '固定跟踪此聊天',
+                )}
+                aria-pressed={!!selected && watchedSessionId === selected}
+                disabled={!selected || watchedSessionId === selected}
+                onClick={() => track(selected)}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  aria-hidden="true"
+                >
+                  <path d="m16 3 5 5-4 1-4 5v3l-2 2-3-5-5-3 2-2h3l5-4zM8 16l-5 5" />
+                </svg>
+              </button>
+              {watchedSessionId && (
+                <button className="token-unpin" onClick={() => track('')}>
+                  {t('恢复自动跟随')}
+                </button>
+              )}
+            </header>
           )}
-          <div className="token-tracking" hidden={!selected && !watchedSessionId}>
-            <span>
-              {watchedSessionId
-                ? watchedSessionId === selected
-                  ? t('悬浮窗已固定跟踪当前聊天')
-                  : t('悬浮窗正固定跟踪其他聊天')
-                : t('悬浮窗自动跟随本机最近更新的聊天')}
-            </span>
-            <button
-              disabled={!selected || watchedSessionId === selected}
-              onClick={() => track(selected)}
-            >
-              {t('固定跟踪此聊天')}
-            </button>
-            {watchedSessionId && <button onClick={() => track('')}>{t('恢复自动跟随')}</button>}
-          </div>
           {error && (
             <div className="alert" role="alert">
               {t(error ?? '')}
@@ -428,39 +496,41 @@ export const TokenDetails = memo(function TokenDetails({
             </div>
           ) : (
             <>
-              <div
-                className={`token-summary ${busy && (selected ? !detail : !scope) ? 'loading-summary' : ''}`}
-              >
-                <div>
-                  <span>
-                    {selected
-                      ? t('当前聊天已记录用量')
-                      : project === '*'
-                        ? t('匹配聊天总用量')
-                        : t('当前项目总用量')}
-                  </span>
-                  <strong
-                    title={`${count(selected ? (totals?.count ? totals.tokens : null) : scope?.tokens.total)} Token`}
-                  >
-                    {selected
-                      ? totals?.count
-                        ? compactCount(totals.tokens)
-                        : '—'
-                      : compactCount(scope?.tokens.total)}
-                    <small>Token</small>
-                  </strong>
+              {!selected && (
+                <div
+                  className={`token-summary ${busy && (selected ? !detail : !scope) ? 'loading-summary' : ''}`}
+                >
+                  <div>
+                    <span>
+                      {selected
+                        ? t('当前聊天已记录用量')
+                        : project === '*'
+                          ? t('匹配聊天总用量')
+                          : t('当前项目总用量')}
+                    </span>
+                    <strong
+                      title={`${count(selected ? (totals?.count ? totals.tokens : null) : scope?.tokens.total)} Token`}
+                    >
+                      {selected
+                        ? totals?.count
+                          ? compactCount(totals.tokens)
+                          : '—'
+                        : compactCount(scope?.tokens.total)}
+                      <small>Token</small>
+                    </strong>
+                  </div>
+                  <p>
+                    {!selected
+                      ? scope
+                        ? t('{0} 条聊天，{1} 轮有统计', [visibleSessions.length, scope.turnCount])
+                        : t('正在汇总项目用量…')
+                      : detail
+                        ? t('{0} 轮对话，{1} 轮有统计', [detail.turns.length, totals?.count ?? 0])
+                        : t('正在读取轮次…')}
+                    <span>{t('缓存输入已含在输入中，推理已含在输出中。')}</span>
+                  </p>
                 </div>
-                <p>
-                  {!selected
-                    ? scope
-                      ? t('{0} 条聊天，{1} 轮有统计', [visibleSessions.length, scope.turnCount])
-                      : t('正在汇总项目用量…')
-                    : detail
-                      ? t('{0} 轮对话，{1} 轮有统计', [detail.turns.length, totals?.count ?? 0])
-                      : t('正在读取轮次…')}
-                  <span>{t('缓存输入已含在输入中，推理已含在输出中。')}</span>
-                </p>
-              </div>
+              )}
               {!selected && scope && (
                 <div className="daily-metrics">
                   {columns
@@ -488,128 +558,98 @@ export const TokenDetails = memo(function TokenDetails({
               ))}
               {selected && (
                 <div className="token-table-scroll">
-                  <table className="token-table">
+                  <table className="token-table token-turn-list">
                     <caption className="sr-only">{t('每轮对话的 Token 用量')}</caption>
                     <thead>
                       <tr>
                         <th scope="col">{t('消息 / 轮次')}</th>
-                        {columns.map((column) => (
-                          <th scope="col" key={column.key} title={column.title}>
-                            {column.label}
-                          </th>
-                        ))}
+                        {columns
+                          .filter((column) => ['input', 'output', 'total'].includes(column.key))
+                          .map((column) => (
+                            <th
+                              scope="col"
+                              key={column.key}
+                              title={column.title}
+                              data-metric={column.key}
+                            >
+                              {column.label}
+                            </th>
+                          ))}
                       </tr>
                     </thead>
                     <tbody>
                       {!detail ? (
                         <tr>
-                          <td colSpan={6}>{error ? t('未能读取统计') : t('正在加载统计…')}</td>
+                          <td colSpan={4}>{error ? t('未能读取统计') : t('正在加载统计…')}</td>
                         </tr>
                       ) : !detail.turns.length ? (
                         <tr>
-                          <td colSpan={6}>{t('这条聊天尚无可识别的轮次记录')}</td>
+                          <td colSpan={4}>{t('这条聊天尚无可识别的轮次记录')}</td>
                         </tr>
                       ) : (
                         [...detail.turns]
                           .reverse()
                           .slice(currentTurnPage * 30, currentTurnPage * 30 + 30)
                           .map((turn) => (
-                            <Fragment key={turn.id}>
-                              <tr className="token-turn">
-                                <th scope="row">
-                                  <span
-                                    className="turn-message-preview"
-                                    title={turn.messages
-                                      .find((message) => message.role === 'user')
-                                      ?.text.slice(0, 300)}
-                                  >
-                                    {turn.messages.find((message) => message.role === 'user')
-                                      ?.text || t('用户消息未记录')}
+                            <tr
+                              className="token-turn"
+                              key={turn.id}
+                              onClick={() => setOpenedTurn(turn.id)}
+                            >
+                              <th scope="row">
+                                <button
+                                  className="turn-open"
+                                  aria-haspopup="dialog"
+                                  onClick={() => setOpenedTurn(turn.id)}
+                                  title={messagePreview(
+                                    turn.messages.find((message) => message.role === 'user')?.text,
+                                  ).slice(0, 300)}
+                                >
+                                  <span className="turn-message-preview">
+                                    {messagePreview(
+                                      turn.messages.find((message) => message.role === 'user')
+                                        ?.text,
+                                    )}
                                   </span>
-                                  <span className="turn-caption">
-                                    {t('第 {0} 轮 ', [turn.number])}
-                                    <em>{statusNames[turn.status]}</em>
-                                  </span>
-                                  <small>
+                                  <span className="turn-list-meta">
+                                    {t('第 {0} 轮 ', [turn.number])} · {statusNames[turn.status]} ·{' '}
                                     {date(turn.startedAt)}
                                     {turn.model ? ` / ${turn.model}` : ''}
-                                  </small>
+                                  </span>
                                   {(!turn.tokens || !turn.complete) && (
-                                    <small className="token-warning">
+                                    <span className="token-warning">
                                       {turn.tokens ? t('统计不完整') : t('暂无统计')}
-                                    </small>
+                                    </span>
                                   )}
-                                </th>
-                                {columns.map((column) => (
+                                </button>
+                              </th>
+                              {columns
+                                .filter((column) =>
+                                  ['input', 'output', 'total'].includes(column.key),
+                                )
+                                .map((column) => (
                                   <td
                                     key={column.key}
+                                    data-metric={column.key}
                                     title={turn.tokens ? undefined : t('该轮没有 Token 统计')}
                                   >
                                     {count(turn.tokens?.[column.key])}
                                   </td>
                                 ))}
-                              </tr>
-                              <tr className="message-detail">
-                                <td colSpan={6}>
-                                  {turn.messages.length ? (
-                                    <details>
-                                      <summary>
-                                        {t('查看第 {0} 轮消息（{1} 条）', [
-                                          turn.number,
-                                          turn.messages.length,
-                                        ])}
-                                      </summary>
-                                      <div className="message-thread">
-                                        <p className="note">
-                                          {t(
-                                            '上方 Token 是整轮合计，不能分摊为每个气泡的精确消耗。图片仅显示附件标记。',
-                                          )}
-                                        </p>
-                                        {turn.messages.map((message, index) => (
-                                          <section
-                                            className={`message-bubble ${message.role}`}
-                                            key={`${message.role}-${index}`}
-                                          >
-                                            <h3>
-                                              {message.role === 'user'
-                                                ? t('你')
-                                                : message.phase === 'commentary'
-                                                  ? t('助手 · 进度说明')
-                                                  : t('助手')}
-                                            </h3>
-                                            <pre>{message.text}</pre>
-                                            {message.truncated && (
-                                              <p className="token-warning">
-                                                {t('内容过长，仅显示本次加载的前 {0} 个字符', [
-                                                  message.text.length.toLocaleString(),
-                                                ])}
-                                              </p>
-                                            )}
-                                          </section>
-                                        ))}
-                                      </div>
-                                    </details>
-                                  ) : (
-                                    <span className="message-unavailable">
-                                      {t('此轮没有可读取的消息正文')}
-                                    </span>
-                                  )}
-                                </td>
-                              </tr>
-                            </Fragment>
+                            </tr>
                           ))
                       )}
                     </tbody>
                   </table>
                 </div>
               )}
-              {selected && !!detail?.turns.length && (
+              {selected && (detail?.turns.length ?? 0) > 30 && (
                 <footer className="turn-pagination">
                   <span>
                     {t('第 {0} / {1} 页 · 共 {2} 条', [
                       currentTurnPage + 1,
-                      Math.ceil(detail.turns.length / 30),
-                      detail.turns.length,
+                      Math.ceil((detail?.turns.length ?? 0) / 30),
+                      detail?.turns.length ?? 0,
                     ])}
                   </span>
                   <div>
@@ -620,7 +660,7 @@ export const TokenDetails = memo(function TokenDetails({
                       {t('上一页')}
                     </button>
                     <button
-                      disabled={(currentTurnPage + 1) * 30 >= detail.turns.length}
+                      disabled={(currentTurnPage + 1) * 30 >= (detail?.turns.length ?? 0)}
                       onClick={() => setTurnPage(currentTurnPage + 1)}
                     >
                       {t('下一页')}
@@ -632,6 +672,113 @@ export const TokenDetails = memo(function TokenDetails({
           )}
         </div>
       </div>
+      <dialog
+        ref={drawer}
+        className="token-message-drawer"
+        aria-labelledby="turn-drawer-title"
+        onClose={(event) => {
+          if (event.target === event.currentTarget) setOpenedTurn(null);
+        }}
+        onPointerDown={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          drawerBackdropPressed.current =
+            event.target === event.currentTarget &&
+            (event.clientX < rect.left ||
+              event.clientX > rect.right ||
+              event.clientY < rect.top ||
+              event.clientY > rect.bottom);
+        }}
+        onClick={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          if (
+            drawerBackdropPressed.current &&
+            event.target === event.currentTarget &&
+            (event.clientX < rect.left ||
+              event.clientX > rect.right ||
+              event.clientY < rect.top ||
+              event.clientY > rect.bottom)
+          )
+            event.currentTarget.close();
+        }}
+      >
+        {activeTurn && (
+          <>
+            <header className="turn-drawer-header">
+              <div>
+                <h2 id="turn-drawer-title">
+                  {t('第 {0} 轮 ', [activeTurn.number])}
+                  <small>{statusNames[activeTurn.status]}</small>
+                </h2>
+                <p>
+                  {date(activeTurn.startedAt)}
+                  {activeTurn.model ? ` / ${activeTurn.model}` : ''}
+                </p>
+              </div>
+              <button autoFocus aria-label={t('关闭')} onClick={() => drawer.current?.close()}>
+                ×
+              </button>
+            </header>
+            <div className="turn-drawer-body">
+              <dl className="turn-drawer-metrics">
+                {columns.map((column) => (
+                  <div key={column.key}>
+                    <dt title={column.title}>{column.label}</dt>
+                    <dd title={count(activeTurn.tokens?.[column.key])}>
+                      {compactCount(activeTurn.tokens?.[column.key])}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="note">{t('缓存输入已含在输入中，推理已含在输出中。')}</p>
+              <div className="message-thread">
+                <p className="note">{t('上方 Token 是整轮合计，不能分摊为每个气泡的精确消耗。')}</p>
+                {activeTurn.messages.length ? (
+                  activeTurn.messages.map((message, index) => (
+                    <section
+                      className={`chat-message ${message.role} ${index > 0 && activeTurn.messages[index - 1].role === message.role ? 'continued' : ''}`}
+                      key={`${message.role}-${index}`}
+                    >
+                      <div
+                        className="message-avatar"
+                        title={
+                          message.role === 'user'
+                            ? t('你')
+                            : message.phase === 'commentary'
+                              ? t('助手 · 进度说明')
+                              : 'GPT'
+                        }
+                      >
+                        <img
+                          src={message.role === 'user' ? avatarDataUrl(account) : gptAvatar}
+                          alt={message.role === 'user' ? t('你') : 'GPT'}
+                          width="28"
+                          height="28"
+                        />
+                      </div>
+                      <div className={`message-bubble ${message.role}`}>
+                        <MessageBody
+                          text={message.text}
+                          user={message.role === 'user'}
+                          sessionId={selected}
+                        />
+                        {message.truncated && (
+                          <p className="token-warning">
+                            {t('内容过长，仅显示本次加载的前 {0} 个字符', [
+                              message.text.length.toLocaleString(),
+                            ])}
+                          </p>
+                        )}
+                      </div>
+                    </section>
+                  ))
+                ) : (
+                  <p className="empty">{t('此轮没有可读取的消息正文')}</p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </dialog>
       <div className="token-source">
         <span title={catalog?.root}>
           {t('来源：{0}', [catalog?.root || sessionPath || t('本机 Codex sessions')])}

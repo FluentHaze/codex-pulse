@@ -202,7 +202,7 @@ main.reset-page {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 8px 30px color-mix(in srgb, var(--ink) 15%, transparent);
+  box-shadow: 0 4px 14px #00000014;
 }
 .radar-alert-options {
   display: grid;
@@ -389,7 +389,7 @@ main.reset-page {
   padding-left: 22px;
   max-height: 294px;
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 .calendar-detail > h3 {
   font-size: 14px;
@@ -585,7 +585,7 @@ main.reset-page {
 .radar-posts {
   height: 280px;
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   margin-top: 8px;
   padding-right: 8px;
 }

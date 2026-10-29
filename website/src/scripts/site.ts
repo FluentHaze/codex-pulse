@@ -307,3 +307,138 @@ document.querySelector('[data-language-suggestion-close]')?.addEventListener('cl
     sessionStorage.setItem('pulse-language-suggestion-dismissed', '1');
   } catch {}
 });
+
+// The showcase runs entirely on fixed sample data, with no local account access.
+const workspace = document.querySelector<HTMLElement>('[data-demo-workspace]');
+const demoTabs = Array.from(
+  workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-tab]') ?? [],
+);
+function switchDemo(button: HTMLButtonElement) {
+  const selected = button.dataset.demoTab;
+  demoTabs.forEach((tab) => {
+    tab.classList.toggle('active', tab === button);
+    tab.setAttribute('aria-selected', String(tab === button));
+    tab.tabIndex = tab === button ? 0 : -1;
+  });
+  workspace
+    ?.querySelectorAll<HTMLElement>('[data-demo-panel]')
+    .forEach((panel) => (panel.hidden = panel.dataset.demoPanel !== selected));
+  closeDemoMessages(false);
+}
+demoTabs.forEach((button, index) => {
+  button.addEventListener('click', () => switchDemo(button));
+  button.addEventListener('keydown', (event) => {
+    const next =
+      event.key === 'ArrowDown'
+        ? (index + 1) % demoTabs.length
+        : event.key === 'ArrowUp'
+          ? (index + demoTabs.length - 1) % demoTabs.length
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? demoTabs.length - 1
+              : -1;
+    if (next < 0) return;
+    event.preventDefault();
+    switchDemo(demoTabs[next]);
+    demoTabs[next].focus();
+  });
+});
+workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-display]').forEach((button) =>
+  button.addEventListener('click', () => {
+    const used = button.dataset.demoDisplay === 'used';
+    workspace
+      .querySelectorAll('[data-demo-display]')
+      .forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    workspace
+      .querySelectorAll<HTMLElement>('[data-demo-value]')
+      .forEach(
+        (item) =>
+          (item.textContent = `${used ? 100 - Number(item.dataset.demoValue) : item.dataset.demoValue}%`),
+      );
+    workspace
+      .querySelectorAll<HTMLElement>('[data-demo-ring]')
+      .forEach((item) =>
+        item.style.setProperty(
+          '--percent',
+          String(used ? 100 - Number(item.dataset.demoRing) : item.dataset.demoRing),
+        ),
+      );
+    workspace
+      .querySelectorAll('[data-demo-display-label]')
+      .forEach((item) => (item.textContent = used ? t('已用') : t('剩余')));
+  }),
+);
+workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-day]').forEach((button) =>
+  button.addEventListener('click', () => {
+    workspace
+      .querySelectorAll('[data-demo-day]')
+      .forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    const day = Number(button.dataset.demoDay);
+    const label = workspace.querySelector('[data-demo-selected-day]');
+    const record = workspace.querySelector('[data-demo-day-record]');
+    if (label) label.textContent = `2026 / 10 / ${String(day).padStart(2, '0')}`;
+    if (record)
+      record.textContent =
+        day === 30
+          ? t('个人窗口到期')
+          : button.classList.contains('marked')
+            ? t('已确认重置')
+            : t('这一天暂无匹配记录');
+  }),
+);
+workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-conversation]').forEach((button) =>
+  button.addEventListener('click', () => {
+    workspace
+      .querySelectorAll('[data-demo-conversation]')
+      .forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    const title = workspace.querySelector('[data-demo-conversation-title]');
+    if (title) title.textContent = button.dataset.demoConversation ?? '';
+  }),
+);
+const messagePanel = workspace?.querySelector<HTMLElement>('.demo-message-panel');
+let messageTrigger: HTMLButtonElement | undefined;
+function closeDemoMessages(restoreFocus = true) {
+  if (messagePanel) messagePanel.hidden = true;
+  if (restoreFocus) messageTrigger?.focus();
+}
+workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-message]').forEach((button) =>
+  button.addEventListener('click', () => {
+    messageTrigger = button;
+    if (messagePanel) messagePanel.hidden = false;
+    workspace.querySelector<HTMLButtonElement>('[data-demo-close]')?.focus();
+  }),
+);
+workspace?.querySelector('[data-demo-close]')?.addEventListener('click', () => closeDemoMessages());
+messagePanel?.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
+    closeDemoMessages();
+  }
+});
+
+const demoPeekTrigger = document.querySelector<HTMLButtonElement>('[data-demo-peek-trigger]');
+const demoPeek = document.querySelector<HTMLElement>('[data-demo-peek]');
+function hideDemoPeek() {
+  if (demoPeek) demoPeek.hidden = true;
+  demoPeekTrigger?.setAttribute('aria-expanded', 'false');
+}
+demoPeekTrigger?.addEventListener('click', () => {
+  if (!demoPeek) return;
+  demoPeek.hidden = !demoPeek.hidden;
+  demoPeekTrigger.setAttribute('aria-expanded', String(!demoPeek.hidden));
+});
+document.addEventListener('click', (event) => {
+  if (
+    event.target instanceof Element &&
+    !event.target.closest('[data-demo-peek], [data-demo-peek-trigger]')
+  )
+    hideDemoPeek();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && demoPeek && !demoPeek.hidden) {
+    hideDemoPeek();
+    demoPeekTrigger?.focus();
+  }
+});

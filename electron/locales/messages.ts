@@ -3,6 +3,26 @@ import { interfaceMessages } from './interface-messages.js';
 export const messages: Record<string, readonly string[]> = {
   ...resetMessages,
   ...interfaceMessages,
+  '较昨日同小时 {0}': [
+    'Vs. the same hour yesterday: {0}',
+    '較昨日同小時 {0}',
+    '昨日の同時刻比 {0}',
+    '어제 같은 시간 대비 {0}',
+  ],
+  查看图片: ['View image', '查看圖片', '画像を表示', '이미지 보기'],
+  '正在读取图片…': ['Loading image…', '正在讀取圖片…', '画像を読み込み中…', '이미지 불러오는 중…'],
+  '图片不可用，原文件可能已移动或删除': [
+    'Image unavailable; the original file may have been moved or deleted',
+    '圖片無法使用，原檔案可能已移動或刪除',
+    '画像を表示できません。元のファイルが移動または削除された可能性があります',
+    '이미지를 사용할 수 없습니다. 원본 파일이 이동되거나 삭제되었을 수 있습니다',
+  ],
+  '上方 Token 是整轮合计，不能分摊为每个气泡的精确消耗。': [
+    'Tokens above are totals for the entire turn, not exact usage per message.',
+    '上方 Token 是整輪合計，不能分攤為每個氣泡的精確消耗。',
+    '上の Token はターン全体の合計で、メッセージごとの正確な消費量ではありません。',
+    '위 Token은 전체 턴의 합계이며 메시지별 정확한 사용량이 아닙니다.',
+  ],
   '喜欢 Pulse 吗？': [
     'Enjoying Pulse?',
     '喜歡 Pulse 嗎？',
@@ -357,11 +377,11 @@ export const messages: Record<string, readonly string[]> = {
   ],
   固定跟踪此聊天: ['Pin this conversation', '固定追蹤此對話', 'この会話を固定', '이 대화 고정'],
   恢复自动跟随: ['Resume auto-follow', '恢復自動跟隨', '自動追跡に戻す', '자동 추적 복원'],
-  自动跟随本机最近更新的聊天: [
-    'Follow the latest local conversation',
-    '自動跟隨本機最近更新的對話',
-    '最後に更新されたローカル会話を自動追跡',
-    '최근 업데이트된 로컬 대화 자동 추적',
+  自动跟随本机进行中的聊天: [
+    'Follow active local conversations',
+    '自動跟隨本機進行中的對話',
+    '進行中のローカル会話を自動追跡',
+    '진행 중인 로컬 대화 자동 추적',
   ],
   悬浮窗已固定跟踪当前聊天: [
     'Widget pinned to this conversation',
@@ -375,11 +395,11 @@ export const messages: Record<string, readonly string[]> = {
     '別の会話を固定して追跡中',
     '위젯이 다른 대화를 고정 추적 중',
   ],
-  悬浮窗自动跟随本机最近更新的聊天: [
-    'Widget follows the latest local conversation',
-    '浮動視窗自動跟隨本機最近更新的對話',
-    '最新のローカル会話を自動追跡中',
-    '위젯이 최근 로컬 대화를 자동 추적 중',
+  悬浮窗自动跟随本机进行中的聊天: [
+    'Widget follows active local conversations',
+    '浮動視窗自動跟隨本機進行中的對話',
+    '進行中のローカル会話を自動追跡中',
+    '위젯이 진행 중인 로컬 대화를 자동 추적 중',
   ],
   打开额度详情: ['Open limit details', '開啟額度詳情', '残量の詳細を開く', '한도 상세 열기'],
   点击打开额度详情: [
@@ -757,6 +777,7 @@ export const messages: Record<string, readonly string[]> = {
   全部项目: ['All projects', '全部專案', 'すべてのプロジェクト', '모든 프로젝트'],
   全部时间: ['All time', '全部時間', '全期間', '전체 기간'],
   全部历史: ['All history', '全部歷史', 'すべての履歴', '전체 기록'],
+  昨日: ['Yesterday', '昨日', '昨日', '어제'],
   今天: ['Today', '今天', '今日', '오늘'],
   '近 7 天': ['Last 7 days', '近 7 天', '過去 7 日', '최근 7일'],
   '近 30 天': ['Last 30 days', '近 30 天', '過去 30 日', '최근 30일'],

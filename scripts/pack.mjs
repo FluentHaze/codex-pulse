@@ -56,6 +56,7 @@ try {
   const npm = process.env.npm_execpath;
   if (!npm) throw new Error('请通过 npm run pack / pack:win / pack:mac 启动打包。');
   // Compile first; both platforms then receive exactly the same release version.
+  await run(npm, ['run', 'assets:icons']);
   await run(npm, ['run', 'build']);
   await run(npm, ['version', 'patch', '--no-git-tag-version', '--ignore-scripts']);
   const platforms = target === 'all' ? ['win', 'mac'] : [target];

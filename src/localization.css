@@ -5,7 +5,7 @@
 }
 .app-toolbar {
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 .logo b {
   min-width: 0;

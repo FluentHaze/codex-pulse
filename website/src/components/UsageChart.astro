@@ -1,39 +1,72 @@
 ---
-// 官网静态用量示意图；图形数值用于演示布局，不代表用户账单。
 import { translator, type Locale } from '../i18n';
-
-const bars = [
-  8, 11, 17, 25, 21, 36, 45, 59, 71, 83, 96, 88, 65, 42, 25, 16, 13, 18, 32, 45, 52, 38, 22, 14, 10,
-  6, 3, 5,
-];
-
 interface Props {
   locale?: Locale;
 }
-
-const locale = Astro.props.locale ?? 'zh-CN';
-const t = translator(locale);
+const t = translator(Astro.props.locale ?? 'zh-CN');
+const today = [
+  3, 2, 0, 0, 0, 0, 4, 9, 18, 45, 72, 55, 38, 61, 86, 65, 47, 28, 41, 59, 36, 22, 14, 5,
+];
+const yesterday = [
+  4, 3, 1, 0, 0, 1, 2, 12, 28, 39, 56, 71, 44, 51, 67, 49, 38, 53, 29, 43, 61, 36, 21, 9,
+];
+const path = yesterday
+  .map((value, index) => `${index ? 'L' : 'M'}${(index + 0.5) * 100},${1000 - value * 10}`)
+  .join(' ');
 ---
 
-<div class="usage-chart" aria-label={t('Token 用量示意图，示例数据')}>
+<div class="usage-chart comparison-chart" aria-label={t('今日与昨日每小时 Token 对比，示例数据')}>
   <div class="chart-lines">
-    <span>4k</span>
-    <span>2k</span>
+    <span>100K</span>
+    <span>50K</span>
     <span>0</span>
   </div>
   <div class="chart-bars">
-    {bars.map((height, i) => (
-      <div class="chart-bar" style={`--bar-height:${height}%;--bar-delay:${i * 18}ms`}>
-        <i></i>
-      </div>
+    <svg
+      class="chart-yesterday"
+      viewBox="0 0 2400 1000"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d={path} vector-effect="non-scaling-stroke" />
+    </svg>
+    {today.map((height, index) => (
+      <button
+        type="button"
+        class="chart-bar"
+        style={`--bar-height:${height}%;--bar-delay:${index * 18}ms`}
+        aria-label={`${String(index).padStart(2, '0')}:00 · ${t('今日')} ${height}K Token · ${t('昨日')} ${yesterday[index]}K Token`}
+      >
+        <span class="demo-chart-tooltip">
+          <b>{String(index).padStart(2, '0')}:00</b>
+          <span>
+            {t('今日')} <strong>{height}K Token</strong>
+          </span>
+          <span>
+            {t('昨日')} <strong>{yesterday[index]}K Token</strong>
+          </span>
+        </span>
+      </button>
     ))}
   </div>
   <div class="chart-hours">
-    <span>00:00</span>
-    <span>04:00</span>
-    <span>08:00</span>
-    <span>12:00</span>
-    <span>16:00</span>
-    <span>20:00</span>
+    <span>00</span>
+    <span>04</span>
+    <span>08</span>
+    <span>12</span>
+    <span>16</span>
+    <span>20</span>
+    <span>23</span>
+  </div>
+  <div class="comparison-legend">
+    <span>
+      <i></i>
+      {t('今日')}
+    </span>
+    <span>
+      <i></i>
+      {t('昨日')}
+    </span>
+    <small>Token</small>
   </div>
 </div>

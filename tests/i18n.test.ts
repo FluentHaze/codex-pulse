@@ -45,6 +45,7 @@ test('all translated messages preserve placeholders, and UI keys have four compl
     'Floating',
     'Quota',
     'TokenDetails',
+    'MessageBody',
     'TodayUsage',
     'HourlyUsage',
     'ResetTracker',

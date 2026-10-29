@@ -76,3 +76,13 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 官网导航和页脚提供「项目流程图」入口，访问路径为 `${BASE_PATH}/flow/`（项目站点为 `/codex-pulse/flow/`）。`public/flow/index.html` 是用户确认过的 Archify 独立页面，支持主题切换、缩放及点击节点查看固定提交的源码依据。
 
 源规范保存在 `docs/diagrams/codex-pulse-project.workflow.json`；当前源码快照为 `d4c3b161caec3d7daef2cdaedbc90cfea3dddbf1`。流程图不是实时生成的，新功能或发布状态变化后应重新审阅并生成页面。
+
+
+## 与桌面应用同步
+
+- `assets/mark.svg` 是 macOS、Windows 和官网共用的标识源；官网 `Mark` 组件直接读取该源文件。
+- 在项目根目录运行 `npm run assets:icons`，生成应用 SVG、1024px PNG、Windows 多分辨率 ICO 和 Mac 单色托盘图标，并自动同步至官网。
+- 官网开发和构建前自动同步应用图标，导航、演示、下载、favicon、Apple touch icon 和分享图片使用同一套资源。
+- 根目录 `npm run pack` 在打包前重新生成图标，避免旧的 Windows ICO 或 Mac 图标进入安装包。
+- 首屏可切换额度概览、重置雷达、今日用量和 Token 明细；剩余/已用、日期、聊天及轮次均可操作。所有演示使用固定样例数据，与本机账号无关。
+- 用量示意图统一显示今日柱形和昨日虚线，并提供同小时 Token 提示。小屏、深浅主题和减少动态效果偏好均受支持。

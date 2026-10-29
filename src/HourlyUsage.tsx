@@ -29,19 +29,20 @@ export function HourlyChart({
   const chart = useRef<HTMLDivElement>(null);
   const modality = useRef<'pointer' | 'keyboard'>('pointer');
   const hours = stats?.hourly ?? [],
-    max = Math.max(1, ...hours.map((hour) => hour.total ?? 0));
-  const currentHour = new Date().getHours();
-  const recordedHours = hours.filter((hour) => hour.records > 0);
-  const splitSupported =
-    recordedHours.length > 0 &&
-    recordedHours.every(
-      (hour) =>
-        hour.input != null &&
-        hour.output != null &&
-        hour.total != null &&
-        hour.input + hour.output === hour.total,
+    yesterday = stats?.yesterday?.hourly ?? [],
+    max = Math.max(
+      1,
+      ...hours.map((hour) => hour.total ?? 0),
+      ...yesterday.map((hour) => hour.total ?? 0),
     );
+  const yesterdayPath = yesterday.reduce((path, bucket, index) => {
+    if (bucket.total == null) return path;
+    const connected = index > 0 && yesterday[index - 1]?.total != null;
+    return `${path} ${connected ? 'L' : 'M'}${(index + 0.5) * 100},${(1 - bucket.total / max) * 1000}`;
+  }, '');
+  const currentHour = new Date().getHours();
   const active = selected === null ? undefined : hours[selected];
+  const previousActive = selected === null ? undefined : yesterday[selected];
   const description = !stats
     ? error || t('正在读取本机记录…')
     : `${stats.date} · ${stats.timeZone}`;
@@ -62,17 +63,40 @@ export function HourlyChart({
         </p>
       )}
       <div className="hourly-total">
-        <strong>{stats?.tokens.total == null ? '—' : compact(stats.tokens.total)}</strong>
-        <span>{t('今日已记录 Token')}</span>
+        <strong>
+          {stats?.tokens.total == null ? '—' : `${compact(stats.tokens.total)} Token`}
+        </strong>
+        <span>{t('今日已记录用量')}</span>
         <small>{t('悬停柱形查看明细')}</small>
       </div>
       <div className="hourly-plot">
         <div className="chart-scale" aria-hidden="true">
+          <small className="chart-unit">Token</small>
           <span>{compact(max)}</span>
           <span>{compact(max / 2)}</span>
           <span>0</span>
         </div>
         <div ref={chart} className="hourly-bars" role="group" aria-label={t('今日 0 至 23 时用量')}>
+          {!!yesterday.length && (
+            <svg
+              className="yesterday-line"
+              viewBox="0 0 2400 1000"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path d={yesterdayPath} vectorEffect="non-scaling-stroke" />
+            </svg>
+          )}
+          {previousActive?.total != null && (
+            <span
+              className="yesterday-active-point"
+              aria-hidden="true"
+              style={{
+                left: `${((previousActive.hour + 0.5) / 24) * 100}%`,
+                top: `calc((100% - 23px) * ${1 - previousActive.total / max})`,
+              }}
+            />
+          )}
           {active && (
             <div
               className="chart-tooltip"
@@ -82,23 +106,54 @@ export function HourlyChart({
               <span>
                 {String(active.hour).padStart(2, '0')}:00–{String(active.hour).padStart(2, '0')}:59
               </span>
+              <small className="tooltip-today-label">{t('今天')}</small>
               <strong>
                 {active.total === null
                   ? t('统计缺失')
                   : active.hour > currentHour && !active.records
                     ? t('尚未到来')
-                    : `${active.total.toLocaleString()} Token`}
+                    : `${compact(active.total)} Token`}
               </strong>
               <small>{t('{0} 条用量记录', [active.records])}</small>
               {active.input != null && active.output != null && (
                 <small>
-                  {t('输入 {0} · 输出 {1}', [compact(active.input), compact(active.output)])}
+                  {t('输入 {0} · 输出 {1}', [
+                    `${compact(active.input)} Token`,
+                    `${compact(active.output)} Token`,
+                  ])}
                 </small>
               )}
+              <div className="tooltip-yesterday">
+                <small>{t('昨日')}</small>
+                <strong>
+                  {previousActive?.total == null
+                    ? t('暂无统计')
+                    : `${compact(previousActive.total)} Token`}
+                </strong>
+                {previousActive?.input != null && previousActive.output != null && (
+                  <small>
+                    {t('输入 {0} · 输出 {1}', [
+                      `${compact(previousActive.input)} Token`,
+                      `${compact(previousActive.output)} Token`,
+                    ])}
+                  </small>
+                )}
+              </div>
+              {active.hour <= currentHour &&
+                active.total != null &&
+                previousActive?.total != null &&
+                previousActive.total > 0 && (
+                  <small className="hourly-change">
+                    {t('较昨日同小时 {0}', [
+                      `${active.total >= previousActive.total ? '+' : ''}${((active.total / previousActive.total - 1) * 100).toFixed(1)}%`,
+                    ])}
+                  </small>
+                )}
             </div>
           )}
           {Array.from({ length: 24 }, (_, hour) => {
             const bucket = hours[hour],
+              previousBucket = yesterday[hour],
               future = hour > currentHour && !bucket?.records,
               missing = !bucket || bucket.total === null;
             const label = `${String(hour).padStart(2, '0')}:00，${missing ? t('暂无统计') : future ? t('尚未到来') : t('{0} Token，{1} 条记录', [bucket.total!.toLocaleString(), bucket.records])}`;
@@ -107,7 +162,7 @@ export function HourlyChart({
                 key={hour}
                 className={`hour-bar ${hour === currentHour ? 'current' : ''} ${future ? 'future' : ''} ${selected === hour ? 'active' : ''}`}
                 tabIndex={keyboardHour === hour ? 0 : -1}
-                aria-label={label}
+                aria-label={`${label}；${t('昨日')}：${previousBucket?.total == null ? t('暂无统计') : `${previousBucket.total.toLocaleString(getLanguage())} Token`}`}
                 onFocus={() => {
                   setKeyboardHour(hour);
                   setSelected(hour);
@@ -158,25 +213,13 @@ export function HourlyChart({
                   if (event.key === 'Escape') setSelected(null);
                 }}
               >
-                <span className="bar-column">
+                <span className="bar-column comparison-columns">
                   <i
                     className="hour-stack"
                     style={{
                       height: `${missing || future ? 0 : Math.max(bucket.total! > 0 ? 2 : 0, (bucket.total! / max) * 100)}%`,
                     }}
-                  >
-                    {splitSupported &&
-                      bucket?.input != null &&
-                      bucket.output != null &&
-                      bucket.total != null &&
-                      bucket.total > 0 &&
-                      bucket.input + bucket.output === bucket.total && (
-                        <em
-                          className="bar-output"
-                          style={{ height: `${(bucket.output / bucket.total) * 100}%` }}
-                        />
-                      )}
-                  </i>
+                  ></i>
                 </span>
                 <span className="bar-label" aria-hidden="true">
                   {hour % 3 === 0 || hour === 23 ? String(hour).padStart(2, '0') : ''}
@@ -189,13 +232,9 @@ export function HourlyChart({
       <footer>
         <span>
           <i />
-          {splitSupported ? t('输入') : t('已记录 Token')}
-          {splitSupported && (
-            <>
-              <i className="legend-output" />
-              {t('输出')}
-            </>
-          )}
+          {t('今天')}
+          <i className="legend-yesterday" />
+          {t('昨日')}
         </span>
         <span>
           {!stats
@@ -206,7 +245,7 @@ export function HourlyChart({
               ? t('此记录没有小时统计')
               : !stats.recordCount
                 ? t('今天尚无可统计的用量事件')
-                : stats.warnings.length
+                : stats.warnings.length || stats.yesterday?.warnings.length
                   ? t('部分记录不完整，仅展示已确认用量')
                   : t('按用量事件发生时间统计，每 30 秒更新')}
         </span>

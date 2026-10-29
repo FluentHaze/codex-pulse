@@ -35,7 +35,9 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { CodexClient, detectCodex, RpcError } from './codex.js';
+import { readMessageImage } from './message-image.js';
 import { TokenService } from './token-service.js';
+import { LiveSessionFollower } from './live-follow.js';
 import {
   captureAnchor,
   anchoredBounds,
@@ -105,6 +107,7 @@ let liveBusy = false,
   liveScanAt = 0,
   liveSource = '';
 let liveTimer: ReturnType<typeof setInterval> | undefined;
+let liveFollower = new LiveSessionFollower();
 // 路径或固定会话变更后，丢弃旧读取结果，防止新页面展示上一会话的用量。
 async function refreshLive() {
   if (liveBusy || quitting) return;
@@ -113,25 +116,26 @@ async function refreshLive() {
   try {
     const rescan = source !== liveSource || Date.now() - liveScanAt > 3000;
     const catalog = await tokenStore.list(rescan);
+    if (source !== liveSource) liveFollower = new LiveSessionFollower();
     if (rescan) {
       liveScanAt = Date.now();
       liveSource = source;
     }
-    const id = state.settings.watchedSessionId || catalog.sessions[0]?.id;
-    const live = id
-      ? await tokenStore.live(id)
-      : {
-          sessionId: null,
-          title: '未找到本机聊天',
-          titleKey: '未找到本机聊天',
-          turnId: null,
-          turnNumber: null,
-          tokens: null,
-          status: 'waiting' as const,
-          complete: false,
-          updatedAt: Date.now(),
-          error: null,
-        };
+    const followed = state.settings.watchedSessionId
+      ? await tokenStore.live(state.settings.watchedSessionId)
+      : await liveFollower.read(catalog.sessions, (id) => tokenStore.live(id));
+    const live = followed ?? {
+      sessionId: null,
+      title: '未找到本机聊天',
+      titleKey: '未找到本机聊天',
+      turnId: null,
+      turnNumber: null,
+      tokens: null,
+      status: 'waiting' as const,
+      complete: false,
+      updatedAt: Date.now(),
+      error: null,
+    };
     if (
       source === `${state.settings.sessionPath}|${state.settings.watchedSessionId}` &&
       !quitting
@@ -793,6 +797,7 @@ if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => openDetails());
   app.whenReady().then(() => {
+    if (isMac) app.dock?.setIcon(join(here, '../assets/app.png'));
     let initialLanguage: string | undefined;
     try {
       initialLanguage = JSON.parse(readFileSync(storage(), 'utf8')).settings?.language;
@@ -961,6 +966,20 @@ else {
       const url = resetSourceUrl(value);
       if (!url) throw new Error('无效的来源链接');
       await shell.openExternal(url);
+    });
+    ipcMain.handle('message-image', async (event, id: unknown, path: unknown) => {
+      if (
+        event.sender !== details?.webContents ||
+        typeof id !== 'string' ||
+        !/^[a-f0-9]{24}$/.test(id) ||
+        typeof path !== 'string'
+      )
+        throw new Error('无效的图片请求');
+      const session = await tokenStore.read(id);
+      return readMessageImage(
+        path,
+        session.turns.flatMap((turn) => turn.messages.map((message) => message.text)),
+      );
     });
     ipcMain.handle('token-catalog', (_event, force: unknown) => tokenStore.list(force === true));
     ipcMain.handle('today-usage', (_event, force: unknown) => tokenStore.today(force === true));

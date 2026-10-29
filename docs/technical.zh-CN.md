@@ -35,7 +35,7 @@ npm run pack
 | 命令 | 平台 | 输出 |
 | --- | --- | --- |
 | `npm run pack`（或 `npm run pack:all`） | Windows + macOS，需在 Mac 上运行 | `release/win/` 和 `release/mac/` |
-| `npm run pack:win` | Windows x64 portable EXE | `release/win/` |
+| `npm run pack:win` | Windows x64 Setup 安装版与便携版 EXE | `release/win/` |
 | `npm run pack:mac` | Mac arm64、x64 的 DMG 和 ZIP | `release/mac/` |
 
 每次命令先构建源码，成功后递增一次补丁版本（如 `0.1.16 → 0.1.17`），同步更新 `package.json` 和 `package-lock.json`。双平台打包只递增一次，两端版本一致。采用 `主版本.次版本.补丁版本`；日常打包自动递增补丁版本，功能版本和重大版本由发布时另行调整。不自动创建 Git 提交或标签，也不上传发布。单独 `npm run build` 不递增版本。

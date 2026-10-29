@@ -126,6 +126,7 @@ export interface HourlyUsage {
   records: number;
 }
 export interface DailyStats {
+  yesterday?: DailyStats;
   date: string;
   timeZone: string;
   tokens: TokenCounts;
@@ -151,6 +152,7 @@ export interface TokenSession {
   updatedAt: number;
 }
 export interface LiveTokens {
+  turnStartedAt?: string | null;
   titleKey?: string;
   sessionId: string | null;
   title: string;

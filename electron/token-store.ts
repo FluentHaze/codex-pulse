@@ -35,7 +35,7 @@ export class TokenStore {
   private cache = new Map<string, { stamp: string; data: TokenSession }>();
   private pendingCatalog?: Promise<TokenCatalog>;
   private pending = new Map<string, Promise<TokenSession>>();
-  private liveReader = new LiveTokenReader();
+  private liveReaders = new Map<string, LiveTokenReader>();
   private metadata = new Map<
     string,
     { birth: number; sessionId: string; fallback: string; internal: boolean; project: string }
@@ -218,6 +218,8 @@ export class TokenStore {
     this.catalogTime = Date.now();
     for (const id of this.cache.keys()) if (!files.has(id)) this.cache.delete(id);
     const existingPaths = new Set(paths.map((item) => item.path));
+    for (const path of this.liveReaders.keys())
+      if (!existingPaths.has(path)) this.liveReaders.delete(path);
     for (const path of this.metadata.keys())
       if (!existingPaths.has(path)) this.metadata.delete(path);
     for (const path of this.scopeCache.keys())
@@ -278,7 +280,12 @@ export class TokenStore {
     const path = this.files.get(id);
     if (!session || !path)
       throw new Error('跟踪的聊天未找到或属于内部子会话，请重新选择聊天或恢复自动跟随');
-    return this.liveReader.read(path, session);
+    let reader = this.liveReaders.get(path);
+    if (!reader) {
+      reader = new LiveTokenReader();
+      this.liveReaders.set(path, reader);
+    }
+    return reader.read(path, session);
   }
   today(force = false): Promise<DailyStats> {
     if (this.dailyPending)
@@ -303,10 +310,14 @@ export class TokenStore {
   private async summarizeToday(): Promise<DailyStats> {
     const root = this.root();
     const range = localDayRange();
+    const previousDate = new Date(range.start);
+    previousDate.setDate(previousDate.getDate() - 1);
+    const previousRange = localDayRange(previousDate);
+    const previous = new DailyAccumulator(previousRange);
     const catalog = await this.list(true);
     if (catalog.root !== root) throw new Error('会话目录已切换，请刷新统计');
     const accumulator = new DailyAccumulator(range);
-    const candidates = this.candidates.filter((item) => item.modified >= range.start);
+    const candidates = this.candidates.filter((item) => item.modified >= previousRange.start);
     let scanned = 0,
       skipped = 0;
     const cachePaths = new Set(candidates.slice(0, 128).map((item) => item.path));
@@ -332,7 +343,7 @@ export class TokenStore {
           const parser = new TokenParser(false, (sample) => {
             if (
               !sample.timestamp ||
-              (Date.parse(sample.timestamp) >= range.start &&
+              (Date.parse(sample.timestamp) >= previousRange.start &&
                 Date.parse(sample.timestamp) < range.end)
             )
               samples.push(sample);
@@ -341,9 +352,14 @@ export class TokenStore {
           usage = { stamp, samples, warnings: [...parser.warnings] };
           if (cachePaths.has(candidate.path)) this.usageCache.set(candidate.path, usage);
         }
-        usage.samples.forEach((sample, index) => accumulator.add(sample, candidate.path, index));
-        if (usage.warnings.length)
+        usage.samples.forEach((sample, index) => {
+          accumulator.add(sample, candidate.path, index);
+          previous.add(sample, candidate.path, index);
+        });
+        if (usage.warnings.length) {
           accumulator.warnings.add('部分文件存在缺失或损坏事件，今日合计可能不完整');
+          previous.warnings.add('部分文件存在缺失或损坏事件，统计可能不完整');
+        }
         scanned++;
       } catch {
         skipped++;
@@ -354,7 +370,11 @@ export class TokenStore {
     if (root !== this.root() || range.date !== localDayRange().date)
       throw new Error('日期或会话目录已变化，请刷新统计');
     const result = accumulator.result(scanned, skipped);
-    if (catalog.limited) result.warnings.push('无法访问的本地文件可能造成统计遗漏');
+    result.yesterday = previous.result(scanned, skipped);
+    if (catalog.limited) {
+      result.warnings.push('无法访问的本地文件可能造成统计遗漏');
+      result.yesterday.warnings.push('无法访问的本地文件可能造成统计遗漏');
+    }
     this.dailyCache = { root, date: range.date, result };
     return result;
   }

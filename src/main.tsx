@@ -1,3 +1,4 @@
+import { ScrollIndicator } from './ScrollIndicator';
 import { SettingsNavigation } from './SettingsNavigation';
 import { Select } from './Select';
 /**
@@ -53,6 +54,7 @@ interface Bridge {
   resetData(): Promise<ResetData>;
   resetSource(url: string): Promise<void>;
   scopeUsage(ids: string[]): Promise<DailyStats>;
+  messageImage(id: string, path: string): Promise<string>;
   tokenCatalog(force?: boolean): Promise<TokenCatalog>;
   tokenSession(id: string): Promise<TokenSession>;
   todayUsage(force?: boolean): Promise<DailyStats>;
@@ -192,6 +194,16 @@ function Icon({ name, className = '' }: { name: IconName; className?: string }) 
 }
 function App() {
   useLanguage();
+  useEffect(() => {
+    const update = () =>
+      document.documentElement.classList.toggle('motion-paused', document.hidden);
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => {
+      document.removeEventListener('visibilitychange', update);
+      document.documentElement.classList.remove('motion-paused');
+    };
+  }, []);
   const [state, setState] = useState<State>();
   const [now, setNow] = useState(Date.now());
   const [tab, setTab] = useState('overview');
@@ -231,6 +243,7 @@ function App() {
   useEffect(() => {
     const disableTabNavigation = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
+      if (event.target instanceof Element && event.target.closest('.token-message-drawer')) return;
       event.preventDefault();
       event.stopImmediatePropagation();
     };
@@ -334,7 +347,7 @@ function App() {
           ? `${+(liveCount / 1000).toFixed(1)}K`
           : liveCount.toString();
   const liveTitle = t('{0}：{1}\n{2}{3}\n输入 {4} / 输出 {5}\n{6}', [
-    state.settings.watchedSessionId ? t('固定跟踪') : t('自动跟随本机最近更新的聊天'),
+    state.settings.watchedSessionId ? t('固定跟踪') : t('自动跟随本机进行中的聊天'),
     (live?.titleKey ? t(live.titleKey) : live?.title) ?? t('等待本机记录'),
     live?.turnNumber ? t('第 {0} 轮 · ', [live.turnNumber]) : '',
     liveCount == null
@@ -655,6 +668,8 @@ function App() {
             {tab !== 'tokens' && tab !== 'today' && tab !== 'resets' && (
               <button
                 className="toolbar-refresh"
+                type="button"
+                aria-busy={state.refreshing}
                 title={t('立即刷新')}
                 aria-label={t('立即刷新')}
                 disabled={state.refreshing}
@@ -690,7 +705,7 @@ function App() {
             )}
           </div>
         </div>
-        <main className={`page-${tab}${tab === 'resets' ? ' reset-page' : ''}`}>
+        <main key={tab} className={`page-${tab}${tab === 'resets' ? ' reset-page' : ''}`}>
           <div className="page-heading">
             <div>
               <h1 tabIndex={-1}>
@@ -851,6 +866,7 @@ function App() {
             <TodayUsage sessionPath={state.settings.sessionPath} />
           ) : tab === 'tokens' ? (
             <TokenDetails
+              account={state.account ?? ''}
               sessionPath={state.settings.sessionPath}
               watchedSessionId={state.settings.watchedSessionId}
               initialSessionId={tokenSession}
@@ -1050,5 +1066,6 @@ function App() {
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
+    <ScrollIndicator />
   </React.StrictMode>,
 );

@@ -191,7 +191,10 @@ interface Props {
             Windows
           </button>
         </div>
-        <p>{t('界面与用量数据为功能示意')}</p>
+        <p>
+          {t('界面与用量数据为功能示意')}
+          <span class="demo-caption-hint">{t('点击侧栏，体验四个界面。')}</span>
+        </p>
       </div>
     </section>
     <section class="features section-shell">
@@ -240,9 +243,9 @@ interface Props {
               {t('都看得清。')}
             </h3>
             <p>
-              {t('查看输入、输出与缓存用量。')}
+              {t('输入、输出、缓存与推理，按轮查看。')}
               <br />
-              {t('从当日趋势，看到每轮细节。')}
+              {t('今日对比昨日，点击轮次展开消息。')}
             </p>
           </div>
           <div class="token-art">
@@ -253,31 +256,27 @@ interface Props {
                   <h4>{t('今日 Token 用量')}</h4>
                 </div>
                 <strong>
-                  12.8<span>k</span>
+                  2.4<span>M Token</span>
                 </strong>
               </div>
-              <div class="chart-legend">
-                <span>{t('输入')}</span>
-                <span>{t('输出')}</span>
-                <span>{t('缓存')}</span>
-              </div>
+
               <UsageChart locale={locale} />
             </div>
             <div class="token-breakdown">
               <span>
                 <i></i>
                 {t('输入')}
-                <b>8,640</b>
+                <b>2.1M Token</b>
               </span>
               <span>
                 <i></i>
                 {t('输出')}
-                <b>4,160</b>
+                <b>300K Token</b>
               </span>
               <span>
                 <i></i>
                 {t('缓存')}
-                <b>6,240</b>
+                <b>1.8M Token</b>
               </span>
             </div>
           </div>
@@ -288,7 +287,7 @@ interface Props {
           <Icon name="clock" size={23} />
           <p>
             <b>{t('按你的节奏更新')}</b>
-            <span>{t('自动刷新，关注额度窗口与重置时间。')}</span>
+            <span>{t('跟随进行中的聊天，保持用量稳定更新。')}</span>
           </p>
         </div>
         <div>

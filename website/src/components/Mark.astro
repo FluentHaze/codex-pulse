@@ -1,4 +1,6 @@
 ---
+import sourceMark from '../../../assets/mark.svg?raw';
+const glyph = sourceMark.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 interface Props {
   size?: number;
   class?: string;
@@ -13,17 +15,5 @@ const { size = 28, class: className } = Astro.props;
   viewBox="0 0 128 128"
   fill="none"
   aria-hidden="true"
->
-  <path
-    d="M89.46 89.46a36 36 0 1 1 0-50.92"
-    stroke="currentColor"
-    stroke-width="10"
-    stroke-linecap="round"
-  />
-  <path
-    d="M51 65v10m13-26v30m13-20v14"
-    stroke="currentColor"
-    stroke-width="8"
-    stroke-linecap="round"
-  />
-</svg>
+  set:html={glyph}
+/>

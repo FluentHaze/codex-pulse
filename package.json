@@ -1,6 +1,6 @@
 {
   "name": "codex-pulse",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -17,7 +17,8 @@
     "pack:win": "node scripts/pack.mjs win",
     "test:update-transport": "npm run build && electron scripts/test-update-fetch.cjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "assets:icons": "electron scripts/create-icon.cjs"
   },
   "dependencies": {
     "electron-updater": "^6.8.11",
