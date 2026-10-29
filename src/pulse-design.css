@@ -2799,7 +2799,6 @@ main {
   border: 1px solid var(--line);
   border-radius: 20px;
   background: var(--hover);
-  border: 1px solid red;
 }
 
 .theme-toggle-thumb {
