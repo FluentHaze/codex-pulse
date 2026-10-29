@@ -4,10 +4,8 @@
 import { useLanguage } from './use-language';
 import { t, getLanguage } from '../electron/i18n';
 import { useEffect, useRef, useState } from 'react';
-export interface Command {
-  id: string;
-  label: string;
-  hint: string;
+import { searchCommands, type SearchableCommand } from './command-search';
+export interface Command extends SearchableCommand {
   run(): void;
 }
 export function CommandPalette({
@@ -24,11 +22,7 @@ export function CommandPalette({
     input = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState(''),
     [selected, setSelected] = useState(0);
-  const results = commands.filter((command) =>
-    `${command.label} ${command.hint}`
-      .toLocaleLowerCase()
-      .includes(query.trim().toLocaleLowerCase()),
-  );
+  const results = searchCommands(commands, query);
   useEffect(() => {
     if (open) {
       setQuery('');
@@ -99,7 +93,7 @@ export function CommandPalette({
                     : 0,
                 );
               }
-              if (event.key === 'Enter' && results[selected]) {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing && results[selected]) {
                 event.preventDefault();
                 choose(results[selected]);
               }

@@ -16,6 +16,9 @@ import {
   type DailyStats,
 } from '../electron/types';
 import { AppUpdate } from './AppUpdate';
+import { ExternalLinkIcon, GitHubIcon, StarGuide } from './StarGuide';
+import { avatarDataUrl } from './avatar';
+import './star-guide.css';
 import type { UpdateState } from '../electron/types';
 import { DesktopChrome } from './DesktopChrome';
 import { BrandIcon } from './BrandIcon';
@@ -42,6 +45,7 @@ interface Bridge {
   windowMenus(): Promise<string[]>;
   windowMenu(label: string, x: number, y: number): Promise<void>;
   getState(): Promise<State>;
+  claimStarGuide(): Promise<boolean>;
   resetData(): Promise<ResetData>;
   resetSource(url: string): Promise<void>;
   scopeUsage(ids: string[]): Promise<DailyStats>;
@@ -307,17 +311,40 @@ function App() {
     setTab(next);
     requestAnimationFrame(() => document.querySelector<HTMLHeadingElement>('main h1')?.focus());
   };
+  const openSetting = (label: string) => {
+    navigate('settings');
+    requestAnimationFrame(() => {
+      const row = Array.from(document.querySelectorAll<HTMLElement>('.setting-row')).find(
+        (element) => element.querySelector('b')?.textContent === label,
+      );
+      row?.scrollIntoView({ block: 'center' });
+      row?.querySelector<HTMLElement>('input, select, button')?.focus({ preventScroll: true });
+    });
+  };
   const commands: Command[] = [
     ...[
-      { id: 'overview', label: t('额度概览') },
-      { id: 'resets', label: t('重置雷达') },
-      { id: 'today', label: t('今日用量') },
-      { id: 'tokens', label: t('Token 明细') },
-      { id: 'settings', label: t('偏好设置') },
+      { id: 'overview', label: t('额度概览'), keywords: ['quota', '余额', '剩余额度', '已用额度'] },
+      {
+        id: 'resets',
+        label: t('重置雷达'),
+        keywords: ['reset', '重置时间', '重置日历', '全局重置'],
+      },
+      {
+        id: 'today',
+        label: t('今日用量'),
+        keywords: ['usage', '消耗', '统计', '小时', '每日用量'],
+      },
+      {
+        id: 'tokens',
+        label: t('Token 明细'),
+        keywords: ['聊天', '会话', '跟踪', '目录', 'session', 'token'],
+      },
+      { id: 'settings', label: t('偏好设置'), keywords: ['preferences', '配置', '选项'] },
     ].map((item) => ({ ...item, hint: t('跳转页面'), run: () => navigate(item.id) })),
     {
       id: 'refresh',
       label: t('刷新额度'),
+      keywords: ['refresh', '手动刷新', '更新额度'],
       hint: state.refreshing ? t('当前正在刷新') : t('读取最新的账号额度'),
       run: () => {
         if (!state.refreshing) run(api.refresh());
@@ -337,8 +364,126 @@ function App() {
       id: theme,
       label: { dark: t('深色主题'), light: t('浅色主题'), system: t('跟随系统主题') }[theme],
       hint: t('外观偏好'),
+      keywords: [
+        'theme',
+        '主题',
+        '外观',
+        ...(theme === 'dark'
+          ? ['夜间', '黑色']
+          : theme === 'light'
+            ? ['白天', '白色']
+            : ['自动主题']),
+      ],
       run: () => setting({ theme }),
     })),
+    ...[
+      {
+        id: 'language',
+        label: t('显示语言'),
+        keywords: ['language', '中文', '英文', 'English', '日本語', '한국어', '繁體'],
+      },
+      {
+        id: 'interval',
+        label: t('刷新周期'),
+        keywords: ['interval', '自动刷新', '刷新频率', '定时', '分钟'],
+      },
+      {
+        id: 'low-alerts',
+        label: t('低额度通知'),
+        keywords: ['notification', '提醒', '额度不足', '告警'],
+      },
+      {
+        id: 'recovery-alerts',
+        label: t('额度恢复通知'),
+        keywords: ['notification', '提醒', '重置通知', '恢复提醒'],
+      },
+      {
+        id: 'startup',
+        label: t('开机启动'),
+        keywords: ['startup', '自启动', '自动启动', '开机运行'],
+      },
+      {
+        id: 'show-on-launch',
+        label: api.platform === 'darwin' ? t('显示桌面悬浮窗') : t('启动时显示'),
+        keywords: ['悬浮窗', '启动显示', 'float'],
+      },
+      {
+        id: 'always-on-top',
+        label: t('窗口置顶'),
+        keywords: ['top', '悬浮窗', '最前', '始终可见'],
+      },
+      { id: 'locked', label: t('锁定位置'), keywords: ['lock', '悬浮窗', '拖动', '固定位置'] },
+      {
+        id: 'click-through',
+        label: t('鼠标穿透'),
+        keywords: ['click through', '悬浮窗', '点击穿透'],
+      },
+      { id: 'opacity', label: t('不透明度'), keywords: ['opacity', '透明度', '悬浮窗'] },
+      ...(api.platform === 'darwin'
+        ? [
+            {
+              id: 'menu-bar-display',
+              label: t('显示内容'),
+              keywords: ['Mac', '菜单栏', 'menu bar', '百分比', '图标'],
+            },
+            {
+              id: 'menu-bar-hover',
+              label: t('移入显示悬浮窗'),
+              keywords: ['Mac', '菜单栏', 'hover', '悬停'],
+            },
+          ]
+        : []),
+    ].map((item) => ({
+      ...item,
+      hint: t('偏好设置'),
+      run: () => openSetting(item.label),
+    })),
+    {
+      id: 'app-update',
+      label: t('版本更新'),
+      hint: t('偏好设置'),
+      keywords: ['update', '升级', '版本号', '检查更新', '下载更新', '重启更新'],
+      run: () => {
+        navigate('settings');
+        requestAnimationFrame(() => {
+          document.querySelector('.app-update')?.scrollIntoView({ block: 'center' });
+          document.querySelector<HTMLElement>('.app-update button')?.focus({ preventScroll: true });
+        });
+      },
+    },
+    ...[
+      {
+        id: 'github',
+        label: 'GitHub',
+        keywords: ['star', '开源', '源码', '项目', '仓库', '支持', '反馈'],
+        action: 'github',
+      },
+      {
+        id: 'login',
+        label: t('登录账号 ↗'),
+        keywords: ['login', '登录', '账号', '账户', '连接', '认证'],
+        action: 'login',
+      },
+      {
+        id: 'choose-codex',
+        label: t('选择 Codex 可执行文件'),
+        keywords: ['路径', '连接', 'exe', 'codexPath'],
+        action: 'choose',
+      },
+      {
+        id: 'install-codex',
+        label: t('安装指引 ↗'),
+        keywords: ['install', '安装', '下载', 'Codex'],
+        action: 'install',
+      },
+    ].map((item) => ({ ...item, hint: t('快速操作'), run: () => action(item.action) })),
+    {
+      id: 'detect-codex',
+      label: t('恢复自动检测'),
+      hint: t('Codex 连接'),
+      keywords: ['自动检测', '路径', 'codexPath'],
+      run: () => setting({ codexPath: '' }),
+    },
   ];
   const toggle = (key: keyof Settings, label: string, help: string) => (
     <label className="setting-row">
@@ -392,6 +537,13 @@ function App() {
         </nav>
         <div className="sidebar-bottom">
           <AppUpdate compact />
+          <div className="sidebar-github-section">
+            <button className="sidebar-github" onClick={() => action('github')}>
+              <GitHubIcon />
+              <span>GitHub</span>
+              <ExternalLinkIcon />
+            </button>
+          </div>
           <div className="sidebar-meta">
             <span className="local-label">
               <Icon name="shield" />
@@ -402,12 +554,7 @@ function App() {
                 className="sidebar-version"
                 title={t('版本更新')}
                 aria-label={`v${appVersion} · ${t('版本更新')}`}
-                onClick={() => {
-                  navigate('settings');
-                  requestAnimationFrame(() =>
-                    document.querySelector('.app-update')?.scrollIntoView({ block: 'start' }),
-                  );
-                }}
+                onClick={() => navigate('settings')}
               >
                 v{appVersion}
               </button>
@@ -415,7 +562,11 @@ function App() {
           </div>
           <div className="sidebar-account">
             <span className="account-avatar">
-              <Icon name="account" />
+              {state.account ? (
+                <img src={avatarDataUrl(state.account)} alt="" width="32" height="32" />
+              ) : (
+                <Icon name="account" />
+              )}
             </span>
             <div>
               <b>{state.account ?? t('尚未连接')}</b>
@@ -505,8 +656,14 @@ function App() {
             <>
               <div className="overview-controls">
                 <section className="account-strip" aria-label={t('当前账号')}>
-                  <span className="provider-mark">
-                    <Icon name="pulse" />
+                  <span
+                    className={state.account ? 'provider-mark account-avatar' : 'provider-mark'}
+                  >
+                    {state.account ? (
+                      <img src={avatarDataUrl(state.account)} alt="" width="32" height="32" />
+                    ) : (
+                      <Icon name="pulse" />
+                    )}
                   </span>
                   <div>
                     <b>
@@ -806,6 +963,7 @@ function App() {
         </main>
       </div>
       <CommandPalette open={commandOpen} close={() => setCommandOpen(false)} commands={commands} />
+      <StarGuide />
       {toast && (
         <div className="save-toast" role="status">
           <span aria-hidden="true">✓</span>

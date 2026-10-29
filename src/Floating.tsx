@@ -20,6 +20,31 @@ export function Floating({
 }) {
   useLanguage();
   const content = useRef<HTMLDivElement>(null);
+  const hoverActive = useRef(false);
+  const keyboardNavigation = useRef(false);
+  useEffect(() => {
+    const keyDown = (event: KeyboardEvent) => {
+      keyboardNavigation.current = event.key === 'Tab';
+    };
+    const resetKeyboard = () => {
+      keyboardNavigation.current = false;
+    };
+    const blur = () => {
+      resetKeyboard();
+      hoverActive.current = false;
+      void window.pulse?.peek(false).catch(() => {});
+    };
+    window.addEventListener('keydown', keyDown, true);
+    window.addEventListener('keyup', resetKeyboard, true);
+    window.addEventListener('pointerdown', resetKeyboard, true);
+    window.addEventListener('blur', blur);
+    return () => {
+      window.removeEventListener('keydown', keyDown, true);
+      window.removeEventListener('keyup', resetKeyboard, true);
+      window.removeEventListener('pointerdown', resetKeyboard, true);
+      window.removeEventListener('blur', blur);
+    };
+  }, []);
   useEffect(() => {
     const element = content.current;
     if (!popup || !element) return;
@@ -58,6 +83,7 @@ export function Floating({
           ? `${+(total / 1000).toFixed(1)}k`
           : total.toString();
   const peek = (show: boolean) => {
+    if (!show) hoverActive.current = false;
     void window.pulse?.peek(show).catch(() => {});
   };
   const action = (name: string) => {
@@ -70,9 +96,19 @@ export function Floating({
       <div
         ref={content}
         className={`peek-window ${theme}`}
-        onPointerEnter={() => peek(true)}
-        onPointerLeave={() => peek(false)}
-        onFocus={() => peek(true)}
+        onPointerMove={(event) => {
+          if (!hoverActive.current && (event.movementX !== 0 || event.movementY !== 0)) {
+            hoverActive.current = true;
+            peek(true);
+          }
+        }}
+        onPointerLeave={() => {
+          hoverActive.current = false;
+          peek(false);
+        }}
+        onFocus={() => {
+          if (keyboardNavigation.current) peek(true);
+        }}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) peek(false);
         }}
@@ -165,14 +201,13 @@ export function Floating({
     <div
       className={`floating-rail ${theme}`}
       aria-label={t('Codex 竖向悬浮栏')}
-      onPointerEnter={() => {
-        if (!gesture.current.dragging) peek(true);
-      }}
       onPointerLeave={() => {
+        hoverActive.current = false;
         if (!gesture.current.dragging) peek(false);
       }}
       onFocus={() => {
-        if (!gesture.current.dragging) peek(true);
+        // 系统截图结束会恢复焦点；仅主动键盘导航可以通过焦点展开。
+        if (keyboardNavigation.current && !gesture.current.dragging) peek(true);
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) peek(false);
@@ -194,7 +229,14 @@ export function Floating({
       }}
       onPointerMove={(event) => {
         const current = gesture.current;
-        if (!current.dragging) return;
+        if (!current.dragging) {
+          // 遮罩退出可产生 pointerenter，等待真实移动，避免被动展开。
+          if (!hoverActive.current && (event.movementX !== 0 || event.movementY !== 0)) {
+            hoverActive.current = true;
+            peek(true);
+          }
+          return;
+        }
         if (Math.hypot(event.screenX - current.x, event.screenY - current.y) > 4) {
           current.moved = true;
           if (!event.currentTarget.hasPointerCapture(event.pointerId))

@@ -75,6 +75,8 @@ const resetService = new ResetService((input, init) =>
 );
 let identity: string | null = null;
 let notices: Record<string, number> = {};
+let starGuideShown = false;
+let starGuidePreview = !app.isPackaged && process.argv.includes('--preview-star-guide');
 let position: { x: number; y: number } | undefined;
 let resizeAnchor: { displayId: number; anchor: WindowAnchor } | undefined;
 let resizing = false;
@@ -177,11 +179,14 @@ function save() {
         buckets: state.buckets,
         updatedAt: state.updatedAt,
         notices,
+        starGuideShown,
       }),
     );
     renameSync(path + '.tmp', path);
+    return true;
   } catch {
     log('storage-write-failed');
+    return false;
   }
 }
 function log(event: string) {
@@ -795,6 +800,7 @@ else {
       };
       identity = data.identity ?? null;
       notices = data.notices ?? {};
+      starGuideShown = data.starGuideShown === true;
       position = data.position;
       updateSettings({
         ...platformDefaults,
@@ -857,6 +863,20 @@ else {
       }
     });
     ipcMain.handle('get-state', () => state);
+    ipcMain.handle('claim-star-guide', (event) => {
+      if (event.sender !== details?.webContents) return false;
+      // 本地预览每次启动可看一次，不读取或改写正式的一次性记录。
+      if (starGuidePreview) {
+        starGuidePreview = false;
+        return true;
+      }
+      if (starGuideShown) return false;
+      starGuideShown = true;
+      // 先持久化再展示，关闭、跳过、重启和升级都不会重新引导。
+      if (save()) return true;
+      starGuideShown = false;
+      return false;
+    });
     ipcMain.handle('window-menus', (event) =>
       event.sender === details?.webContents
         ? (Menu.getApplicationMenu()?.items.map((item) => item.label) ?? [])
@@ -934,6 +954,8 @@ else {
       if (patch && typeof patch === 'object') updateSettings(patch);
     });
     ipcMain.handle('action', async (_event, action: string) => {
+      if (action === 'github')
+        await shell.openExternal('https://github.com/FluentHaze/codex-pulse');
       if (action === 'details') openDetails();
       if (action === 'tokens') openDetails('tokens');
       if (action === 'show') floating?.showInactive();
@@ -1015,6 +1037,7 @@ else {
         void refresh();
       }
     }, 1000).unref();
+    if (starGuidePreview) openDetails();
     void refresh();
     liveTimer = setInterval(() => void refreshLive(), 1000);
     liveTimer.unref();

@@ -51,6 +51,7 @@ test('all translated messages preserve placeholders, and UI keys have four compl
     'CommandPalette',
     'DesktopChrome',
     'AppUpdate',
+    'StarGuide',
   ];
   for (const name of sources) {
     // 使用语法树读取字符串值，避免换行、单双引号和转义字符影响翻译键扫描。

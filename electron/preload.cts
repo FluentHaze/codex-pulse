@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('pulse', {
   windowMenu: (label: string, x: number, y: number): Promise<void> =>
     ipcRenderer.invoke('window-menu', label, x, y),
   getState: (): Promise<State> => ipcRenderer.invoke('get-state'),
+  claimStarGuide: (): Promise<boolean> => ipcRenderer.invoke('claim-star-guide'),
   resetData: (): Promise<ResetData> => ipcRenderer.invoke('reset-data'),
   resetSource: (url: string): Promise<void> => ipcRenderer.invoke('reset-source', url),
   tokenCatalog: (force = false): Promise<TokenCatalog> =>

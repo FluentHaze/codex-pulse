@@ -1,4 +1,35 @@
 export const messages: Record<string, readonly string[]> = {
+  '喜欢 Pulse 吗？': [
+    'Enjoying Pulse?',
+    '喜歡 Pulse 嗎？',
+    'Pulse は気に入りましたか？',
+    'Pulse가 마음에 드시나요?',
+  ],
+  '如果它让你的工作更轻松，': [
+    'If it makes your work easier,',
+    '如果它讓你的工作更輕鬆，',
+    '作業が少し楽になったら、',
+    '작업이 더 편해졌다면,',
+  ],
+  '欢迎在 GitHub 点个 Star，支持项目继续成长。': [
+    'Star us on GitHub to support the project.',
+    '歡迎在 GitHub 點個 Star，支持專案繼續成長。',
+    'GitHub の Star でプロジェクトを応援してください。',
+    'GitHub에서 Star로 프로젝트를 응원해 주세요.',
+  ],
+  '去 GitHub 点个 Star': [
+    'Star on GitHub',
+    '去 GitHub 點個 Star',
+    'GitHub で Star を付ける',
+    'GitHub에서 Star 주기',
+  ],
+  跳过: ['Skip', '跳過', 'スキップ', '건너뛰기'],
+  '无法打开 GitHub，请重试': [
+    'Could not open GitHub. Please try again.',
+    '無法開啟 GitHub，請重試',
+    'GitHub を開けませんでした。もう一度お試しください。',
+    'GitHub를 열 수 없습니다. 다시 시도해 주세요.',
+  ],
   安装更新: ['Install update', '安裝更新', '更新をインストール', '업데이트 설치'],
   '安装包已就绪，点击打开后手动替换应用': [
     'Installer ready. Open it to replace the app manually',
