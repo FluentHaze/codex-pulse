@@ -35,6 +35,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { CodexClient, detectCodex, RpcError } from './codex.js';
+import { AuthChangeDetector } from './auth-change.js';
 import { readMessageImage } from './message-image.js';
 import { TokenService } from './token-service.js';
 import { LiveSessionFollower } from './live-follow.js';
@@ -1081,6 +1082,18 @@ else {
         if (!quitting) void refresh();
       });
     };
+    const authChanges = new AuthChangeDetector();
+    setInterval(() => {
+      if (quitting || !authChanges.changed()) return;
+      // The independent app-server can retain the previous login in memory.
+      invalidate();
+      failures = 0;
+      delete notices.auth;
+      client.stop();
+      void (active ?? Promise.resolve()).then(() => {
+        if (!quitting) void refresh();
+      });
+    }, 1000).unref();
     powerMonitor.on('resume', () => schedule(1000));
     const displayChanged = () => {
       hidePeek();
