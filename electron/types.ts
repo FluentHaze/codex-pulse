@@ -194,6 +194,7 @@ export interface UpdateState {
     | 'latest'
     | 'downloading'
     | 'downloaded'
+    | 'installing'
     | 'error'
     | 'manual';
   version?: string;

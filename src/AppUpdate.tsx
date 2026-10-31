@@ -49,25 +49,27 @@ export function AppUpdate({
   };
   const status = state?.status;
   const dmg = state?.installMode === 'dmg';
-  const busy = !state || status === 'checking' || status === 'downloading';
+  const busy = !state || ['checking', 'downloading', 'installing'].includes(status ?? '');
   const message =
-    status === 'manual'
-      ? '当前版本请前往下载页面安装更新'
-      : status === 'checking'
-        ? '正在检查新版本…'
-        : status === 'available'
-          ? '发现新版本，可下载更新'
-          : status === 'downloading'
-            ? '正在下载更新…'
-            : status === 'downloaded'
-              ? dmg
-                ? '安装包已就绪，点击打开后手动替换应用'
-                : '更新已就绪，重启后生效'
-              : status === 'latest'
-                ? '当前已是最新版本'
-                : dmg
-                  ? '发现新版后自动后台下载，点击安装更新'
-                  : '发现新版后自动后台下载，点击重启更新';
+    status === 'installing'
+      ? '正在准备安装，完成后将自动重启…'
+      : status === 'manual'
+        ? '当前版本请前往下载页面安装更新'
+        : status === 'checking'
+          ? '正在检查新版本…'
+          : status === 'available'
+            ? '发现新版本，可下载更新'
+            : status === 'downloading'
+              ? '正在下载更新…'
+              : status === 'downloaded'
+                ? dmg
+                  ? '安装包已就绪，点击后自动安装并重启'
+                  : '更新已就绪，重启后生效'
+                : status === 'latest'
+                  ? '当前已是最新版本'
+                  : dmg
+                    ? '发现新版后自动后台下载，点击安装更新'
+                    : '发现新版后自动后台下载，点击重启更新';
   if (compact) {
     const attention =
       error || ['available', 'downloading', 'downloaded', 'error'].includes(status ?? '');
@@ -119,16 +121,16 @@ export function AppUpdate({
             status === 'available'
               ? '下载更新'
               : status === 'downloaded'
-                ? dmg
-                  ? '安装更新'
-                  : '重启并安装'
+                ? '重启并安装'
                 : status === 'manual'
                   ? '下载最新版 ↗'
-                  : status === 'checking'
-                    ? '检查中…'
-                    : status === 'downloading'
-                      ? '下载中…'
-                      : '检查更新',
+                  : status === 'installing'
+                    ? '安装中…'
+                    : status === 'checking'
+                      ? '检查中…'
+                      : status === 'downloading'
+                        ? '下载中…'
+                        : '检查更新',
           )}
         </button>
       </div>
@@ -150,7 +152,7 @@ export function AppUpdate({
         <p className="note">
           {dmg
             ? t(
-                '打开 DMG 后，请退出 Pulse，将新版拖入「应用程序」并确认替换，再打开新版。系统需要授权时按提示操作，你的设置会保留。',
+                '安装时会自动退出 Pulse、替换应用并重新打开。系统需要授权时按提示操作，你的设置会保留。',
               )
             : t('重启会暂时中断监控，你的设置会保留。')}
         </p>

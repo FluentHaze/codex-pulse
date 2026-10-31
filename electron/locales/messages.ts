@@ -55,11 +55,30 @@ export const messages: Record<string, readonly string[]> = {
     'GitHub를 열 수 없습니다. 다시 시도해 주세요.',
   ],
   安装更新: ['Install update', '安裝更新', '更新をインストール', '업데이트 설치'],
-  '安装包已就绪，点击打开后手动替换应用': [
-    'Installer ready. Open it to replace the app manually',
-    '安裝包已就緒，點擊開啟後手動替換應用程式',
-    'インストーラーを開いてアプリを手動で置き換えてください',
-    '설치 파일이 준비되었습니다. 열어서 앱을 수동으로 교체하세요',
+  '安装包已就绪，点击后自动安装并重启': [
+    'Installer ready. Click to install and restart automatically',
+    '安裝包已就緒，點擊後自動安裝並重新啟動',
+    'インストーラーの準備ができました。クリックすると自動でインストールして再起動します',
+    '설치 파일이 준비되었습니다. 클릭하면 자동으로 설치하고 다시 시작합니다',
+  ],
+  '正在准备安装，完成后将自动重启…': [
+    'Preparing installation. Pulse will restart automatically…',
+    '正在準備安裝，完成後將自動重新啟動…',
+    'インストールを準備しています。完了後に自動で再起動します…',
+    '설치를 준비하고 있습니다. 완료되면 자동으로 다시 시작합니다…',
+  ],
+  '安装中…': ['Installing…', '安裝中…', 'インストール中…', '설치 중…'],
+  更新安装失败: [
+    'Update installation failed',
+    '更新安裝失敗',
+    '更新のインストールに失敗しました',
+    '업데이트 설치 실패',
+  ],
+  '自动安装未完成。请重试或从下载页面手动安装。': [
+    'Installation did not finish. Retry or install manually from the download page.',
+    '自動安裝未完成。請重試或從下載頁面手動安裝。',
+    '自動インストールが完了しませんでした。再試行するか、ダウンロードページから手動でインストールしてください。',
+    '자동 설치가 완료되지 않았습니다. 다시 시도하거나 다운로드 페이지에서 수동으로 설치하세요.',
   ],
   '发现新版后自动后台下载，点击安装更新': [
     'New versions download in the background. Click to install',
@@ -67,13 +86,12 @@ export const messages: Record<string, readonly string[]> = {
     '新しいバージョンをバックグラウンドでダウンロードし、クリックでインストールします',
     '새 버전은 백그라운드에서 다운로드됩니다. 클릭하여 설치하세요',
   ],
-  '打开 DMG 后，请退出 Pulse，将新版拖入「应用程序」并确认替换，再打开新版。系统需要授权时按提示操作，你的设置会保留。':
-    [
-      'After opening the DMG, quit Pulse, drag the new app into Applications and confirm replacement, then launch it. Follow any macOS permission prompts. Your settings are preserved.',
-      '開啟 DMG 後，請結束 Pulse，將新版拖入「應用程式」並確認替換，再開啟新版。系統需要授權時依提示操作，你的設定會保留。',
-      'DMG を開いたら Pulse を終了し、新しいアプリを「アプリケーション」にドラッグして置き換え、新版を起動してください。macOS の許可が必要な場合は案内に従ってください。設定は保持されます。',
-      'DMG를 연 뒤 Pulse를 종료하고 새 앱을 응용 프로그램으로 드래그하여 교체한 다음 실행하세요. macOS 권한 안내에 따라 진행하세요. 설정은 유지됩니다.',
-    ],
+  '安装时会自动退出 Pulse、替换应用并重新打开。系统需要授权时按提示操作，你的设置会保留。': [
+    'Pulse will quit, replace the app, and reopen automatically. Follow any macOS authorization prompts. Your settings are preserved.',
+    '安裝時會自動結束 Pulse、替換應用程式並重新開啟。系統需要授權時依提示操作，你的設定會保留。',
+    'Pulse を自動で終了し、アプリを置き換えて再起動します。macOS の許可が必要な場合は案内に従ってください。設定は保持されます。',
+    'Pulse를 자동으로 종료하고 앱을 교체한 뒤 다시 실행합니다. macOS 권한 안내에 따라 진행하세요. 설정은 유지됩니다.',
+  ],
   '发现新版后自动后台下载，点击重启更新': [
     'New versions download in the background. Click to restart and update',
     '發現新版後自動背景下載，點擊重新啟動更新',

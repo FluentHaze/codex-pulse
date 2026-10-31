@@ -1,8 +1,10 @@
 /**
- * 统一发布两端更新状态：Windows 使用 electron-updater 安装，Mac 下载 DMG 后由用户替换。
+ * 统一发布两端更新状态：Windows 使用 electron-updater 安装，Mac 校验 DMG 后由独立助手替换并重启。
  */
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
+import { macInstallTarget, prepareMacInstall } from './mac-install.js';
+import { t } from './i18n.js';
 import { MacUpdateDownload, newerMacVersion } from './mac-update.js';
 import updater from 'electron-updater';
 import { fetchUpdate } from './update-fetch.js';
@@ -110,10 +112,23 @@ export function initializeUpdater() {
       busy = true;
       try {
         if (macDownload) {
-          const error = await shell.openPath(await macDownload.installerPath());
-          if (error) throw new Error(error);
-          // Keep Pulse running until the user quits it and replaces the app in Finder.
-          busy = false;
+          publish({ status: 'installing', error: undefined });
+          const prepared = await prepareMacInstall({
+            dmg: await macDownload.installerPath(),
+            destination: macInstallTarget(app.getPath('exe')),
+            version: state.version!,
+            arch: process.arch,
+            temp: app.getPath('temp'),
+            failureTitle: t('更新安装失败'),
+            failureMessage: t('自动安装未完成。请重试或从下载页面手动安装。'),
+          });
+          try {
+            await prepared.start(process.pid);
+          } catch (error) {
+            await prepared.dispose();
+            throw error;
+          }
+          app.quit();
         } else autoUpdater.quitAndInstall(true, true);
       } catch {
         busy = false;
