@@ -1,5 +1,5 @@
 ---
-// 站点共用文档结构：生成多语言 SEO 元数据，并在首屏绘制前应用主题偏好。
+// 站点共用文档结构：生成多语言 SEO 元数据，并保留可分享的语言偏好。
 import '../styles/global.css';
 import { seoTitles, ogLocales } from '../i18n/seo';
 import { locales, localePath, translator, type Locale } from '../i18n';
@@ -55,7 +55,13 @@ const structuredData = {
 ---
 
 <!doctype html>
-<html lang={locale} data-locale={locale} data-base={base}>
+<html
+  lang={locale}
+  data-locale={locale}
+  data-base={base}
+  data-theme="light"
+  style="color-scheme: light"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -65,22 +71,12 @@ const structuredData = {
     {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
     <meta name="theme-color" content="#fafafa" />
     <script is:inline>
-      // Apply preferences before paint; explicit language URLs remain shareable.
+      // Apply language preference before paint; explicit language URLs remain shareable.
       (() => {
-        let theme = 'system';
         let preferred = '';
         try {
-          theme = localStorage.getItem('pulse-theme') || 'system';
           preferred = localStorage.getItem('pulse-language') || '';
         } catch {}
-        if (!['system', 'light', 'dark'].includes(theme)) theme = 'system';
-        document.documentElement.dataset.themePreference = theme;
-        document.documentElement.dataset.theme =
-          theme === 'system'
-            ? matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
-            : theme;
         const base = document.documentElement.dataset.base || '/';
         if (location.pathname === base || location.pathname === base.replace(/\/$/, '')) {
           const supported = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko'];

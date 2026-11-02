@@ -8,11 +8,14 @@ interface Props {
   class?: string;
   locale?: Locale;
   preview?: boolean;
+  current?: boolean;
 }
 const { class: className = '', preview = false } = Astro.props;
 
 const locale = Astro.props.locale ?? 'zh-CN';
 const t = translator(locale);
+const short = Astro.props.current ? 72 : 88;
+const weekly = Astro.props.current ? 96 : 65;
 ---
 
 <div
@@ -33,32 +36,32 @@ const t = translator(locale);
     <div>
       <span>{t('5 小时窗口')}</span>
       <strong>
-        88% <small>{t('剩余')}</small>
+        {short}% <small>{t('剩余')}</small>
       </strong>
     </div>
     <div class="quota-track">
-      <i style="width:88%"></i>
+      <i style={{ width: short + '%' }}></i>
     </div>
-    <small>{t('2 小时 17 分钟后重置')}</small>
+    <small>{t(Astro.props.current ? '4 小时 38 分钟后重置' : '2 小时 17 分钟后重置')}</small>
   </div>
   <div class="popover-quota">
     <div>
       <span>{t('每周窗口')}</span>
       <strong>
-        65% <small>{t('剩余')}</small>
+        {weekly}% <small>{t('剩余')}</small>
       </strong>
     </div>
     <div class="quota-track">
-      <i style="width:65%"></i>
+      <i style={{ width: weekly + '%' }}></i>
     </div>
-    <small>{t('3 天后重置')}</small>
+    <small>{t(Astro.props.current ? '6 天后重置' : '3 天后重置')}</small>
   </div>
   <div class="popover-tokens">
     <div>
       <small>{t('本轮 Token')}</small>
       <span>{t('构建下一个好想法')}</span>
     </div>
-    <strong>128K</strong>
+    <strong>{Astro.props.current ? '2.9M' : '128K'}</strong>
   </div>
   <div class="popover-footer">
     <span>{t('刚刚更新')}</span>

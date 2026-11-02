@@ -2,8 +2,11 @@
 import { translator, type Locale } from '../i18n';
 interface Props {
   locale?: Locale;
+  presentation?: boolean;
+  compact?: boolean;
 }
 const t = translator(Astro.props.locale ?? 'zh-CN');
+const { presentation = false, compact = false } = Astro.props;
 const today = [
   3, 2, 0, 0, 0, 0, 4, 9, 18, 45, 72, 55, 38, 61, 86, 65, 47, 28, 41, 59, 36, 22, 14, 5,
 ];
@@ -13,9 +16,46 @@ const yesterday = [
 const path = yesterday
   .map((value, index) => `${index ? 'L' : 'M'}${(index + 0.5) * 100},${1000 - value * 10}`)
   .join(' ');
+// Monotone tangents preserve each hourly value without inventing peaks between samples.
+const points = yesterday.map((value, index) => ({ x: (index + 0.5) * 100, y: 1000 - value * 10 }));
+const slopes = points.slice(1).map((point, index) => (point.y - points[index].y) / 100);
+const tangents = points.map((_, index) => {
+  if (index === 0) return slopes[0];
+  if (index === points.length - 1) return slopes[slopes.length - 1];
+  const before = slopes[index - 1];
+  const after = slopes[index];
+  return before * after <= 0 ? 0 : (2 * before * after) / (before + after);
+});
+const smoothPath = points
+  .map((point, index) => {
+    if (!index) return 'M' + point.x + ',' + point.y;
+    const previous = points[index - 1];
+    const third = (point.x - previous.x) / 3;
+    return (
+      'C' +
+      (previous.x + third) +
+      ',' +
+      (previous.y + tangents[index - 1] * third) +
+      ' ' +
+      (point.x - third) +
+      ',' +
+      (point.y - tangents[index] * third) +
+      ' ' +
+      point.x +
+      ',' +
+      point.y
+    );
+  })
+  .join(' ');
 ---
 
-<div class="usage-chart comparison-chart" aria-label={t('今日与昨日每小时 Token 对比，示例数据')}>
+<div
+  class:list={[
+    'usage-chart comparison-chart',
+    { 'presentation-chart': presentation, 'compact-chart': compact },
+  ]}
+  aria-label={t('今日与昨日每小时 Token 对比，示例数据')}
+>
   <div class="chart-lines">
     <span>100K</span>
     <span>50K</span>
@@ -28,7 +68,30 @@ const path = yesterday
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <path d={path} vector-effect="non-scaling-stroke" />
+      {presentation && (
+        <path class="trend-underlay" d={smoothPath} vector-effect="non-scaling-stroke" />
+      )}
+      <path
+        class="trend-line"
+        d={presentation ? smoothPath : path}
+        vector-effect="non-scaling-stroke"
+      />
+      {presentation &&
+        points
+          .filter((_, index) => index % 4 === 0 || index === points.length - 1)
+          .map((point) => (
+            <svg
+              x={point.x - 24}
+              y={point.y - 30}
+              width="48"
+              height="60"
+              viewBox="0 0 12 12"
+              preserveAspectRatio="xMidYMid meet"
+              overflow="visible"
+            >
+              <circle class="trend-node" cx="6" cy="6" r="3.5" vector-effect="non-scaling-stroke" />
+            </svg>
+          ))}
     </svg>
     {today.map((height, index) => (
       <button
@@ -70,3 +133,104 @@ const path = yesterday
     <small>Token</small>
   </div>
 </div>
+
+<style>
+  .presentation-chart {
+    --demo-surface: #fff;
+    --demo-ink: #1d1d1f;
+    --demo-muted: #6e6e73;
+    --demo-line: #e5e5ea;
+  }
+  .presentation-chart .chart-bars {
+    gap: 0;
+  }
+  .presentation-chart .chart-bar {
+    margin-inline: 3px;
+    border-radius: 4px 4px 0 0;
+  }
+  .presentation-chart .chart-yesterday .trend-underlay {
+    stroke: #f5f5f7;
+    stroke-width: 7;
+    stroke-dasharray: none;
+  }
+  .presentation-chart .chart-yesterday .trend-line {
+    stroke: #747b89;
+    stroke-width: 2.5;
+    stroke-dasharray: none;
+    stroke-linejoin: round;
+  }
+  .presentation-chart .trend-node {
+    fill: #747b89;
+    stroke: #f5f5f7;
+    stroke-width: 2;
+  }
+  .presentation-chart .comparison-legend {
+    gap: 22px;
+    font-size: 12px;
+  }
+  .presentation-chart .comparison-legend > span {
+    gap: 7px;
+  }
+  .presentation-chart .comparison-legend i {
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+  }
+  .presentation-chart .comparison-legend span:nth-child(2) i {
+    width: 20px;
+    height: 0;
+    border-top: 2.5px solid #747b89;
+  }
+  .presentation-chart .chart-lines span,
+  .presentation-chart .chart-hours {
+    font-size: 10px;
+    color: #747b89;
+  }
+  .presentation-chart .demo-chart-tooltip {
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    box-shadow: 0 8px 28px #17274416;
+  }
+  @media (max-width: 600px) {
+    .presentation-chart .chart-bar {
+      margin-inline: 1.5px;
+      border-radius: 3px 3px 0 0;
+    }
+    .presentation-chart .comparison-legend {
+      font-size: 11px;
+    }
+  }
+  .presentation-chart.compact-chart .chart-bar {
+    margin-inline: 1px;
+    border-radius: 2px 2px 0 0;
+  }
+  .presentation-chart.compact-chart .chart-yesterday .trend-line {
+    stroke-width: 1.6;
+  }
+  .presentation-chart.compact-chart .chart-yesterday .trend-underlay {
+    stroke-width: 4;
+  }
+  .presentation-chart.compact-chart .comparison-legend {
+    gap: 9px;
+    font-size: 6px;
+  }
+  .presentation-chart.compact-chart .comparison-legend i {
+    width: 5px;
+    height: 5px;
+  }
+  .presentation-chart.compact-chart .comparison-legend span:nth-child(2) i {
+    width: 12px;
+    height: 0;
+    border-top-width: 1.6px;
+  }
+  .presentation-chart.compact-chart .chart-lines span,
+  .presentation-chart.compact-chart .chart-hours {
+    font-size: 6px;
+  }
+  .presentation-chart.compact-chart .demo-chart-tooltip {
+    font-size: 8px;
+    padding: 7px 9px;
+    border-radius: 7px;
+  }
+</style>
