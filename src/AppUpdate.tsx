@@ -7,10 +7,12 @@ import { t } from '../electron/i18n';
 
 export function AppUpdate({
   compact = false,
+  notice = false,
   currentVersion,
   onOpen,
 }: {
   compact?: boolean;
+  notice?: boolean;
   currentVersion?: string;
   onOpen?: () => void;
 }) {
@@ -70,6 +72,51 @@ export function AppUpdate({
                   : dmg
                     ? '发现新版后自动后台下载，点击安装更新'
                     : '发现新版后自动后台下载，点击重启更新';
+  if (notice) {
+    const failed = error || status === 'error';
+    if (!failed && !['available', 'downloading', 'downloaded', 'installing'].includes(status ?? ''))
+      return null;
+    const title = failed
+      ? t('更新失败，点击重试')
+      : status === 'downloaded'
+        ? t('新版本已就绪')
+        : status === 'installing'
+          ? t('安装中…')
+          : t('发现新版本');
+    return (
+      <section
+        className={`sidebar-update-notice${failed ? ' failed' : ''}`}
+        aria-label={t('版本更新')}
+      >
+        <div role="status" aria-live="polite" aria-atomic="true">
+          <strong>{title}</strong>
+          <small>
+            {state?.version && `v${state.version} · `}
+            {failed
+              ? t('更新失败，请检查网络或前往下载页面')
+              : status === 'downloading'
+                ? `${t('正在下载更新…')} ${Math.floor(state?.percent ?? 0)}%`
+                : status === 'downloaded'
+                  ? t('更新已就绪，重启后生效')
+                  : t(message)}
+          </small>
+        </div>
+        {status === 'downloading' && !failed && (
+          <progress aria-label={t('更新下载进度')} max={100} value={state?.percent ?? 0} />
+        )}
+        <button
+          disabled={status === 'installing'}
+          onClick={() => (status === 'downloaded' && !failed ? run('install') : onOpen?.())}
+        >
+          {status === 'installing'
+            ? t('安装中…')
+            : status === 'downloaded' && !failed
+              ? t('重启并安装')
+              : t('查看更新')}
+        </button>
+      </section>
+    );
+  }
   if (compact) {
     const attention =
       error || ['available', 'downloading', 'downloaded', 'error'].includes(status ?? '');

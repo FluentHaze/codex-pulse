@@ -374,6 +374,14 @@ function App() {
     setTab(next);
     requestAnimationFrame(() => document.querySelector<HTMLHeadingElement>('main h1')?.focus());
   };
+  const openUpdates = () => {
+    navigate('settings');
+    requestAnimationFrame(() => {
+      const section = document.getElementById('settings-updates');
+      section?.scrollIntoView({ block: 'start' });
+      section?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
+    });
+  };
   const openSetting = (label: string) => {
     navigate('settings');
     requestAnimationFrame(() => {
@@ -599,6 +607,7 @@ function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
+          <AppUpdate notice onOpen={openUpdates} />
           <div className="sidebar-account" aria-label={t('当前账号')}>
             <span className="account-avatar">
               {state.account ? (
@@ -621,20 +630,14 @@ function App() {
               <Icon name="shield" />
               {t('本机额度监控')}
             </span>
-            <AppUpdate
-              compact
-              currentVersion={appVersion}
-              onOpen={() => {
-                navigate('settings');
-                requestAnimationFrame(() =>
-                  document.getElementById('settings-updates')?.scrollIntoView({ block: 'start' }),
-                );
-              }}
-            />
+            <AppUpdate compact currentVersion={appVersion} onOpen={openUpdates} />
           </div>
         </div>
       </header>
       <div className="workspace">
+        <div className="workspace-update-notice">
+          <AppUpdate notice onOpen={openUpdates} />
+        </div>
         <div className="workspace-bar">
           <button
             className="command-trigger"

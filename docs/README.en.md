@@ -53,6 +53,8 @@ Charts default to Hour. The overview offers Minute, Hour and Day; Today’s usag
 
 ## Update the app
 
+A persistent update card above the account area shows the new version and download progress, with View update or Restart and install actions. In narrow windows it stays at the top of the content area.
+
 Open Preferences → Version updates. The Windows installer edition downloads updates in the background; choose Restart and install when ready. For the portable edition, download the new executable and replace the old one after closing it. On Mac v0.1.35 and later, choose Restart and install after downloading. Pulse verifies the update, replaces the app and reopens it; approve the macOS authorization prompt if required. Mac v0.1.34 and earlier require one manual upgrade: quit Pulse, replace the app in Applications and reopen it. Existing settings are retained.
 
 ## Help and documentation

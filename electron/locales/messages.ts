@@ -5,6 +5,14 @@ export const messages: Record<string, readonly string[]> = {
   ...chartMessages,
   ...resetMessages,
   ...interfaceMessages,
+  发现新版本: [
+    'New version available',
+    '發現新版本',
+    '新しいバージョンがあります',
+    '새 버전이 있습니다',
+  ],
+  新版本已就绪: ['Update ready', '新版本已就緒', '更新の準備ができました', '업데이트 준비 완료'],
+  查看更新: ['View update', '查看更新', '更新を確認', '업데이트 보기'],
   '较昨日同小时 {0}': [
     'Vs. the same hour yesterday: {0}',
     '較昨日同小時 {0}',
