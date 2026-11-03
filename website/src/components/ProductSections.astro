@@ -1,0 +1,283 @@
+---
+import { translator, type Locale } from '../i18n';
+import Mark from './Mark.astro';
+import Icon from './Icon.astro';
+import ProductDemo from './ProductDemo.astro';
+import QuotaPopover from './QuotaPopover.astro';
+import UsageChart from './UsageChart.astro';
+interface Props {
+  locale: Locale;
+  readme: string;
+  dataAnchor: string;
+}
+const { locale, readme, dataAnchor } = Astro.props;
+const t = translator(locale);
+---
+
+<div class="hero-scroll-track" data-hero-scroll>
+  <section class="pulse-hero" id="overview">
+    <div class="pulse-hero-copy">
+      <p class="pulse-product-name">Codex Pulse</p>
+      <h1>
+        {t('少一点打断。')}
+        <br />
+        {t('多一点从容。')}
+      </h1>
+      <p class="pulse-hero-description">{t('在菜单栏看额度，在每一轮看用量。')}</p>
+      <div class="pulse-hero-actions">
+        <a class="button" href="#download">
+          {t('免费下载')}
+        </a>
+        <a class="pulse-link" href="#features">
+          {t('进一步了解')} <Icon name="chevron" size={15} />
+        </a>
+      </div>
+      <p class="pulse-hero-meta">
+        {t('开源免费')} <span aria-hidden="true">·</span> macOS & Windows
+      </p>
+    </div>
+    <div class="pulse-device" data-scroll-device>
+      <ProductDemo locale={locale} />
+    </div>
+    <div class="pulse-demo-caption">
+      <div class="platform-switch" role="group" aria-label={t('产品界面示意平台')}>
+        <button type="button" data-platform-button="mac" aria-pressed="true">
+          macOS
+        </button>
+        <button type="button" data-platform-button="windows" aria-pressed="false">
+          Windows
+        </button>
+      </div>
+      <p>{t('界面与用量数据为功能示意')}</p>
+      <div class="hero-scroll-cues" aria-hidden="true">
+        <span data-hero-scroll-label>{t('滚动展开，探索更多。')}</span>
+        <div>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<section class="pulse-intro pulse-width" id="features">
+  <p class="pulse-label">{t('为专注而生')}</p>
+  <h2>
+    {t('额度与用量，')}
+    <br />
+    {t('一眼掌握。')}
+  </h2>
+  <p class="pulse-intro-description">
+    {t('把注意力留给创作，')}
+    {t('把额度与用量交给 Pulse。')}
+  </p>
+</section>
+<section class="pulse-story" data-scroll-story aria-label={t('功能')}>
+  <div class="pulse-story-sticky">
+    <div class="pulse-story-visual" aria-hidden="true">
+      <div class="pulse-story-halo"></div>
+      <div class="pulse-quota-object">
+        <QuotaPopover locale={locale} />
+      </div>
+      <div class="pulse-token-object">
+        <span>{t('本轮 Token')}</span>
+        <strong>
+          128<small>K</small>
+        </strong>
+        <div class="pulse-token-meter">
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+        </div>
+        <p>{t('输入、输出、缓存与推理，按轮查看。')}</p>
+      </div>
+      <div class="pulse-notification">
+        <span class="pulse-notification-icon">
+          <Mark size={27} />
+        </span>
+        <div>
+          <strong>Codex Pulse</strong>
+          <p>{t('临界时，提醒你')}</p>
+        </div>
+        <Icon name="check" size={19} />
+      </div>
+    </div>
+    <div class="pulse-story-copy">
+      <article class="pulse-story-step" data-story-step="0">
+        <p class="pulse-label">{t('随时看一眼')}</p>
+        <h2>
+          {t('抬眼之间，')}
+          <br />
+          {t('额度尽知。')}
+        </h2>
+        <p>
+          {t('剩余百分比常驻 Mac 菜单栏。')}
+          {t('移入展开，点击直达详情。')}
+        </p>
+      </article>
+      <article class="pulse-story-step" data-story-step="1">
+        <p class="pulse-label">{t('每一轮都有迹可循')}</p>
+        <h2>
+          {t('每一轮，')}
+          <br />
+          {t('都看得清。')}
+        </h2>
+        <p>
+          {t('输入、输出、缓存与推理，按轮查看。')}
+          {t('今日对比昨日，点击轮次展开消息。')}
+        </p>
+      </article>
+      <article class="pulse-story-step" data-story-step="2">
+        <p class="pulse-label">{t('按你的节奏更新')}</p>
+        <h2>
+          {t('该提醒时，')}
+          <br />
+          {t('及时出现。')}
+        </h2>
+        <p>
+          {t('低额度与恢复通知，少一次意外打断。')}
+          {t('Mac 菜单栏，Windows 桌面悬浮窗。')}
+        </p>
+      </article>
+      <div class="pulse-story-position" aria-hidden="true">
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+    </div>
+    <p class="pulse-story-disclaimer">{t('界面与用量数据为功能示意')}</p>
+  </div>
+</section>
+<section class="pulse-insights">
+  <div class="pulse-width">
+    <div class="pulse-section-heading">
+      <div>
+        <p class="pulse-label">Token</p>
+        <h2>
+          {t('看清用量。')}
+          <br />
+          {t('找到你的节奏。')}
+        </h2>
+      </div>
+      <p>
+        {t('今日对比昨日，点击轮次展开消息。')}
+        {t('跟随进行中的聊天，保持用量稳定更新。')}
+      </p>
+    </div>
+    <div class="pulse-chart-panel">
+      <div class="pulse-chart-heading">
+        <div>
+          <p>{t('本机已记录')}</p>
+          <h3>{t('今日 Token 用量')}</h3>
+        </div>
+        <strong>
+          2.4<small>M Token</small>
+        </strong>
+      </div>
+      <UsageChart locale={locale} presentation />
+      <div class="pulse-chart-summary">
+        <span>
+          {t('输入')} <b>2.1M</b>
+        </span>
+        <span>
+          {t('输出')} <b>300K</b>
+        </span>
+        <span>
+          {t('缓存')} <b>1.8M</b>
+        </span>
+      </div>
+      <p class="pulse-sample-note">{t('界面与用量数据为功能示意')}</p>
+    </div>
+    <div class="pulse-turn-feature" id="turn-details">
+      <div class="pulse-turn-copy">
+        <p class="pulse-label">{t('Token 明细')}</p>
+        <h3>{t('每一轮消耗，清清楚楚。')}</h3>
+        <p>{t('按轮查看 Token 合计，展开输入、输出、缓存和推理明细，还能对照本轮消息。')}</p>
+        <button
+          class="pulse-link"
+          type="button"
+          data-turn-toggle
+          aria-controls="turn-samples"
+          aria-expanded="false"
+        >
+          <span data-turn-toggle-label>{t('展开示例轮次')}</span> <Icon name="chevron" size={15} />
+        </button>
+      </div>
+      <div class="pulse-turn-samples" id="turn-samples">
+        {[
+          {
+            round: 3,
+            input: '26.31K',
+            cache: '26.11K',
+            output: '27',
+            reasoning: '0',
+            total: '26.34K',
+          },
+          { round: 2, input: '18K', cache: '16K', output: '1K', reasoning: '200', total: '19K' },
+          { round: 1, input: '42K', cache: '32K', output: '2K', reasoning: '500', total: '44K' },
+        ].map((turn, index) => (
+          <details class="pulse-turn-row" open={index === 0}>
+            <summary>
+              <span>
+                <b>{t('第 {0} 轮').replace('{0}', String(turn.round))}</b>
+                <small>{t('已完成')}</small>
+              </span>
+              <strong>
+                {turn.total}
+                <small> Token</small>
+              </strong>
+              <Icon name="chevron" size={15} />
+            </summary>
+            <dl>
+              {[
+                { label: t('输入'), value: turn.input },
+                { label: t('缓存'), value: turn.cache },
+                { label: t('输出'), value: turn.output },
+                { label: t('推理'), value: turn.reasoning },
+              ].map((item) => (
+                <div>
+                  <dt>{item.label}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        ))}
+        <p class="pulse-sample-note">{t('缓存计入输入，推理计入输出；示例数据仅用于功能展示。')}</p>
+      </div>
+    </div>
+    <div class="pulse-detail-pair">
+      <article>
+        <Icon name="clock" size={30} />
+        <h3>{t('按你的节奏更新')}</h3>
+        <p>{t('跟随进行中的聊天，保持用量稳定更新。')}</p>
+      </article>
+      <article>
+        <Icon name="windows" size={30} />
+        <h3>{t('两种桌面，一份从容')}</h3>
+        <p>{t('Mac 菜单栏，Windows 桌面悬浮窗。')}</p>
+      </article>
+    </div>
+  </div>
+</section>
+<section class="pulse-privacy pulse-width" id="privacy">
+  <div class="pulse-lock" aria-hidden="true">
+    <Icon name="lock" size={72} />
+  </div>
+  <p class="pulse-label">{t('本机读取，安心专注。')}</p>
+  <h2>
+    {t('你的数据，')}
+    <br />
+    {t('留在你的电脑。')}
+  </h2>
+  <p>
+    {t('通过本机 Codex 读取额度。')}
+    <br />
+    {t('不复制、不保存登录 Token，不发送模型对话。')}
+  </p>
+  <a class="pulse-link" href={readme + '#' + dataAnchor} target="_blank" rel="noopener noreferrer">
+    {t('查看数据说明')} <Icon name="chevron" size={16} />
+  </a>
+</section>

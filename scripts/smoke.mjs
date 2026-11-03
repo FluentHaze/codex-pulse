@@ -270,21 +270,22 @@ try {
     'dark',
     'fresh installs default to dark',
   );
-  await detail.locator('.hour-bar').first().waitFor();
+  await detail.locator('.usage-canvas').waitFor();
   assert.equal(
-    await detail.locator('.hour-bar').count(),
-    24,
-    'hour chart renders a full local day',
+    await detail.getByRole('button', { name: '小时', exact: true }).getAttribute('aria-pressed'),
+    'true',
+    'usage chart defaults to hourly buckets',
   );
-  await detail.locator('.hour-bar').nth(10).focus();
-  await detail.locator('.hour-bar').nth(10).press('ArrowRight');
+  await detail.locator('.usage-canvas').focus();
+  await detail.locator('.usage-canvas').press('Home');
+  await detail.locator('.usage-canvas').press('ArrowRight');
   assert.ok(
-    (await detail.locator('.chart-tooltip').innerText()).includes('11:00'),
+    (await detail.locator('.usage-tooltip').innerText()).includes('01:00'),
     'keyboard arrow opens precise hour tooltip',
   );
   await detail.screenshot({ path: 'release/chart-tooltip-preview.png' });
-  await detail.locator('.hour-bar').nth(11).press('Escape');
-  assert.equal(await detail.locator('.chart-tooltip').count(), 0, 'Escape dismisses chart tooltip');
+  await detail.locator('.usage-canvas').press('Escape');
+  assert.equal(await detail.locator('.usage-tooltip').count(), 0, 'Escape dismisses chart tooltip');
   await detail.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k');
   await detail.getByRole('dialog', { name: '快速操作', exact: true }).waitFor();
   await detail.getByRole('combobox', { name: '搜索操作', exact: true }).fill('今日');

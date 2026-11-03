@@ -36,7 +36,8 @@ contextBridge.exposeInMainWorld('pulse', {
   tokenCatalog: (force = false): Promise<TokenCatalog> =>
     ipcRenderer.invoke('token-catalog', force),
   tokenSession: (id: string): Promise<TokenSession> => ipcRenderer.invoke('token-session', id),
-  todayUsage: (force = false): Promise<DailyStats> => ipcRenderer.invoke('today-usage', force),
+  todayUsage: (force = false, days: 2 | 15 = 2): Promise<DailyStats> =>
+    ipcRenderer.invoke('today-usage', force, days),
   scopeUsage: (ids: string[]): Promise<DailyStats> => ipcRenderer.invoke('scope-usage', ids),
   peekSize: (height: number): Promise<void> => ipcRenderer.invoke('peek-size', height),
   peek: (expanded: boolean): Promise<void> => ipcRenderer.invoke('float-peek', expanded),

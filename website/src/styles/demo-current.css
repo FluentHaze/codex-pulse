@@ -1,0 +1,449 @@
+/* Current desktop shell, presented with fixed sample data for the marketing site. */
+.pulse-device .modern-demo.demo-dashboard {
+  inset: 52px 6% 30px;
+  width: 88%;
+  height: auto;
+  transform: none;
+  border: 1px solid #d7dce5;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px #243a6226;
+  --demo-bg: #f5f5f7;
+  --demo-green: #24863c;
+}
+.pulse-device .modern-demo .demo-sidebar {
+  width: 16%;
+  min-width: 110px;
+  padding: 22px 10px;
+  background: #f0f2f4;
+}
+.pulse-device .demo-window-controls {
+  display: none;
+}
+.pulse-device .demo-brand {
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+.pulse-device .demo-brand img {
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.pulse-device .modern-demo .demo-nav {
+  min-height: 34px;
+  margin-bottom: 5px;
+  border-radius: 9px;
+  color: #30343b;
+  font-size: 9px;
+}
+.pulse-device .modern-demo .demo-nav.active {
+  color: #0071e3;
+  background: #e6f1ff;
+}
+.demo-settings-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 8px;
+  color: #41464d;
+  font-size: 9px;
+}
+.pulse-device .modern-demo .demo-main {
+  padding: 20px 18px 12px;
+}
+.pulse-device .modern-demo .demo-main-title h3 {
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+.pulse-device .modern-demo .demo-quota-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.pulse-device .modern-demo .demo-quota-card {
+  padding: 12px;
+  border-radius: 12px;
+}
+.pulse-device .demo-quota-visual {
+  margin: 12px 0;
+}
+.pulse-device .demo-quota-visual strong {
+  font-size: 27px;
+}
+.pulse-device .modern-demo .demo-ring {
+  width: 45px;
+  height: 45px;
+}
+.demo-round-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.demo-round-card > strong {
+  font-size: 28px;
+  color: #0071e3;
+  margin-block: 13px;
+}
+.demo-round-card footer b,
+.demo-round-card footer span {
+  display: block;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.demo-overview-bottom,
+.demo-today-bottom {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+  min-height: 0;
+  flex: 1;
+}
+.pulse-device .modern-demo .demo-overview-bottom .demo-chart-panel,
+.pulse-device .modern-demo .demo-today-bottom .demo-chart-panel {
+  margin-top: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.pulse-device .modern-demo .demo-overview-bottom .usage-chart {
+  flex: 1;
+  height: auto;
+  min-height: 65px;
+  margin-top: 12px;
+}
+.demo-recent,
+.demo-composition {
+  padding: 12px;
+  border: 1px solid var(--demo-line);
+  background: white;
+  border-radius: 12px;
+  min-width: 0;
+}
+.demo-recent h4,
+.demo-composition h4 {
+  font-size: 9px;
+  margin-bottom: 12px;
+}
+.demo-recent > div {
+  margin-bottom: 12px;
+}
+.demo-recent b {
+  display: block;
+  font-size: 8px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.demo-recent small {
+  display: block;
+  color: var(--demo-muted);
+  font-size: 6px;
+  margin-top: 4px;
+}
+.demo-recent > button {
+  background: transparent;
+  color: #0071e3;
+  font-size: 7px;
+  padding: 4px 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.demo-reset-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--demo-line);
+  border-radius: 10px;
+  background: white;
+  text-align: left;
+  color: var(--demo-ink);
+  flex: none;
+}
+.demo-reset-shortcut > span:last-child {
+  margin-left: auto;
+  color: #0071e3;
+  font-size: 18px;
+}
+.demo-reset-shortcut b {
+  font-size: 10px;
+}
+.demo-reset-shortcut small {
+  display: block;
+  font-size: 6px;
+  color: var(--demo-muted);
+  margin-top: 3px;
+}
+.demo-composition > div {
+  margin: 16px 0;
+}
+.demo-composition span {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+}
+.demo-composition i {
+  display: block;
+  height: 4px;
+  background: #e4e4e9;
+  border-radius: 3px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+.demo-composition em {
+  display: block;
+  height: 100%;
+  background: #0071e3;
+}
+.pulse-device .demo-forecast {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px 12px;
+}
+.pulse-device .demo-forecast > div + div {
+  border-left: 1px solid var(--demo-line);
+  padding-left: 10px;
+}
+.pulse-device .demo-forecast strong {
+  font-size: 17px;
+}
+.demo-calendar-tabs {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 13px 12px 0;
+  margin-top: 10px;
+  background: white;
+  border: 1px solid var(--demo-line);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  font-size: 8px;
+  color: var(--demo-muted);
+}
+.demo-calendar-tabs > b {
+  color: #0071e3;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #0071e3;
+}
+.demo-calendar-tabs > span {
+  padding-bottom: 10px;
+}
+.pulse-device .demo-calendar-layout {
+  margin-top: 0;
+  border: 1px solid var(--demo-line);
+  border-radius: 0 0 10px 10px;
+  padding: 10px;
+  background: white;
+  flex: 1;
+}
+.pulse-device .demo-calendar {
+  border: 0;
+  padding: 3px;
+}
+.pulse-device .demo-days > button,
+.pulse-device .demo-days > span {
+  min-height: 19px;
+}
+.pulse-device .demo-calendar-record > p {
+  background: #f5f5f7;
+}
+.pulse-device .demo-message-panel {
+  position: absolute;
+  top: -20px;
+  bottom: -12px;
+  right: -18px;
+  width: 73%;
+  padding: 18px;
+  border-radius: 14px 0 0 14px;
+  box-shadow:
+    0 0 0 1000px #19233030,
+    -10px 0 35px #00000012;
+}
+.pulse-device .demo-message-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  background: #f5f5f7;
+  padding: 14px;
+  border-radius: 9px;
+}
+.pulse-device .demo-message-stats > span:last-child b {
+  color: #0071e3;
+}
+
+@media (min-width: 768px) {
+  .pulse-device .product-scene {
+    height: 640px;
+  }
+  .pulse-device .laptop-display {
+    height: 570px;
+  }
+  .pulse-device .modern-demo .demo-sidebar {
+    width: 18%;
+    min-width: 130px;
+  }
+}
+.pulse-device .demo-brand b {
+  white-space: nowrap;
+  font-size: 10px;
+}
+.demo-overview-bottom,
+.demo-today-bottom {
+  grid-template-rows: minmax(0, 1fr);
+}
+.pulse-device .modern-demo .demo-overview-bottom .demo-chart-panel {
+  height: 100%;
+  overflow: hidden;
+}
+.pulse-device .modern-demo .demo-overview-bottom .usage-chart {
+  min-height: 0;
+}
+.demo-recent {
+  overflow: hidden;
+}
+@media (max-width: 767px) {
+  .pulse-device .demo-brand b {
+    font-size: 5px;
+  }
+}
+.pulse-device .demo-calendar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.pulse-device .demo-days {
+  flex: 1;
+  grid-auto-rows: 1fr;
+}
+
+/* Calendar mirrors the desktop app: toolbar, bordered month grid and separate daily records. */
+.pulse-device .demo-calendar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fff;
+  border-inline: 1px solid var(--demo-line);
+  font-size: 12px;
+}
+.demo-month-controls {
+  color: #555b65;
+  font-size: 12px;
+}
+.demo-month-controls > span {
+  border: 1px solid var(--demo-line);
+  border-radius: 5px;
+  padding: 4px 6px;
+}
+.demo-calendar-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 3px;
+  border-radius: 6px;
+  background: #e7e8ed;
+  font-size: 9px;
+  color: #777b84;
+}
+.demo-calendar-filter > b {
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: white;
+  color: #31343b;
+  box-shadow: 0 1px 3px #0001;
+}
+.pulse-device .demo-calendar-layout {
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+  padding: 12px 14px;
+  border-top: 0;
+}
+.pulse-device .demo-calendar {
+  border: 1px solid #dddfe6;
+  border-radius: 10px;
+  padding: 12px 10px 9px;
+}
+.pulse-device .demo-week {
+  font-size: 9px;
+  margin-bottom: 8px;
+}
+.pulse-device .demo-days {
+  gap: 4px;
+}
+.pulse-device .demo-days > button,
+.pulse-device .demo-days > span {
+  min-height: 28px;
+  font-size: 10px;
+}
+.pulse-device .demo-days > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.pulse-device .demo-days > button.marked {
+  background: #e7f1ff;
+  color: #0071e3;
+}
+.demo-day-dots {
+  display: flex;
+  gap: 3px;
+  height: 4px;
+}
+.demo-day-dots > i,
+.demo-calendar-legend i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.reset-dot {
+  background: #0071e3;
+}
+.announcement-dot {
+  background: #a86f00;
+}
+.personal-dot {
+  background: #278d50;
+  box-shadow: 0 0 0 1px #278d5050;
+}
+.demo-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 7px;
+  color: #747780;
+}
+.demo-calendar-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pulse-device .demo-calendar-record {
+  padding: 10px 0;
+}
+.pulse-device .demo-calendar-record > b {
+  font-size: 14px;
+}
+.pulse-device .demo-calendar-record > span {
+  font-size: 10px;
+  margin: 8px 0 16px;
+}
+.pulse-device .demo-calendar-record > p {
+  padding: 12px;
+  font-size: 11px;
+  line-height: 1.8;
+  border-radius: 9px;
+}
+.pulse-device .demo-calendar-record > small {
+  font-size: 9px;
+  line-height: 1.7;
+}

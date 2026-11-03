@@ -1,5 +1,7 @@
 # 代码格式与注释约定
 
+本文面向贡献者，软件使用说明见[使用指南](usage.zh-CN.md)。
+
 项目使用 Prettier 统一格式，Astro 页面由 prettier-plugin-astro 处理。
 
 ```bash

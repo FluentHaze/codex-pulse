@@ -1,10 +1,17 @@
 /**
- * 官网交互入口：管理偏好菜单、主题、移动导航及 Release 下载链接回填。
+ * 官网交互入口：管理语言菜单、移动导航及 Release 下载链接回填。
  */
 import { translator, locales, type Locale } from '../i18n';
 import { detectDownloadPlatform, downloadRules, releaseDownloadUrl } from './downloads';
 const locale = (document.documentElement.lang || 'en') as Locale;
 const t = translator(locale);
+const backdrop = document.querySelector<HTMLButtonElement>('[data-nav-backdrop]');
+function syncNavigationSurface() {
+  const open = !!document.querySelector(
+    '.nav-links.is-open, .preference-trigger[aria-expanded="true"]',
+  );
+  if (backdrop) backdrop.hidden = !open || !matchMedia('(max-width: 767px)').matches;
+}
 const preferenceMenus = document.querySelectorAll<HTMLElement>('.preference-menu');
 function closePreferences(restoreFocus = false) {
   preferenceMenus.forEach((menu) => {
@@ -15,6 +22,7 @@ function closePreferences(restoreFocus = false) {
     if (panel) panel.hidden = true;
     if (restoreFocus && wasOpen) trigger?.focus();
   });
+  syncNavigationSurface();
 }
 preferenceMenus.forEach((menu) => {
   const trigger = menu.querySelector<HTMLButtonElement>('.preference-trigger');
@@ -24,6 +32,7 @@ preferenceMenus.forEach((menu) => {
     closeMenu();
     trigger?.setAttribute('aria-expanded', 'true');
     if (panel) panel.hidden = false;
+    syncNavigationSurface();
     const items = panel?.querySelectorAll<HTMLElement>('[role="menuitemradio"]');
     const selected = panel?.querySelector<HTMLElement>('[aria-checked="true"]');
     if (focusLast) items?.[items.length - 1]?.focus();
@@ -84,50 +93,13 @@ document.querySelectorAll<HTMLAnchorElement>('[data-language]').forEach((link) =
     }
   }),
 );
-const systemTheme = matchMedia('(prefers-color-scheme: dark)');
-function applyTheme(preference: string) {
-  const theme = ['system', 'light', 'dark'].includes(preference) ? preference : 'system';
-  document.documentElement.dataset.themePreference = theme;
-  document.documentElement.dataset.theme =
-    theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme;
-  document
-    .querySelector('meta[name="theme-color"]')
-    ?.setAttribute(
-      'content',
-      document.documentElement.dataset.theme === 'dark' ? '#101114' : '#ffffff',
-    );
-  document
-    .querySelectorAll<HTMLElement>('[data-theme-option]')
-    .forEach((item) =>
-      item.setAttribute('aria-checked', String(item.dataset.themeOption === theme)),
-    );
-  const selected = document.querySelector<HTMLElement>(`[data-theme-option="${theme}"] > span`);
-  const label = document.querySelector('[data-theme-label]');
-  if (label && selected) label.textContent = selected.textContent;
-}
-applyTheme(document.documentElement.dataset.themePreference || 'system');
-document.querySelectorAll<HTMLButtonElement>('[data-theme-option]').forEach((button) =>
-  button.addEventListener('click', () => {
-    const value = button.dataset.themeOption || 'system';
-    try {
-      localStorage.setItem('pulse-theme', value);
-    } catch {}
-    applyTheme(value);
-    closePreferences(true);
-  }),
-);
-systemTheme.addEventListener('change', () =>
-  applyTheme(document.documentElement.dataset.themePreference || 'system'),
-);
-window.addEventListener('storage', (event) => {
-  if (event.key === 'pulse-theme') applyTheme(event.newValue || 'system');
-});
 const nav = document.querySelector<HTMLElement>('.nav-links');
 const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
 function closeMenu() {
   toggle?.setAttribute('aria-expanded', 'false');
   toggle?.setAttribute('aria-label', t('展开导航'));
   nav?.classList.remove('is-open');
+  syncNavigationSurface();
 }
 toggle?.addEventListener('click', () => {
   closePreferences();
@@ -135,13 +107,28 @@ toggle?.addEventListener('click', () => {
   toggle.setAttribute('aria-expanded', String(open));
   toggle.setAttribute('aria-label', open ? t('收起导航') : t('展开导航'));
   nav?.classList.toggle('is-open', open);
+  syncNavigationSurface();
 });
 nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') closeMenu();
+  if (event.key === 'Escape') {
+    const wasOpen = toggle?.getAttribute('aria-expanded') === 'true';
+    closeMenu();
+    closePreferences(true);
+    if (wasOpen) toggle?.focus();
+  }
 });
 document.addEventListener('click', (event) => {
   if (event.target instanceof Element && !event.target.closest('.nav-shell')) closeMenu();
+});
+
+backdrop?.addEventListener('click', () => {
+  closeMenu();
+  closePreferences();
+});
+matchMedia('(max-width: 767px)').addEventListener('change', () => {
+  closeMenu();
+  closePreferences();
 });
 
 const demo = document.querySelector<HTMLElement>('#product-demo');
@@ -313,7 +300,19 @@ const workspace = document.querySelector<HTMLElement>('[data-demo-workspace]');
 const demoTabs = Array.from(
   workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-tab]') ?? [],
 );
+function clearDemoMorph() {
+  workspace?.classList.remove('demo-scroll-morph');
+  workspace?.querySelectorAll<HTMLElement>('[data-demo-panel]').forEach((panel) => {
+    panel.style.removeProperty('--morph-opacity');
+    panel.style.removeProperty('--morph-y');
+    panel.style.removeProperty('--morph-scale');
+    panel.style.removeProperty('--morph-blur');
+    panel.removeAttribute('aria-hidden');
+    panel.inert = false;
+  });
+}
 function switchDemo(button: HTMLButtonElement) {
+  clearDemoMorph();
   const selected = button.dataset.demoTab;
   demoTabs.forEach((tab) => {
     tab.classList.toggle('active', tab === button);
@@ -377,10 +376,10 @@ workspace?.querySelectorAll<HTMLButtonElement>('[data-demo-day]').forEach((butto
     const day = Number(button.dataset.demoDay);
     const label = workspace.querySelector('[data-demo-selected-day]');
     const record = workspace.querySelector('[data-demo-day-record]');
-    if (label) label.textContent = `2026 / 10 / ${String(day).padStart(2, '0')}`;
+    if (label) label.textContent = `2026 / 11 / ${String(day).padStart(2, '0')}`;
     if (record)
       record.textContent =
-        day === 30
+        day === 2
           ? t('个人窗口到期')
           : button.classList.contains('marked')
             ? t('已确认重置')
@@ -442,3 +441,97 @@ document.addEventListener('keydown', (event) => {
     demoPeekTrigger?.focus();
   }
 });
+
+workspace?.querySelector('[data-demo-open-tokens]')?.addEventListener('click', () => {
+  const tab = demoTabs.find((item) => item.dataset.demoTab === 'tokens');
+  if (tab) switchDemo(tab);
+});
+workspace?.querySelector('[data-demo-open-resets]')?.addEventListener('click', () => {
+  const tab = demoTabs.find((item) => item.dataset.demoTab === 'resets');
+  if (tab) switchDemo(tab);
+});
+
+// Scroll progress drives both panels continuously; manual interaction keeps control of focus.
+document.addEventListener('pulse:demo-morph', (event) => {
+  if (!(event instanceof CustomEvent) || !event.detail || typeof event.detail !== 'object') return;
+  if (!workspace || workspace.contains(document.activeElement)) return;
+  const detail = event.detail as { from?: unknown; to?: unknown; mix?: unknown };
+  const { from, to, mix } = detail;
+  if (
+    typeof from !== 'string' ||
+    typeof to !== 'string' ||
+    typeof mix !== 'number' ||
+    !Number.isFinite(mix)
+  )
+    return;
+  const fromTab = demoTabs.find((tab) => tab.dataset.demoTab === from);
+  const toTab = demoTabs.find((tab) => tab.dataset.demoTab === to);
+  if (!fromTab || !toTab) return;
+  const amount = Math.max(0, Math.min(1, mix));
+  if (amount === 0 || from === to) {
+    if (
+      fromTab.getAttribute('aria-selected') !== 'true' ||
+      workspace.classList.contains('demo-scroll-morph')
+    )
+      switchDemo(fromTab);
+    return;
+  }
+  if (!workspace.classList.contains('demo-scroll-morph')) closeDemoMessages(false);
+  workspace.classList.add('demo-scroll-morph');
+  const selectedTab = amount >= 0.5 ? toTab : fromTab;
+  demoTabs.forEach((tab) => {
+    tab.classList.toggle('active', tab === selectedTab);
+    tab.setAttribute('aria-selected', String(tab === selectedTab));
+    tab.tabIndex = tab === selectedTab ? 0 : -1;
+  });
+  workspace.querySelectorAll<HTMLElement>('[data-demo-panel]').forEach((panel) => {
+    const outgoing = panel.dataset.demoPanel === from;
+    const incoming = panel.dataset.demoPanel === to;
+    panel.hidden = !outgoing && !incoming;
+    const active = panel.dataset.demoPanel === selectedTab.dataset.demoTab;
+    panel.inert = !active;
+    panel.setAttribute('aria-hidden', String(!active));
+    if (!outgoing && !incoming) return;
+    const visibility = outgoing ? 1 - amount : amount;
+    panel.style.setProperty('--morph-opacity', String(visibility));
+    panel.style.setProperty(
+      '--morph-y',
+      String(outgoing ? -amount * 35 : (1 - amount) * 42) + 'px',
+    );
+    panel.style.setProperty(
+      '--morph-scale',
+      String(outgoing ? 1 - amount * 0.035 : 0.965 + amount * 0.035),
+    );
+    panel.style.setProperty('--morph-blur', String((1 - visibility) * 2.2) + 'px');
+  });
+});
+document.addEventListener('pulse:demo-morph-reset', () => {
+  const current = demoTabs.find((tab) => tab.getAttribute('aria-selected') === 'true');
+  if (current) switchDemo(current);
+});
+
+// Expand the real disclosure elements, rather than only navigating to their anchor.
+const turnToggle = document.querySelector<HTMLButtonElement>('[data-turn-toggle]');
+const turnRows = Array.from(
+  document.querySelectorAll<HTMLDetailsElement>('#turn-samples .pulse-turn-row'),
+);
+function syncTurnToggle() {
+  const expanded = turnRows.length > 0 && turnRows.every((row) => row.open);
+  turnToggle?.setAttribute('aria-expanded', String(expanded));
+  const label = turnToggle?.querySelector('[data-turn-toggle-label]');
+  if (label) label.textContent = expanded ? t('收起示例轮次') : t('展开示例轮次');
+}
+turnToggle?.addEventListener('click', () => {
+  const expand = !turnRows.every((row) => row.open);
+  turnRows.forEach((row) => {
+    row.open = expand;
+  });
+  syncTurnToggle();
+  if (expand) {
+    const first = turnRows[0]?.querySelector<HTMLElement>('summary');
+    first?.focus({ preventScroll: true });
+    first?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+  }
+});
+turnRows.forEach((row) => row.addEventListener('toggle', syncTurnToggle));
+syncTurnToggle();

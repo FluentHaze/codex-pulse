@@ -84,7 +84,13 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
         </section>
       </div>
       <div className="daily-analysis">
-        <HourlyChart stats={stats} busy={busy} error={t(error)} refresh={refresh} />
+        <HourlyChart
+          stats={stats}
+          busy={busy}
+          error={t(error)}
+          refresh={refresh}
+          allowDay={false}
+        />
         <section className="usage-composition">
           <h2>{t('用量构成')}</h2>
           {shares.map((share) => (

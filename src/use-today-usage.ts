@@ -4,18 +4,20 @@
 import { useEffect, useState } from 'react';
 import type { DailyStats } from '../electron/types';
 const snapshots = new Map<string, DailyStats>();
-const cacheKey = (path: string) => `${path}|${new Date().toLocaleDateString('en-CA')}`;
+const cacheKey = (path: string, days: number) =>
+  `${path}|${days}|${new Date().toLocaleDateString('en-CA')}`;
 export function useTodayUsage(sessionPath: string) {
+  const [days, setDays] = useState<2 | 15>(2);
   const [stats, setStats] = useState<DailyStats | undefined>(() =>
-    snapshots.get(cacheKey(sessionPath)),
+    snapshots.get(cacheKey(sessionPath, days)),
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [reload, setReload] = useState(0);
   useEffect(() => {
-    setStats(snapshots.get(cacheKey(sessionPath)));
+    setStats(snapshots.get(cacheKey(sessionPath, days)));
     setError('');
-  }, [sessionPath]);
+  }, [sessionPath, days]);
   useEffect(() => {
     let current = true,
       running = false;
@@ -24,10 +26,10 @@ export function useTodayUsage(sessionPath: string) {
       running = true;
       setBusy(true);
       try {
-        const result = await window.pulse!.todayUsage(force);
+        const result = await window.pulse!.todayUsage(force, days);
         if (current) {
           if (snapshots.size >= 4) snapshots.delete(snapshots.keys().next().value!);
-          snapshots.set(cacheKey(sessionPath), result);
+          snapshots.set(cacheKey(sessionPath, days), result);
           setStats(result);
           setError('');
         }
@@ -46,6 +48,6 @@ export function useTodayUsage(sessionPath: string) {
       current = false;
       clearInterval(timer);
     };
-  }, [sessionPath, reload]);
-  return { stats, busy, error, refresh: () => setReload((value) => value + 1) };
+  }, [sessionPath, reload, days]);
+  return { stats, busy, error, setDays, refresh: () => setReload((value) => value + 1) };
 }

@@ -3,7 +3,7 @@ import { parentPort } from 'node:worker_threads';
 import { TokenStore } from './token-store.js';
 type Arguments = {
   list: boolean;
-  today: boolean;
+  today: { force: boolean; days: 2 | 15 };
   read: string;
   live: string;
   scopeUsage: string[];
@@ -24,7 +24,7 @@ parentPort?.on('message', async (request: TokenRequest) => {
     const value = await (request.method === 'list'
       ? store.list(request.value)
       : request.method === 'today'
-        ? store.today(request.value)
+        ? store.today(request.value.force, request.value.days)
         : request.method === 'read'
           ? store.read(request.value)
           : request.method === 'live'

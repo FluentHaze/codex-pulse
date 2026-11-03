@@ -1,0 +1,302 @@
+/* Shared sidebar geometry and a single scaled canvas for the mobile product illustration. */
+.pulse-device .demo-sidebar {
+  position: relative;
+}
+.pulse-device .demo-nav svg,
+.pulse-device .demo-settings-label svg {
+  color: #007aff;
+  flex: none;
+}
+.pulse-device .demo-account-bottom {
+  bottom: 35px;
+  left: 12px;
+  right: 10px;
+  font-size: 9px;
+  gap: 7px;
+}
+.pulse-device .demo-account-bottom > div {
+  min-width: 0;
+}
+.pulse-device .demo-account-bottom small {
+  font-size: 7px;
+  margin-top: 3px;
+}
+.pulse-device .demo-user-avatar {
+  position: relative;
+  width: 25px;
+  height: 25px;
+  font-size: 11px;
+  background: linear-gradient(145deg, #58b4ff, #1674db);
+}
+.pulse-device .demo-user-avatar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  border: 2px solid #f0f2f4;
+  border-radius: 50%;
+  background: #2b9764;
+}
+.pulse-device .demo-account-bottom > i {
+  display: none;
+}
+.demo-sidebar-footer {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 6px;
+  color: #81848b;
+  white-space: nowrap;
+}
+.demo-sidebar-footer small {
+  margin-left: auto;
+  font-size: 5px;
+}
+@media (max-width: 767px) {
+  .pulse-hero .pulse-device .product-scene {
+    height: var(--mobile-scene-height, 290px);
+  }
+  .pulse-hero .pulse-device .laptop-display {
+    height: auto;
+    aspect-ratio: 1.32;
+  }
+  .pulse-device .modern-demo.demo-dashboard {
+    width: 900px;
+    height: 600px;
+    inset: 30px auto auto 5%;
+    transform: scale(var(--demo-mobile-scale, 0.3));
+    transform-origin: top left;
+    border-radius: 12px;
+  }
+  .pulse-device .modern-demo .demo-sidebar {
+    width: 160px;
+    min-width: 160px;
+    padding: 22px 12px;
+  }
+  .pulse-device .demo-brand {
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 25px;
+  }
+  .pulse-device .demo-brand img {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .pulse-device .demo-brand b {
+    font-size: 12px;
+  }
+  .pulse-device .modern-demo .demo-nav {
+    font-size: 11px;
+    padding: 12px 10px;
+    min-height: 43px;
+    gap: 10px;
+    margin-bottom: 7px;
+    border-radius: 10px;
+  }
+  .pulse-device .modern-demo .demo-nav svg,
+  .pulse-device .demo-settings-label svg {
+    width: 17px;
+    height: 17px;
+  }
+  .pulse-device .demo-settings-label {
+    font-size: 11px;
+    gap: 10px;
+    padding: 12px 10px;
+  }
+  .pulse-device .modern-demo .demo-main {
+    padding: 22px 18px 16px;
+  }
+  .pulse-device .modern-demo .demo-main-title {
+    min-height: 28px;
+    margin-bottom: 5px;
+  }
+  .pulse-device .modern-demo .demo-main-title h3 {
+    font-size: 20px;
+  }
+  .pulse-device .demo-view-description {
+    font-size: 9px;
+    margin-bottom: 14px;
+  }
+  .pulse-device .demo-quota-toggle button {
+    font-size: 9px;
+    padding: 6px 10px;
+  }
+  .pulse-device .modern-demo .demo-quota-grid {
+    gap: 10px;
+  }
+  .pulse-device .modern-demo .demo-quota-card {
+    padding: 13px;
+    border-radius: 12px;
+  }
+  .pulse-device .modern-demo .demo-quota-card h4 {
+    font-size: 11px;
+  }
+  .pulse-device .demo-quota-card > header > span {
+    display: block;
+    font-size: 7px;
+  }
+  .pulse-device .demo-quota-visual {
+    margin: 17px 0;
+    gap: 8px;
+  }
+  .pulse-device .demo-quota-visual strong {
+    font-size: 30px;
+  }
+  .pulse-device .demo-quota-visual > div > small {
+    font-size: 8px;
+  }
+  .pulse-device .modern-demo .demo-ring {
+    width: 53px;
+    height: 53px;
+    padding: 4px;
+  }
+  .pulse-device .modern-demo .demo-ring b {
+    font-size: 11px;
+  }
+  .pulse-device .demo-quota-card > footer {
+    font-size: 8px;
+    padding-top: 10px;
+    white-space: normal;
+  }
+  .pulse-device .demo-round-card > strong {
+    font-size: 32px;
+    margin-block: 16px;
+  }
+  .pulse-device .demo-overview-bottom,
+  .pulse-device .demo-today-bottom {
+    gap: 10px;
+    margin-top: 12px;
+    grid-template-columns: 2fr 1fr;
+  }
+  .pulse-device .demo-recent,
+  .pulse-device .demo-composition {
+    padding: 13px;
+    border-radius: 12px;
+  }
+  .pulse-device .demo-recent h4,
+  .pulse-device .demo-composition h4 {
+    font-size: 11px;
+    margin-bottom: 18px;
+  }
+  .pulse-device .demo-recent > div {
+    margin-bottom: 19px;
+  }
+  .pulse-device .demo-recent b {
+    font-size: 9px;
+  }
+  .pulse-device .demo-recent small {
+    font-size: 7px;
+  }
+  .pulse-device .demo-recent > button {
+    font-size: 8px;
+  }
+  .pulse-device .modern-demo .demo-chart-panel {
+    padding: 12px;
+  }
+  .pulse-device .modern-demo .demo-chart-panel > div:first-child {
+    font-size: 10px;
+  }
+  .pulse-device .modern-demo .comparison-chart {
+    min-height: 75px;
+    padding-right: 15px;
+  }
+  .pulse-device .demo-reset-shortcut {
+    margin-top: 10px;
+    padding: 12px;
+    gap: 10px;
+  }
+  .pulse-device .demo-reset-shortcut b {
+    font-size: 12px;
+  }
+  .pulse-device .demo-reset-shortcut small {
+    font-size: 8px;
+  }
+  .pulse-device .demo-forecast {
+    gap: 10px;
+    padding: 14px 12px;
+  }
+  .pulse-device .demo-forecast > div + div {
+    padding-left: 10px;
+  }
+  .pulse-device .demo-forecast strong {
+    font-size: 20px;
+  }
+  .pulse-device .demo-forecast span,
+  .pulse-device .demo-forecast small {
+    font-size: 8px;
+  }
+  .pulse-device .demo-calendar-tabs {
+    padding: 14px 12px 0;
+    gap: 20px;
+    font-size: 10px;
+  }
+  .pulse-device .demo-calendar-layout {
+    gap: 15px;
+    padding: 12px;
+  }
+  .pulse-device .demo-calendar > b {
+    font-size: 12px;
+  }
+  .pulse-device .demo-week {
+    font-size: 8px;
+  }
+  .pulse-device .demo-days > button,
+  .pulse-device .demo-days > span {
+    min-height: 25px;
+    font-size: 9px;
+  }
+  .pulse-device .demo-calendar-record {
+    font-size: 12px;
+  }
+  .pulse-device .demo-calendar-record > span,
+  .pulse-device .demo-calendar-record > p {
+    font-size: 10px;
+  }
+  .pulse-device .demo-metrics {
+    padding: 18px 14px;
+  }
+  .pulse-device .demo-metrics span {
+    font-size: 9px;
+  }
+  .pulse-device .demo-metrics strong {
+    font-size: 26px;
+  }
+  .pulse-device .demo-composition span {
+    font-size: 10px;
+  }
+  .pulse-device .demo-composition > div {
+    margin-block: 24px;
+  }
+  .pulse-device .demo-message-panel {
+    top: -22px;
+    right: -18px;
+    bottom: -16px;
+    width: 75%;
+    padding: 18px;
+  }
+  .pulse-device .demo-message-stats {
+    padding: 15px;
+    gap: 15px;
+  }
+  .pulse-device .demo-conversation-workspace > aside button {
+    font-size: 10px;
+    padding: 12px 9px;
+  }
+  .pulse-device .demo-conversation-workspace small {
+    font-size: 8px;
+  }
+  .pulse-device .demo-turn {
+    font-size: 10px;
+    padding: 18px 9px;
+  }
+  .pulse-device .demo-chat {
+    font-size: 11px;
+  }
+}

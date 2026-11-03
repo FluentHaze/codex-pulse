@@ -2,31 +2,21 @@
 
 **简体中文** · [繁體中文](docs/README.zh-TW.md) · [English](docs/README.en.md) · [日本語](docs/README.ja.md) · [한국어](docs/README.ko.md)
 
-轻巧的 macOS / Windows Codex 额度与 Token 用量监控工具。
+轻巧的 macOS / Windows Codex 额度与 Token 用量监控软件。在菜单栏或桌面悬浮窗看额度，在详情窗口查看用量和重置时间。
 
-[官网](https://fluenthaze.github.io/codex-pulse/) · [下载最新版](https://github.com/FluentHaze/codex-pulse/releases/latest) · [反馈问题](https://github.com/FluentHaze/codex-pulse/issues)
+[官网](https://fluenthaze.github.io/codex-pulse/) · [下载最新版](https://github.com/FluentHaze/codex-pulse/releases/latest) · [使用指南](docs/usage.zh-CN.md) · [反馈问题](https://github.com/FluentHaze/codex-pulse/issues)
 
-## 功能
+## 下载与安装
 
-- 支持简体中文、繁体中文、英语、日语、韩语；在偏好设置中切换，默认跟随系统。
-- 随时查看额度、重置时间和低额度通知。
-- Mac 菜单栏预览，Windows 桌面悬浮窗。
-- 查看本机聊天的每轮 Token：紧凑轮次列表、消息抽屉和本地图片预览；今日柱形与昨日虚线对比每小时用量。
-- 重置雷达默认展示日历，公告与历史节奏通过标签切换；顶部合并预测与个人恢复时间，提醒和日历导出收于操作菜单。
-- 支持深色、浅色、跟随系统，主题即时同步到桌面悬浮窗；侧栏底部保留账户与版本入口，GitHub 收于「偏好设置 → 关于」。
-- Token 扫描与解析在后台工作线程执行，页面优先显示内存缓存；项目统计复用未变更文件的结果，长会话按页展示，避免阻塞操作。
+先安装 Codex，并使用 ChatGPT 账号登录，再下载对应系统的 Codex Pulse 安装包。
 
-[v0.1.33 更新说明：界面风格与 Token 明细升级](docs/releases/v0.1.33.md)
+| 平台 | 推荐下载 | 其他选择 |
+| --- | --- | --- |
+| Mac · Apple Silicon（M 系列） | `mac-arm64.dmg` | `mac-arm64.zip` |
+| Mac · Intel | `mac-x64.dmg` | `mac-x64.zip` |
+| Windows · x64 | `Setup-版本-x64.exe` 安装版，支持应用内更新 | `win-x64.exe` 便携版，下载后直接运行 |
 
-## 安装
-
-需要已安装 Codex，并使用 ChatGPT 账号登录。连接失败时，可在设置中手动选择 Codex 可执行文件。
-
-| 平台 | 下载文件 |
-| --- | --- |
-| Mac · Apple Silicon | `mac-arm64.dmg` 或 `.zip` |
-| Mac · Intel | `mac-x64.dmg` 或 `.zip` |
-| Windows · x64 | `Setup-版本-x64.exe` 安装版（支持应用内更新），或 `win-x64.exe` 便携版 |
+Windows 用户运行 Setup 安装包，按向导完成安装。Mac 用户打开 DMG，将 Codex Pulse 拖入「应用程序」。官网会显示各平台可下载的版本，也可以在 Releases 的 Assets 中选择安装包。
 
 ### Mac 首次打开
 
@@ -34,51 +24,51 @@
 
 1. 打开 DMG，将 Codex Pulse 拖入「应用程序」；ZIP 请先解压。
 2. 双击打开一次，遇到系统拦截时选择「取消」或「完成」。
-3. 双击 DMG 窗口中的「打开隐私与安全性」齿轮入口，向下找到「安全性」，点击 Codex Pulse 旁的「仍要打开」。ZIP 用户请手动前往「系统设置 → 隐私与安全性」。
+3. 双击 DMG 中的「打开隐私与安全性」入口，在「安全性」中找到 Codex Pulse 并点击「仍要打开」。ZIP 用户请手动前往「系统设置 → 隐私与安全性」。
 4. 按要求验证密码或 Touch ID，再次确认「打开」。
 
 若仍提示「已损坏」或没有「仍要打开」，请使用最新版并反馈问题，不需要关闭系统安全保护。[Apple 官方说明](https://support.apple.com/zh-cn/102445)
 
+## 开始使用
+
+1. 启动 Codex Pulse，等待连接本机 Codex。连接失败时，在「偏好设置」中手动选择 Codex 可执行文件。
+2. 在 Mac 菜单栏或 Windows 悬浮窗查看额度，打开详情窗口查看「额度概览」。
+3. 在「今日用量」查看当天 Token 合计，在「Token 明细」选择本机聊天查看逐轮用量与消息。
+4. 在「重置雷达」查看重置日历和公告；按需开启低额度通知、重置提醒和登录启动。
+
+[完整使用指南与常见问题](docs/usage.zh-CN.md)
+
+## 主要功能
+
+- 查看额度、个人重置时间和低额度通知；Mac 菜单栏预览，Windows 桌面悬浮窗。
+- 查看本机聊天的每轮 Token、消息及仍可读取的本地图片，支持项目和聊天筛选。
+- 额度概览提供分钟、小时、日视图，默认小时；今日用量提供分钟、小时视图。分钟通过并列柱形对比今日与昨日，支持当天内拖动和缩放；小时固定展示当天，日固定展示最近 15 天。
+- 分钟柱形保持最小宽度，底部选区支持拖动和调整两端；小时、日视图固定范围。
+- 重置雷达提供日历、公告与历史节奏，提醒和日历导出可按需使用。
+- 支持简体中文、繁体中文、英语、日语、韩语，以及深色、浅色、跟随系统主题。
+
+功能说明对应仓库当前版本；已发布安装包的变化请查看[发布记录](https://github.com/FluentHaze/codex-pulse/releases)。[v0.1.33 更新说明](docs/releases/v0.1.33.md)记录该版本发布时的功能。
+
+## 更新软件
+
+在「偏好设置 → 版本更新」检查更新：
+
+- **Windows 安装版**：新版在后台下载，下载完成后点击「重启并安装」。
+- **Windows 便携版**：从下载页面获取新版，退出旧版后替换使用。
+- **Mac**：应用内下载匹配架构的 DMG 后点击「安装更新」，退出旧版，将新版拖入「应用程序」并确认替换，再启动软件。
+
+暂不安装时可以继续使用旧版。Windows 安装版和 Mac 会自动检查新版，也可以手动检查；更新时保留已有设置。
+
 ## 数据和连接
 
-额度通过本机 Codex `app-server` 读取；Token 统计来自本机会话记录，可能不完整，不等同于账单或所有设备的用量。不复制或保存登录 Token，不上传聊天正文。重置雷达会读取公开的第三方数据，预测仅供参考。
+额度通过本机 Codex `app-server` 读取，Token 统计来自本机会话记录，可能不完整，不等同于账单或所有设备的用量。不复制或保存登录 Token，不上传聊天正文。切换账号后，请核对详情窗口中的账号与额度；本机 Token 历史不会按当前登录账号自动分开。
 
-重置与公告数据来自 [codex-reset.com](https://codex-reset.com/)，遵循其[公开接口要求](https://codex-reset.com/developers)。简体中文、日文界面优先显示来源译文，可展开英文原文；繁体中文、韩文或译文缺失时显示英文原文。全局重置通知和个人窗口提前 15 分钟提醒默认关闭，可在重置雷达或偏好设置中开启，需保持 Pulse 在后台运行。
+重置与公告数据来自 [codex-reset.com](https://codex-reset.com/)，预测仅供参考。全局重置通知和个人窗口提前 15 分钟提醒默认关闭，需开启并保持 Pulse 在后台运行。[数据说明与连接排查](docs/usage.zh-CN.md#连接与数据问题)
 
-[详细数据说明、连接排查与功能文档](docs/technical.zh-CN.md#数据和连接)
+## 其他文档
 
-## 开发
+- [文档目录](docs/README.md)：使用指南、版本记录和维护资料。
+- [反馈问题](https://github.com/FluentHaze/codex-pulse/issues)：附上系统、软件版本、复现步骤及脱敏截图。
+- [贡献与维护](CONTRIBUTING.md)：供准备修改项目的贡献者阅读。
 
-需要 Node.js 22.16+；双平台打包需在 macOS 上执行。
-
-```sh
-npm ci
-npm start           # 构建并启动 Electron
-npm test
-node scripts/test-token-worker.mjs  # 构建后检查后台统计线程
-npm run probe       # 检查本机 Codex 连接
-```
-
-```sh
-npm run pack        # Windows + macOS
-npm run pack:win    # release/win/
-npm run pack:mac    # release/mac/
-```
-
-打包自动递增一次补丁版本；普通构建不递增。应用使用 Electron + React + TypeScript，官网使用 Astro。
-
-[技术文档与平台验收](docs/technical.zh-CN.md) · [代码格式与注释约定](docs/code-style.zh-CN.md) · [官网开发与部署](website/README.md)
-
-Codex Pulse 是独立项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。
-
-## 应用内版本更新
-
-Windows 安装版在启动 15 秒后、之后每 6 小时检查 GitHub Releases，可在「偏好设置 → 版本更新」手动检查。发现新版后自动在后台下载，侧栏版本号旁显示更新提示，点击版本号进入设置查看进度，下载完成后点击「重启并安装」即可静默安装并打开新版；不会在退出时自动安装。
-
-- 首次使用需安装新版的 `Codex Pulse-Setup-版本-x64.exe`，旧版和便携版不能自行获得此能力。便携版保留，并提供下载页面入口。
-- macOS 无需开发者账号：同样在启动 15 秒后、之后每 6 小时检查新版，并在后台下载与当前应用架构匹配的 DMG。下载完成后版本号旁显示提示，进入「偏好设置 → 版本更新」点击「重启并安装」，Pulse 会先校验并准备新版，再自动退出、替换应用并重新打开。系统要求授权时按提示操作；替换失败时恢复旧版。不会绕过 macOS 安全保护。
-- Mac 发布时必须上传同一轮打包生成的 DMG、ZIP 和 `latest-mac.yml`，并使用与版本一致的 `v版本号` 或 `版本号` 标签。更新前检查正式版本、架构、文件大小（清单或响应提供时）及清单中的 SHA-512；完整性校验不等同于 Apple 签名或公证。
-- 已校验的 Mac 安装包保存在应用用户数据目录的 `mac-update` 文件夹，下次启动会重新校验并恢复安装提示；下载失败可重试。用户暂不安装时旧版继续运行，安装替换保留原有设置。v0.1.34 及更早版本仍使用打开 DMG 后手动替换的流程，需先手动升级一次才能使用自动安装。
-- 运行 `npm run pack:win` 会同时生成 NSIS 安装版和便携版。发布时将安装包、对应的 `.blockmap` 和 `latest.yml` 上传至同一个正式 GitHub Release，且 Release 版本必须高于客户端版本；请保留生成的文件名。仅上传便携版不能启用自动更新。
-- 更新源固定为 FluentHaze/codex-pulse 的正式 GitHub Releases，不在客户端存放发布 Token。打包不会自动发布。
-- 首次上线需用两个递增版本的安装包验收检查、下载、安装及设置保留；Mac 还需真机验收 DMG 挂载、自动替换、系统授权与取消、失败回滚、稍后安装及重新启动。
+Codex Pulse 是独立开源项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。

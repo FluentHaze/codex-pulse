@@ -421,19 +421,20 @@
     "OpenAI の公式アプリですか？",
     "OpenAI 공식 앱인가요?"
   ],
-  "Codex Pulse 是独立的开源项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。你可以在 GitHub 查看源码、发布记录并反馈问题。": [
-    "Codex Pulse is an independent open-source project, not an official OpenAI product, and is not affiliated with Apple. Find source code, releases and issue reports on GitHub.",
-    "Codex Pulse 是獨立的開源專案，並非 OpenAI 官方產品，也與 Apple 沒有隸屬關係。你可以在 GitHub 查看原始碼、發布紀錄並回報問題。",
-    "Codex Pulse は独立したオープンソースプロジェクトです。OpenAI の公式製品ではなく、Apple との提携関係もありません。ソースコード、リリース、問題報告は GitHub で確認できます。",
-    "Codex Pulse는 독립적인 오픈 소스 프로젝트로, OpenAI 공식 제품이 아니며 Apple과도 제휴 관계가 없습니다. 소스 코드, 릴리스, 문제 제보는 GitHub에서 확인할 수 있습니다."
+  "使用说明": ["User guide", "使用說明", "使い方", "사용 안내"],
+  "Codex Pulse 是独立的开源桌面软件，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。可直接下载对应系统的安装包，更新记录与问题反馈见 GitHub。": [
+    "Codex Pulse is independent open-source desktop software, not an official OpenAI product, and is not affiliated with Apple. Download the installer for your system; release notes and issue reports are available on GitHub.",
+    "Codex Pulse 是獨立的開源桌面軟體，並非 OpenAI 官方產品，也與 Apple 沒有隸屬關係。可直接下載對應系統的安裝檔，更新紀錄與問題回報請見 GitHub。",
+    "Codex Pulse は独立したオープンソースのデスクトップアプリです。OpenAI の公式製品ではなく、Apple との提携関係もありません。OS に合ったインストーラをダウンロードしてください。更新履歴や問題報告は GitHub で確認できます。",
+    "Codex Pulse는 독립적인 오픈 소스 데스크톱 앱으로, OpenAI 공식 제품이 아니며 Apple과도 제휴 관계가 없습니다. OS에 맞는 설치 파일을 다운로드하세요. 변경 사항과 문제 제보는 GitHub에서 확인할 수 있습니다."
   ],
   "下载": ["Download", "下載", "ダウンロード", "다운로드"],
   "数据与隐私": ["Data & privacy", "資料與隱私權", "データとプライバシー", "데이터 및 개인정보"],
-  "为专注而生。开源构建。": [
-    "Made for focus. Built in the open.",
-    "為專注而生。開源打造。",
-    "集中のために。オープンソースで。",
-    "몰입을 위해. 오픈 소스로."
+  "额度与用量，随时掌握。": [
+    "Keep track of limits and usage.",
+    "額度與用量，隨時掌握。",
+    "残量と使用量を、いつでも確認。",
+    "한도와 사용량을 언제든 확인하세요."
   ],
   "独立开源项目": [
     "Independent open-source project",
@@ -690,5 +691,149 @@
     "查看選單列額度卡片",
     "メニューバーの利用枠カードを表示",
     "메뉴 막대 한도 카드 보기"
-  ]
+  ],
+  "进一步了解": [
+    "Learn more",
+    "進一步了解",
+    "詳しく見る",
+    "더 알아보기"
+  ],
+  "看清用量。": [
+    "Usage, in focus.",
+    "看清用量。",
+    "使用量を、明確に。",
+    "사용량을 선명하게."
+  ],
+  "找到你的节奏。": [
+    "Find your rhythm.",
+    "找到你的節奏。",
+    "自分のペースを見つけよう。",
+    "나만의 흐름을 찾으세요."
+  ],
+  "偏好设置": [
+    "Preferences",
+    "偏好設定",
+    "環境設定",
+    "환경설정"
+  ],
+  "4 小时 38 分钟后重置": [
+    "Resets in 4h 38m",
+    "4 小時 38 分鐘後重置",
+    "4時間38分後にリセット",
+    "4시간 38분 후 초기화"
+  ],
+  "6 天后重置": [
+    "Resets in 6 days",
+    "6 天後重置",
+    "6日後にリセット",
+    "6일 후 초기화"
+  ],
+  "最近的本机聊天": [
+    "Recent local chats",
+    "最近的本機聊天",
+    "最近のローカルチャット",
+    "최근 로컬 대화"
+  ],
+  "查看全部会话": [
+    "View all chats",
+    "查看全部對話",
+    "すべてのチャット",
+    "모든 대화 보기"
+  ],
+  "重置日历": [
+    "Reset calendar",
+    "重置日曆",
+    "リセットカレンダー",
+    "초기화 캘린더"
+  ],
+  "用量构成": [
+    "Usage breakdown",
+    "用量組成",
+    "使用量の内訳",
+    "사용량 구성"
+  ],
+  "距最近一次全局重置": [
+    "Since last global reset",
+    "距最近一次全域重置",
+    "前回の全体リセットから",
+    "마지막 전체 초기화 이후"
+  ],
+  "公告动态": [
+    "Announcements",
+    "公告動態",
+    "お知らせ",
+    "공지사항"
+  ],
+  "历史重置节奏": [
+    "Reset history",
+    "歷史重置節奏",
+    "リセット履歴",
+    "초기화 기록"
+  ],
+  "额度与用量，": [
+    "Limits and usage.",
+    "額度與用量，",
+    "残量と使用量を、",
+    "한도와 사용량,"
+  ],
+  "一眼掌握。": [
+    "All in view.",
+    "一眼掌握。",
+    "ひと目で把握。",
+    "한눈에 확인하세요."
+  ],
+  "该提醒时，": [
+    "A heads-up.",
+    "該提醒時，",
+    "必要なときに、",
+    "필요한 순간,"
+  ],
+  "及时出现。": [
+    "Right on time.",
+    "及時出現。",
+    "タイムリーに通知。",
+    "제때 알려드려요."
+  ],
+  "下载 Codex Pulse": [
+    "Download Codex Pulse",
+    "下載 Codex Pulse",
+    "Codex Pulse をダウンロード",
+    "Codex Pulse 다운로드"
+  ],
+  "开始你的下一次创作。": [
+    "Make room for your next idea.",
+    "開始你的下一次創作。",
+    "次のアイデアを形に。",
+    "다음 아이디어를 시작하세요."
+  ],
+  "滚动展开，探索更多。": ["Scroll to unfold. Keep exploring.", "捲動展開，探索更多。", "スクロールして、機能を探索。", "스크롤하여 펼치고 더 살펴보세요."],
+  "每一轮消耗，清清楚楚。": [
+    "Every turn, accounted for.",
+    "每一輪消耗，清清楚楚。",
+    "ターンごとの使用量を明確に。",
+    "매 턴의 사용량을 명확하게."
+  ],
+  "按轮查看 Token 合计，展开输入、输出、缓存和推理明细，还能对照本轮消息。": [
+    "See tokens for each turn, expand input, output, cache and reasoning details, and review the corresponding messages.",
+    "按輪查看 Token 合計，展開輸入、輸出、快取和推理明細，還能對照本輪訊息。",
+    "ターンごとの Token 合計と入力・出力・キャッシュ・推論の内訳を、対応するメッセージと確認できます。",
+    "턴별 Token 합계와 입력, 출력, 캐시, 추론 내역을 해당 메시지와 함께 확인하세요."
+  ],
+  "展开示例轮次": [
+    "Explore sample turns",
+    "展開範例輪次",
+    "サンプルのターンを見る",
+    "예시 턴 살펴보기"
+  ],
+  "缓存计入输入，推理计入输出；示例数据仅用于功能展示。": [
+    "Cache is included in input; reasoning is included in output. Sample data for demonstration.",
+    "快取計入輸入，推理計入輸出；範例資料僅用於功能展示。",
+    "キャッシュは入力、推論は出力に含まれます。表示はサンプルデータです。",
+    "캐시는 입력에, 추론은 출력에 포함됩니다. 기능 소개용 예시 데이터입니다."
+  ],
+  "收起示例轮次": ["Collapse sample turns", "收起範例輪次", "サンプルのターンを閉じる", "예시 턴 접기"],
+  "今天": ["Today", "今天", "今日", "오늘"],
+  "全部记录": ["All records", "全部記錄", "すべての記録", "전체 기록"],
+  "仅已确认重置": ["Confirmed resets only", "僅已確認重置", "確認済みのリセットのみ", "확인된 초기화만"],
+  "2026 年 11 月": ["November 2026", "2026 年 11 月", "2026年11月", "2026년 11월"]
 }

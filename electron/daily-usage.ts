@@ -12,6 +12,7 @@ export function localDayRange(now = new Date()) {
 }
 
 export class DailyAccumulator {
+  private timeline = new Map<number, { time: number; total: number | null; records: number }>();
   private keys = new Set<string>();
   private turns = new Set<string>();
   private tokens: TokenCounts = { input: 0, cachedInput: 0, output: 0, reasoning: 0, total: 0 };
@@ -25,7 +26,10 @@ export class DailyAccumulator {
     records: 0,
   }));
   readonly warnings = new Set<string>();
-  constructor(readonly range: ReturnType<typeof localDayRange>) {}
+  constructor(
+    readonly range: ReturnType<typeof localDayRange>,
+    private captureTimeline = false,
+  ) {}
   add(sample: UsageSample, source: string, index: number) {
     if (!sample.timestamp && this.range.start !== -Infinity) {
       this.warnings.add('部分用量没有有效时间，无法归入今天，未计入合计');
@@ -44,6 +48,16 @@ export class DailyAccumulator {
       return;
     }
     this.keys.add(key);
+    if (this.captureTimeline && sample.timestamp) {
+      const minute = Math.floor(time / 60000) * 60000;
+      const bucket = this.timeline.get(minute) ?? { time: minute, total: 0, records: 0 };
+      bucket.records++;
+      bucket.total =
+        bucket.total === null || sample.tokens.total === null
+          ? null
+          : bucket.total + sample.tokens.total;
+      this.timeline.set(minute, bucket);
+    }
     this.records++;
     if (sample.timestamp && Number.isFinite(time) && this.range.start !== -Infinity) {
       const bucket = this.hourly[new Date(time).getHours()];
@@ -74,6 +88,9 @@ export class DailyAccumulator {
     if (skippedFiles) this.warnings.add(`${skippedFiles} 个文件未能完整读取，今日合计可能不完整`);
     return {
       date: this.range.date,
+      timeline: this.captureTimeline
+        ? [...this.timeline.values()].sort((a, b) => a.time - b.time)
+        : undefined,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       tokens: { ...this.tokens },
       hourly:

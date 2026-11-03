@@ -41,12 +41,13 @@ export class TokenStore {
     { birth: number; sessionId: string; fallback: string; internal: boolean; project: string }
   >();
   private candidates: { path: string; modified: number; birth: number; size: number }[] = [];
-  private dailyCache?: { root: string; date: string; result: DailyStats };
+  private dailyCaches = new Map<string, DailyStats>();
+  private dailyPendingDays = 2;
   private dailyPending?: Promise<DailyStats>;
   private dailyPendingRoot = '';
   private usageCache = new Map<
     string,
-    { stamp: string; samples: UsageSample[]; warnings: string[] }
+    { stamp: string; start: number; samples: UsageSample[]; warnings: string[] }
   >();
   private scopeCache = new Map<
     string,
@@ -287,37 +288,44 @@ export class TokenStore {
     }
     return reader.read(path, session);
   }
-  today(force = false): Promise<DailyStats> {
+  today(force = false, days: 2 | 15 = 2): Promise<DailyStats> {
     if (this.dailyPending)
-      return this.dailyPendingRoot === this.root()
+      return this.dailyPendingRoot === this.root() && this.dailyPendingDays === days
         ? this.dailyPending
-        : this.dailyPending.catch(() => undefined).then(() => this.today(force));
+        : this.dailyPending.catch(() => undefined).then(() => this.today(force, days));
     const range = localDayRange();
-    if (
-      !force &&
-      this.dailyCache?.root === this.root() &&
-      this.dailyCache.date === range.date &&
-      Date.now() - this.dailyCache.result.updatedAt < 15000
-    )
-      return Promise.resolve(this.dailyCache.result);
+    const cached = this.dailyCaches.get(JSON.stringify([this.root(), range.date, days]));
+    if (!force && cached && Date.now() - cached.updatedAt < 15000) return Promise.resolve(cached);
     this.dailyPendingRoot = this.root();
-    this.dailyPending = this.summarizeToday().finally(() => {
+    this.dailyPendingDays = days;
+    this.dailyPending = this.summarizeToday(days).finally(() => {
       this.dailyPending = undefined;
     });
     return this.dailyPending;
   }
   // 今日统计不依赖列表当前筛选；按全部候选记录聚合，再以事件时间归入自然日。
-  private async summarizeToday(): Promise<DailyStats> {
+  private async summarizeToday(days: 2 | 15): Promise<DailyStats> {
     const root = this.root();
     const range = localDayRange();
     const previousDate = new Date(range.start);
     previousDate.setDate(previousDate.getDate() - 1);
     const previousRange = localDayRange(previousDate);
     const previous = new DailyAccumulator(previousRange);
+    const history = new DailyAccumulator(
+      { start: previousRange.start, end: range.end, date: range.date },
+      true,
+    );
+    const daily = Array.from({ length: days === 15 ? 15 : 0 }, (_, i) => {
+      const date = new Date(range.start);
+      date.setDate(date.getDate() - 14 + i);
+      return new DailyAccumulator(localDayRange(date));
+    });
+    const first = daily[0]?.range.start ?? previousRange.start;
+    const byDate = new Map(daily.map((item) => [item.range.date, item]));
     const catalog = await this.list(true);
     if (catalog.root !== root) throw new Error('会话目录已切换，请刷新统计');
     const accumulator = new DailyAccumulator(range);
-    const candidates = this.candidates.filter((item) => item.modified >= previousRange.start);
+    const candidates = this.candidates.filter((item) => item.modified >= first);
     let scanned = 0,
       skipped = 0;
     const cachePaths = new Set(candidates.slice(0, 128).map((item) => item.path));
@@ -338,23 +346,27 @@ export class TokenStore {
         }
         const stamp = `${range.date}:${candidate.birth}:${candidate.modified}:${candidate.size}`;
         let usage = this.usageCache.get(candidate.path);
-        if (!usage || usage.stamp !== stamp) {
+        if (!usage || usage.stamp !== stamp || usage.start > first) {
           const samples: UsageSample[] = [];
           const parser = new TokenParser(false, (sample) => {
             if (
               !sample.timestamp ||
-              (Date.parse(sample.timestamp) >= previousRange.start &&
-                Date.parse(sample.timestamp) < range.end)
+              (Date.parse(sample.timestamp) >= first && Date.parse(sample.timestamp) < range.end)
             )
               samples.push(sample);
           });
           for await (const line of rolloutLines(candidate.path, candidate.size)) parser.push(line);
-          usage = { stamp, samples, warnings: [...parser.warnings] };
+          usage = { stamp, start: first, samples, warnings: [...parser.warnings] };
           if (cachePaths.has(candidate.path)) this.usageCache.set(candidate.path, usage);
         }
         usage.samples.forEach((sample, index) => {
           accumulator.add(sample, candidate.path, index);
           previous.add(sample, candidate.path, index);
+          history.add(sample, candidate.path, index);
+          if (sample.timestamp && daily.length)
+            byDate
+              .get(localDayRange(new Date(sample.timestamp)).date)
+              ?.add(sample, candidate.path, index);
         });
         if (usage.warnings.length) {
           accumulator.warnings.add('部分文件存在缺失或损坏事件，今日合计可能不完整');
@@ -371,11 +383,18 @@ export class TokenStore {
       throw new Error('日期或会话目录已变化，请刷新统计');
     const result = accumulator.result(scanned, skipped);
     result.yesterday = previous.result(scanned, skipped);
+    result.timeline = history.result(scanned, skipped).timeline;
+    if (daily.length)
+      result.daily = daily.map((item) => ({
+        date: item.range.date,
+        total: item.result(scanned, skipped).tokens.total,
+      }));
     if (catalog.limited) {
       result.warnings.push('无法访问的本地文件可能造成统计遗漏');
       result.yesterday.warnings.push('无法访问的本地文件可能造成统计遗漏');
     }
-    this.dailyCache = { root, date: range.date, result };
+    if (this.dailyCaches.size >= 4) this.dailyCaches.delete(this.dailyCaches.keys().next().value!);
+    this.dailyCaches.set(JSON.stringify([root, range.date, days]), result);
     return result;
   }
   private async load(id: string): Promise<TokenSession> {

@@ -1,19 +1,18 @@
 ---
 import { translator, type Locale } from '../i18n';
-import Mark from './Mark.astro';
 import Icon from './Icon.astro';
 import UsageChart from './UsageChart.astro';
 const t = translator(Astro.props.locale ?? 'zh-CN');
 const locale = Astro.props.locale ?? 'zh-CN';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const views = [
-  { id: 'overview', label: t('额度概览'), icon: 'chart' },
-  { id: 'resets', label: t('重置雷达'), icon: 'clock' },
+  { id: 'overview', label: t('额度概览'), icon: 'overview' },
+  { id: 'resets', label: t('重置雷达'), icon: 'calendar' },
   { id: 'today', label: t('今日用量'), icon: 'chart' },
-  { id: 'tokens', label: t('Token 明细'), icon: 'spark' },
+  { id: 'tokens', label: t('Token 明细'), icon: 'document' },
 ];
 const conversations = [t('构建下一个好想法'), t('优化项目界面'), t('分析本机用量')];
-const days = Array.from({ length: 35 }, (_, index) => (index < 3 || index > 33 ? null : index - 2));
+const days = Array.from({ length: 42 }, (_, index) => (index < 6 || index > 35 ? null : index - 5));
 interface Props {
   locale?: Locale;
 }
@@ -27,7 +26,7 @@ interface Props {
       <i></i>
     </div>
     <div class="demo-brand">
-      <Mark size={22} />
+      <img src={`${base}assets/app.svg`} width="30" height="30" alt="" />
       <b>Codex Pulse</b>
     </div>
     <nav role="tablist" aria-label={t('产品功能演示')} aria-orientation="vertical">
@@ -47,13 +46,22 @@ interface Props {
         </button>
       ))}
     </nav>
+    <div class="demo-settings-label">
+      <Icon name="settings" size={14} />
+      <span>{t('偏好设置')}</span>
+    </div>
     <div class="demo-account-bottom">
       <span class="demo-user-avatar">P</span>
       <div>
         <b>Pulse</b>
-        <small>Plus · {t('本机额度监控')}</small>
+        <small>plus</small>
       </div>
       <i></i>
+    </div>
+    <div class="demo-sidebar-footer">
+      <Icon name="shield" size={10} />
+      <span>{t('本机额度监控')}</span>
+      <small>v0.1</small>
     </div>
   </aside>
   <div class="demo-main">
@@ -77,8 +85,8 @@ interface Props {
       <p class="demo-view-description">{t('查看可用额度与下一次重置时间')}</p>
       <div class="demo-quota-grid">
         {[
-          { name: t('5 小时窗口'), value: 88, text: t('2 小时 17 分钟后重置') },
-          { name: t('每周窗口'), value: 65, text: t('3 天后重置') },
+          { name: t('5 小时窗口'), value: 72, text: t('4 小时 38 分钟后重置') },
+          { name: t('每周窗口'), value: 96, text: t('6 天后重置') },
         ].map((quota) => (
           <article class="demo-quota-card" style="--ring-color:var(--demo-green)">
             <header>
@@ -103,16 +111,46 @@ interface Props {
             <footer>{quota.text}</footer>
           </article>
         ))}
+        <article class="demo-quota-card demo-round-card">
+          <h4>{t('本轮 Token')}</h4>
+          <strong>2.9M</strong>
+          <footer>
+            <b>{t('构建下一个好想法')}</b>
+            <span>{t('本机已记录')}</span>
+          </footer>
+        </article>
       </div>
-      <div class="demo-chart-panel">
-        <div>
-          <b>{t('每小时 Token 消耗')}</b>
-          <strong>
-            2.4M <small>Token</small>
-          </strong>
+      <div class="demo-overview-bottom">
+        <div class="demo-chart-panel">
+          <div>
+            <b>{t('每小时 Token 消耗')}</b>
+            <strong>
+              5.3M <small>Token</small>
+            </strong>
+          </div>
+          <UsageChart locale={locale} presentation compact />
         </div>
-        <UsageChart locale={locale} />
+        <aside class="demo-recent">
+          <h4>{t('最近的本机聊天')}</h4>
+          {conversations.map((name, index) => (
+            <div>
+              <b>{name}</b>
+              <small>GitHub · 11/02 {11 - index}:27</small>
+            </div>
+          ))}
+          <button type="button" data-demo-open-tokens>
+            {t('查看全部会话')} <span>›</span>
+          </button>
+        </aside>
       </div>
+      <button class="demo-reset-shortcut" type="button" data-demo-open-resets>
+        <Icon name="clock" size={15} />
+        <span>
+          <b>{t('重置日历')}</b>
+          <small>{t('全局预测与个人恢复，一眼看清。')}</small>
+        </span>
+        <span>→</span>
+      </button>
     </section>
     <section
       id="demo-panel-today"
@@ -130,28 +168,48 @@ interface Props {
         <div>
           <span>{t('今日 Token 用量')}</span>
           <strong>
-            2.4M <small>Token</small>
+            5.5M <small>Token</small>
           </strong>
         </div>
         <div>
           <span>{t('输入')}</span>
           <strong>
-            2.1M <small>Token</small>
+            5.4M <small>Token</small>
           </strong>
         </div>
         <div>
           <span>{t('输出')}</span>
           <strong>
-            300K <small>Token</small>
+            100K <small>Token</small>
           </strong>
         </div>
       </div>
-      <div class="demo-chart-panel demo-daily-chart">
-        <div>
-          <b>{t('每小时 Token 消耗')}</b>
-          <span>Asia/Shanghai</span>
+      <div class="demo-today-bottom">
+        <div class="demo-chart-panel demo-daily-chart">
+          <div>
+            <b>{t('每小时 Token 消耗')}</b>
+            <span>Asia/Shanghai</span>
+          </div>
+          <UsageChart locale={locale} presentation compact />
         </div>
-        <UsageChart locale={locale} />
+        <aside class="demo-composition">
+          <h4>{t('用量构成')}</h4>
+          {[
+            { label: t('输入'), value: '98.2%', width: '98.2%' },
+            { label: t('输出'), value: '1.8%', width: '1.8%' },
+            { label: t('缓存'), value: '96.4%', width: '96.4%' },
+          ].map((item) => (
+            <div>
+              <span>
+                {item.label}
+                <b>{item.value}</b>
+              </span>
+              <i>
+                <em style={`width:${item.width}`}></em>
+              </i>
+            </div>
+          ))}
+        </aside>
       </div>
     </section>
     <section
@@ -162,34 +220,53 @@ interface Props {
       hidden
     >
       <div class="demo-main-title">
-        <h3>{t('重置雷达')}</h3>
+        <h3>{t('重置日历')}</h3>
         <span>{t('示例数据')}</span>
       </div>
       <p class="demo-view-description">{t('全局预测与个人恢复，一眼看清。')}</p>
       <div class="demo-forecast">
         <div>
+          <span>{t('距最近一次全局重置')}</span>
+          <strong>4d 21h</strong>
+          <small>10/28 14:35</small>
+        </div>
+        <div>
           <span>{t('未来 24 小时')}</span>
-          <strong>46%</strong>
+          <strong>48%</strong>
           <i>
-            <em style="width:46%"></em>
+            <em style="width:48%"></em>
           </i>
         </div>
         <div>
           <span>{t('未来 48 小时')}</span>
-          <strong>71%</strong>
+          <strong>73%</strong>
           <i>
-            <em style="width:71%"></em>
+            <em style="width:73%"></em>
           </i>
         </div>
         <div>
           <span>{t('我的下次恢复')}</span>
-          <strong>2h 17m</strong>
+          <strong>4h 38m</strong>
           <small>{t('实验性预测，仅供参考')}</small>
         </div>
       </div>
+      <div class="demo-calendar-tabs">
+        <b>{t('重置日历')}</b>
+        <span>{t('公告动态')}</span>
+        <span>{t('历史重置节奏')}</span>
+      </div>
+      <div class="demo-calendar-toolbar">
+        <b>{t('2026 年 11 月')}</b>
+        <span class="demo-month-controls" aria-hidden="true">
+          ‹　›　<span>{t('今天')}</span>
+        </span>
+        <span class="demo-calendar-filter">
+          <b>{t('全部记录')}</b>
+          <span>{t('仅已确认重置')}</span>
+        </span>
+      </div>
       <div class="demo-calendar-layout">
         <div class="demo-calendar">
-          <b>2026 / 10</b>
           <div class="demo-week">
             {['一', '二', '三', '四', '五', '六', '日'].map((day) => (
               <span>{t(day)}</span>
@@ -202,21 +279,44 @@ interface Props {
                   type="button"
                   class:list={{
                     marked: [3, 7, 11, 13, 15, 18, 20, 23, 24, 25, 26, 28].includes(day),
+                    announced: [8, 22, 23, 28].includes(day),
+                    personal: [2, 9].includes(day),
                   }}
                   data-demo-day={day}
-                  aria-pressed={day === 30 ? 'true' : 'false'}
-                  aria-label={`2026-10-${String(day).padStart(2, '0')}`}
+                  aria-pressed={day === 2 ? 'true' : 'false'}
+                  aria-label={`2026-11-${String(day).padStart(2, '0')}`}
                 >
-                  {day}
+                  <span>{day}</span>
+                  <i class="demo-day-dots" aria-hidden="true">
+                    {[3, 7, 11, 13, 15, 18, 20, 23, 24, 25, 26, 28].includes(day) && (
+                      <i class="reset-dot"></i>
+                    )}
+                    {[8, 22, 23, 28].includes(day) && <i class="announcement-dot"></i>}
+                    {[2, 9].includes(day) && <i class="personal-dot"></i>}
+                  </i>
                 </button>
               ) : (
                 <span></span>
               ),
             )}
           </div>
+          <div class="demo-calendar-legend">
+            <span>
+              <i class="reset-dot"></i>
+              {t('已确认重置')}
+            </span>
+            <span>
+              <i class="announcement-dot"></i>
+              {t('公告动态')}
+            </span>
+            <span>
+              <i class="personal-dot"></i>
+              {t('个人窗口到期')}
+            </span>
+          </div>
         </div>
         <div class="demo-calendar-record">
-          <b data-demo-selected-day>2026 / 10 / 30</b>
+          <b data-demo-selected-day>2026 / 11 / 02</b>
           <span>{t('当日记录')}</span>
           <p data-demo-day-record>{t('个人窗口到期')}</p>
           <small>{t('以服务端刷新确认为准')}</small>
@@ -281,13 +381,19 @@ interface Props {
         </header>
         <div class="demo-message-stats">
           <span>
-            {t('输入')} <b>820K</b>
+            {t('输入')} <b>26.31K</b>
           </span>
           <span>
-            {t('输出')} <b>40K</b>
+            {t('缓存')} <b>26.11K</b>
           </span>
           <span>
-            {t('合计')} <b>860K</b>
+            {t('输出')} <b>27</b>
+          </span>
+          <span>
+            {t('推理')} <b>0</b>
+          </span>
+          <span>
+            {t('合计')} <b>26.34K</b>
           </span>
         </div>
         <div class="demo-chat user">

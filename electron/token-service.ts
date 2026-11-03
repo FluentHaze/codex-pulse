@@ -63,8 +63,8 @@ export class TokenService {
   scopeUsage(ids: string[]) {
     return this.call<DailyStats>({ method: 'scopeUsage', value: ids });
   }
-  today(force = false) {
-    return this.call<DailyStats>({ method: 'today', value: force });
+  today(force = false, days: 2 | 15 = 2) {
+    return this.call<DailyStats>({ method: 'today', value: { force, days } });
   }
   live(id: string) {
     return this.call<LiveTokens>({ method: 'live', value: id });
