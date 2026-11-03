@@ -5,7 +5,7 @@
 - [下载与快速开始](../README.md)
 - [完整使用指南与常见问题](usage.zh-CN.md)
 - 多语言简介：[繁體中文](README.zh-TW.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
-- [发布记录](https://github.com/FluentHaze/codex-pulse/releases) · [v0.1.33 更新说明](releases/v0.1.33.md)
+- [发布记录](https://github.com/FluentHaze/codex-pulse/releases)
 
 ## 贡献者与维护资料
 
