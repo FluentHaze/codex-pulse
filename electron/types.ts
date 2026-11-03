@@ -126,6 +126,8 @@ export interface HourlyUsage {
   records: number;
 }
 export interface DailyStats {
+  daily?: { date: string; total: number | null }[];
+  timeline?: { time: number; total: number | null; records: number }[];
   yesterday?: DailyStats;
   date: string;
   timeZone: string;

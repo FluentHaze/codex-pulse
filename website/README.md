@@ -1,5 +1,7 @@
 # Codex Pulse 官网
 
+本文面向官网维护者。下载安装与日常使用请阅读[软件首页](../README.md)和[使用指南](../docs/usage.zh-CN.md)。
+
 独立的 Astro + TypeScript + Tailwind CSS 静态站点。设计参考 `design/homepage-v2.png`，产品界面通过 HTML/CSS 重建并标注为示意，不使用整张设计稿充当网页。
 
 ## 本地运行
@@ -58,7 +60,7 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 
 ## 仓库文档链接
 
-官网各语言的 GitHub 入口分别指向根目录简体中文 README 或 `docs/README.{locale}.md`。中文数据说明保留 `#数据和连接`，其他语言使用稳定的 `#data-and-connection`。修改 README 标题时必须保留这些锚点；发布文档与官网链接时应在同一提交中更新。
+官网各语言的「使用说明」入口分别指向根目录简体中文 README 或 `docs/README.{locale}.md`。中文数据说明保留 `#数据和连接`，其他语言使用稳定的 `#data-and-connection`。修改 README 标题时必须保留这些锚点；发布文档与官网链接时应在同一提交中更新。
 
 ## SEO 与 Google 收录
 
@@ -85,4 +87,4 @@ SITE_URL=https://fluenthaze.github.io BASE_PATH=/codex-pulse npm run build
 - 官网开发和构建前自动同步应用图标，导航、演示、下载、favicon、Apple touch icon 和分享图片使用同一套资源。
 - 根目录 `npm run pack` 在打包前重新生成图标，避免旧的 Windows ICO 或 Mac 图标进入安装包。
 - 首屏可切换额度概览、重置雷达、今日用量和 Token 明细；剩余/已用、日期、聊天及轮次均可操作。所有演示使用固定样例数据，与本机账号无关。
-- 用量示意图统一显示今日柱形和昨日虚线，并提供同小时 Token 提示。小屏、深浅主题和减少动态效果偏好均受支持。
+- 官网用量演示使用固定示例数据，保留今日柱形和昨日虚线及同小时提示；它不是连接本机记录的桌面端图表。桌面端当前周期、范围和拖动方式见[使用指南](../docs/usage.zh-CN.md#查看用量图表)。小屏、深浅主题和减少动态效果偏好均受支持。

@@ -982,7 +982,9 @@ else {
       );
     });
     ipcMain.handle('token-catalog', (_event, force: unknown) => tokenStore.list(force === true));
-    ipcMain.handle('today-usage', (_event, force: unknown) => tokenStore.today(force === true));
+    ipcMain.handle('today-usage', (_event, force: unknown, days: unknown) =>
+      tokenStore.today(force === true, days === 15 ? 15 : 2),
+    );
     ipcMain.handle('scope-usage', (_event, ids: unknown) => {
       if (
         !Array.isArray(ids) ||

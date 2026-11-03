@@ -1,6 +1,8 @@
 import { resetMessages } from './reset-messages.js';
+import { chartMessages } from './chart-messages.js';
 import { interfaceMessages } from './interface-messages.js';
 export const messages: Record<string, readonly string[]> = {
+  ...chartMessages,
   ...resetMessages,
   ...interfaceMessages,
   '较昨日同小时 {0}': [

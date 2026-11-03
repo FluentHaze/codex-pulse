@@ -22,7 +22,7 @@
 | --- | --- |
 | Mac · Apple Silicon | `mac-arm64.dmg` 或 `.zip` |
 | Mac · Intel | `mac-x64.dmg` 或 `.zip` |
-| Windows · x64 | `win-x64.exe`，下載後直接執行 |
+| Windows · x64 | `Setup-版本-x64.exe` 安裝版（支援應用程式內更新），或 `win-x64.exe` 可攜版 |
 
 ### Mac 首次開啟
 
@@ -41,27 +41,24 @@
 
 額度透過本機 Codex `app-server` 讀取；Token 統計來自本機工作階段記錄，可能不完整，不等同於帳單或所有裝置的用量。不複製或儲存登入 Token，不上傳對話正文。重設雷達會讀取公開的第三方資料，預測僅供參考。
 
-[詳細資料說明、連線排查與功能文件（簡體中文）](technical.zh-CN.md#数据和连接)
+[詳細資料說明、連線排查與功能文件（簡體中文）](usage.zh-CN.md#连接与数据问题)
 
-## 開發
+## 開始使用
 
-需要 Node.js 22.16+；雙平台打包需在 macOS 上執行。
+1. 登入 Codex 後開啟 Pulse，在「額度概覽」核對帳號及額度。
+2. 在「今日用量」查看當日合計，在「Token 明細」選擇本機對話，查看逐輪用量與訊息。
+3. 在「重設雷達」查看日曆與公告，在偏好設定調整通知、語言與主題。
 
-```sh
-npm ci
-npm start           # 建置並啟動 Electron
-npm test
-npm run probe       # 檢查本機 Codex 連線
-```
+圖表預設為「小時」。額度概覽提供分鐘、小時、日，今日用量提供分鐘、小時。分鐘以並列柱形比較今日與昨日，可在今天範圍內拖動和縮放；小時固定顯示當天，並提供昨日參考；日固定顯示最近 15 天。
 
-```sh
-npm run pack        # Windows + macOS
-npm run pack:win    # release/win/
-npm run pack:mac    # release/mac/
-```
+## 更新軟體
 
-每次打包自動遞增一次修補版本；一般建置不遞增。應用程式使用 Electron + React + TypeScript，網站使用 Astro。
+開啟「偏好設定 → 版本更新」。Windows 安裝版會在背景下載新版，完成後點擊「重新啟動並安裝」；可攜版請下載新版，退出舊版後替換。Mac 開啟下載完成的 DMG，退出 Pulse，將新版拖入「應用程式」並確認取代，再重新啟動。原有設定會保留。
 
-[技術文件與平台驗收（簡體中文）](technical.zh-CN.md) · [網站開發與部署（簡體中文）](../website/README.md)
+## 說明與文件
+
+- [使用指南與常見問題（簡體中文）](usage.zh-CN.md)
+- [回報問題](https://github.com/FluentHaze/codex-pulse/issues)：提供系統、軟體版本、重現步驟及去識別化截圖。
+- [貢獻與維護文件（簡體中文）](../CONTRIBUTING.md)
 
 Codex Pulse 是獨立專案，並非 OpenAI 官方產品，也與 Apple 沒有隸屬關係。

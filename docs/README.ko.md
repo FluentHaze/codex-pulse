@@ -22,7 +22,7 @@ macOS / Windows용 가벼운 Codex 한도 및 토큰 사용량 모니터.
 | --- | --- |
 | Mac · Apple Silicon | `mac-arm64.dmg` 또는 `.zip` |
 | Mac · Intel | `mac-x64.dmg` 또는 `.zip` |
-| Windows · x64 | `win-x64.exe` 다운로드 후 실행 |
+| Windows · x64 | `Setup-version-x64.exe` 설치 버전(앱 내 업데이트), 또는 `win-x64.exe` 포터블 버전 |
 
 ### Mac에서 처음 실행하기
 
@@ -41,27 +41,24 @@ macOS / Windows용 가벼운 Codex 한도 및 토큰 사용량 모니터.
 
 한도는 로컬 Codex `app-server`를 통해 읽습니다. 토큰 통계는 로컬 세션 기록을 사용하므로 불완전할 수 있으며, 청구 내역이나 모든 기기의 사용량과 같지 않습니다. 로그인 토큰을 복사하거나 저장하지 않고 대화 본문도 업로드하지 않습니다. 초기화 레이더는 공개된 타사 데이터를 사용하며 예측은 참고용입니다.
 
-[데이터 처리·연결 문제 해결·기능 상세 문서(중국어 간체)](technical.zh-CN.md#数据和连接)
+[데이터 처리·연결 문제 해결·기능 상세 문서(중국어 간체)](usage.zh-CN.md#连接与数据问题)
 
-## 개발
+## 사용 시작
 
-Node.js 22.16 이상이 필요합니다. 두 플랫폼을 함께 패키징하려면 macOS가 필요합니다.
+1. Codex에 로그인한 다음 Pulse를 열고 한도 개요에서 계정과 한도를 확인하세요.
+2. 오늘의 사용량에서 일일 합계를, Token 상세에서 로컬 대화의 턴별 사용량과 메시지를 확인하세요.
+3. 초기화 레이더에서 달력과 공지를 확인하고 환경설정에서 알림·언어·테마를 조정하세요.
 
-```sh
-npm ci
-npm start           # Electron 빌드 및 실행
-npm test
-npm run probe       # 로컬 Codex 연결 확인
-```
+차트 기본값은 시간입니다. 개요에는 분·시간·일, 오늘의 사용량에는 분·시간이 있습니다. 분 보기는 오늘과 어제를 나란한 막대로 비교하며 오늘 범위에서 드래그 및 확대/축소할 수 있습니다. 시간 보기는 오늘의 고정 범위와 어제의 비교 데이터를, 일 보기는 최근 15일을 표시합니다.
 
-```sh
-npm run pack        # Windows + macOS
-npm run pack:win    # release/win/
-npm run pack:mac    # release/mac/
-```
+## 앱 업데이트
 
-패키징할 때마다 패치 버전이 한 번 증가하며 일반 빌드에서는 증가하지 않습니다. 앱은 Electron + React + TypeScript, 웹사이트는 Astro를 사용합니다.
+환경설정의 버전 업데이트를 여세요. Windows 설치 버전은 백그라운드에서 다운로드하며 완료 후 재시작 및 설치를 선택합니다. 포터블 버전은 새 파일을 다운로드하고 기존 앱을 종료한 후 교체하세요. Mac은 다운로드한 DMG를 열고 Pulse를 종료한 다음 응용 프로그램의 앱을 교체하고 다시 실행하세요. 기존 설정은 유지됩니다.
 
-[기술 문서 및 플랫폼 검증(중국어 간체)](technical.zh-CN.md) · [웹사이트 개발 및 배포(중국어 간체)](../website/README.md)
+## 도움말과 문서
+
+- [사용 안내 및 문제 해결(중국어 간체)](usage.zh-CN.md)
+- [문제 제보](https://github.com/FluentHaze/codex-pulse/issues): OS, 앱 버전, 재현 단계 및 개인정보를 가린 스크린샷을 포함하세요.
+- [기여 및 유지 관리 문서(중국어 간체)](../CONTRIBUTING.md)
 
 Codex Pulse는 독립적인 프로젝트이며 OpenAI 공식 제품이 아니고 Apple과도 제휴 관계가 없습니다.

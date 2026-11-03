@@ -421,19 +421,20 @@
     "OpenAI の公式アプリですか？",
     "OpenAI 공식 앱인가요?"
   ],
-  "Codex Pulse 是独立的开源项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。你可以在 GitHub 查看源码、发布记录并反馈问题。": [
-    "Codex Pulse is an independent open-source project, not an official OpenAI product, and is not affiliated with Apple. Find source code, releases and issue reports on GitHub.",
-    "Codex Pulse 是獨立的開源專案，並非 OpenAI 官方產品，也與 Apple 沒有隸屬關係。你可以在 GitHub 查看原始碼、發布紀錄並回報問題。",
-    "Codex Pulse は独立したオープンソースプロジェクトです。OpenAI の公式製品ではなく、Apple との提携関係もありません。ソースコード、リリース、問題報告は GitHub で確認できます。",
-    "Codex Pulse는 독립적인 오픈 소스 프로젝트로, OpenAI 공식 제품이 아니며 Apple과도 제휴 관계가 없습니다. 소스 코드, 릴리스, 문제 제보는 GitHub에서 확인할 수 있습니다."
+  "使用说明": ["User guide", "使用說明", "使い方", "사용 안내"],
+  "Codex Pulse 是独立的开源桌面软件，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。可直接下载对应系统的安装包，更新记录与问题反馈见 GitHub。": [
+    "Codex Pulse is independent open-source desktop software, not an official OpenAI product, and is not affiliated with Apple. Download the installer for your system; release notes and issue reports are available on GitHub.",
+    "Codex Pulse 是獨立的開源桌面軟體，並非 OpenAI 官方產品，也與 Apple 沒有隸屬關係。可直接下載對應系統的安裝檔，更新紀錄與問題回報請見 GitHub。",
+    "Codex Pulse は独立したオープンソースのデスクトップアプリです。OpenAI の公式製品ではなく、Apple との提携関係もありません。OS に合ったインストーラをダウンロードしてください。更新履歴や問題報告は GitHub で確認できます。",
+    "Codex Pulse는 독립적인 오픈 소스 데스크톱 앱으로, OpenAI 공식 제품이 아니며 Apple과도 제휴 관계가 없습니다. OS에 맞는 설치 파일을 다운로드하세요. 변경 사항과 문제 제보는 GitHub에서 확인할 수 있습니다."
   ],
   "下载": ["Download", "下載", "ダウンロード", "다운로드"],
   "数据与隐私": ["Data & privacy", "資料與隱私權", "データとプライバシー", "데이터 및 개인정보"],
-  "为专注而生。开源构建。": [
-    "Made for focus. Built in the open.",
-    "為專注而生。開源打造。",
-    "集中のために。オープンソースで。",
-    "몰입을 위해. 오픈 소스로."
+  "额度与用量，随时掌握。": [
+    "Keep track of limits and usage.",
+    "額度與用量，隨時掌握。",
+    "残量と使用量を、いつでも確認。",
+    "한도와 사용량을 언제든 확인하세요."
   ],
   "独立开源项目": [
     "Independent open-source project",

@@ -207,8 +207,59 @@ test('today comparison separates calendar days and deduplicates yesterday histor
     assert.equal(result.yesterday?.duplicateRecords, 1);
     assert.equal(result.hourly?.[0].total, 60);
     assert.equal(result.yesterday?.hourly?.[0].total, 120);
+    assert.equal(result.timeline?.length, 2);
+    assert.deepEqual(
+      result.timeline?.map((sample) => sample.total),
+      [120, 60],
+    );
     assert.equal((await store.today()).yesterday?.tokens.total, 120);
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('default usage skips old files and only day mode loads the last 15 days', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'pulse-bounded-'));
+  try {
+    const { utimes } = await import('node:fs/promises');
+    const today = localDayRange();
+    for (const age of [0, 1, 10, 14, 15, 30]) {
+      const date = new Date(today.start);
+      date.setDate(date.getDate() - age);
+      date.setHours(1);
+      const path = join(root, `rollout-${age}.jsonl`);
+      await writeFile(
+        path,
+        [
+          JSON.stringify({
+            type: 'session_meta',
+            payload: { id: `bounded-${age}`, source: 'vscode' },
+          }),
+          start(`bounded-${age}`),
+          token(100, 20, date.getTime()),
+        ].join('\n') + '\n',
+      );
+      await utimes(path, date, date);
+    }
+    const store = new TokenStore(() => root);
+    const normal = await store.today(true);
+    assert.equal(normal.scannedFiles, 2);
+    assert.equal(normal.daily, undefined);
+    assert.equal(normal.timeline?.length, 2);
+    const recent = await store.today(true, 15);
+    assert.equal(recent.scannedFiles, 4);
+    assert.equal(recent.daily?.length, 15);
+    assert.equal(recent.daily?.[0].total, 120);
+    assert.equal(recent.daily?.[4].total, 120);
+    assert.equal(recent.timeline?.length, 2, 'minute payload never includes older days');
+    assert.equal(
+      recent.daily?.reduce((sum, day) => sum + (day.total ?? 0), 0),
+      480,
+    );
+    const again = await store.today();
+    assert.equal(again.scannedFiles, 2, 'short and day ranges retain independent caches');
+  } finally {
+    if (root.startsWith(join(tmpdir(), 'pulse-bounded-')))
+      await rm(root, { recursive: true, force: true });
   }
 });

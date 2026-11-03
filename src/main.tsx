@@ -57,7 +57,7 @@ interface Bridge {
   messageImage(id: string, path: string): Promise<string>;
   tokenCatalog(force?: boolean): Promise<TokenCatalog>;
   tokenSession(id: string): Promise<TokenSession>;
-  todayUsage(force?: boolean): Promise<DailyStats>;
+  todayUsage(force?: boolean, days?: 2 | 15): Promise<DailyStats>;
   refresh(): Promise<void>;
   settings(patch: Partial<Settings>): Promise<void>;
   action(action: string): Promise<void>;

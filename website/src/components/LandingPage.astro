@@ -61,7 +61,7 @@ interface Props {
           {t('项目流程图')}
         </a>
         <a href={readme} target="_blank" rel="noopener noreferrer">
-          GitHub <Icon name="arrow" size={12} />
+          {t('使用说明')} <Icon name="arrow" size={12} />
         </a>
       </div>
       <div class="display-controls">
@@ -408,7 +408,7 @@ interface Props {
           </summary>
           <p>
             {t(
-              'Codex Pulse 是独立的开源项目，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。你可以在 GitHub 查看源码、发布记录并反馈问题。',
+              'Codex Pulse 是独立的开源桌面软件，并非 OpenAI 官方产品，也与 Apple 没有隶属关系。可直接下载对应系统的安装包，更新记录与问题反馈见 GitHub。',
             )}
           </p>
         </details>
@@ -423,7 +423,7 @@ interface Props {
       </a>
       <div>
         <a href={readme} target="_blank" rel="noopener noreferrer">
-          GitHub <Icon name="arrow" size={12} />
+          {t('使用说明')} <Icon name="arrow" size={12} />
         </a>
         <a href="#download">{t('下载')}</a>
         <a href="#install">{t('安装指引')}</a>
@@ -434,7 +434,7 @@ interface Props {
       </div>
     </div>
     <div class="footer-bottom">
-      <span>{t('为专注而生。开源构建。')}</span>
+      <span>{t('额度与用量，随时掌握。')}</span>
       <span>
         © {new Date().getFullYear()} Codex Pulse · {t('独立开源项目')}
       </span>

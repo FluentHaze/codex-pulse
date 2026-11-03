@@ -22,7 +22,7 @@ Install Codex and sign in with your ChatGPT account first. If Pulse cannot conne
 | --- | --- |
 | Mac · Apple Silicon | `mac-arm64.dmg` or `.zip` |
 | Mac · Intel | `mac-x64.dmg` or `.zip` |
-| Windows · x64 | `win-x64.exe`; download and run |
+| Windows · x64 | `Setup-version-x64.exe` installer (in-app updates), or `win-x64.exe` portable edition |
 
 ### First launch on Mac
 
@@ -41,27 +41,24 @@ If it still says “damaged” or Open Anyway is unavailable, use the latest ver
 
 Limits are read through the local Codex `app-server`. Token counts come from local session records, may be incomplete, and are not billing totals or usage across all devices. Pulse does not copy or store sign-in tokens or upload conversation text. Reset radar uses public third-party data; predictions are for reference only.
 
-[Detailed data handling, connection troubleshooting and feature documentation (Simplified Chinese)](technical.zh-CN.md#数据和连接)
+[Detailed data handling, connection troubleshooting and feature documentation (Simplified Chinese)](usage.zh-CN.md#连接与数据问题)
 
-## Development
+## Start using Pulse
 
-Requires Node.js 22.16+. Building both platforms requires macOS.
+1. Open Pulse after signing in to Codex. Check your account and limits in Limits overview.
+2. Open Today’s usage for daily totals, or Token details for usage and messages by conversation turn.
+3. Use Reset radar for calendar records and announcements; configure notifications, language and theme in Preferences.
 
-```sh
-npm ci
-npm start           # Build and launch Electron
-npm test
-npm run probe       # Check the local Codex connection
-```
+Charts default to Hour. The overview offers Minute, Hour and Day; Today’s usage offers Minute and Hour. Minute compares today and yesterday with paired columns and supports browsing within today. Hour shows today’s fixed hourly range with yesterday as a reference. Day shows the last 15 days.
 
-```sh
-npm run pack        # Windows + macOS
-npm run pack:win    # release/win/
-npm run pack:mac    # release/mac/
-```
+## Update the app
 
-Packaging increments the patch version once per invocation; a regular build does not. The app uses Electron + React + TypeScript; the website uses Astro.
+Open Preferences → Version updates. The Windows installer edition downloads updates in the background; choose Restart and install when ready. For the portable edition, download the new executable and replace the old one after closing it. On Mac, open the downloaded DMG, quit Pulse, replace the app in Applications, and reopen it. Existing settings are retained.
 
-[Technical documentation and platform checks (Simplified Chinese)](technical.zh-CN.md) · [Website development and deployment (Simplified Chinese)](../website/README.md)
+## Help and documentation
+
+- [Usage guide and troubleshooting (Simplified Chinese)](usage.zh-CN.md)
+- [Report an issue](https://github.com/FluentHaze/codex-pulse/issues): include your OS, app version, reproduction steps and redacted screenshots.
+- [Contributor and maintenance documentation (Simplified Chinese)](../CONTRIBUTING.md)
 
 Codex Pulse is an independent project, not an official OpenAI product, and is not affiliated with Apple.
