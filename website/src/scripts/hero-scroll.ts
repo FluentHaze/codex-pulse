@@ -38,6 +38,7 @@ function paintHero() {
   if (hero.dataset.hardwarePhase !== phase) hero.dataset.hardwarePhase = phase;
   const opening = facingViewer ? clamp((progress - openingStart) / (openingEnd - openingStart)) : 0;
   const power = clamp((progress - openingEnd) / 0.08);
+  if (workspace) workspace.inert = power < 1;
   const approach = clamp((progress - approachStart) / (chaptersStart - approachStart));
   const zoom = approach * approach * (3 - 2 * approach);
   hero.style.setProperty('--hero-zoom-scale', String(1 + (zoomScale - 1) * zoom));
@@ -66,7 +67,13 @@ function paintHero() {
   const mix = transition * transition * (3 - 2 * transition);
   const stage = mix >= 0.5 ? to : from;
   hero.style.setProperty('--device-reveal', String(eased));
-  if (scroll >= start && scroll <= start + distance && scroll !== previousScroll) {
+  // Settle the clamped endpoint even when a scroll skips over the track boundary.
+  const inTrack = scroll >= start && scroll <= start + distance;
+  const previousProgress = clamp((previousScroll - start) / distance);
+  if (
+    scroll !== previousScroll &&
+    (inTrack || previousScroll === -1 || previousProgress !== progress)
+  ) {
     workspace?.dispatchEvent(
       new CustomEvent('pulse:demo-morph', {
         detail: { from: order[from], to: order[to], mix },
@@ -114,6 +121,7 @@ function configureHero() {
   track?.classList.toggle('hero-scroll-active', enabled);
   if (!enabled) {
     if (copy) copy.inert = false;
+    if (workspace) workspace.inert = false;
     if (hero) delete hero.dataset.hardwarePhase;
     ['--hero-zoom-scale', '--hero-zoom-x', '--hero-zoom-y', '--hero-copy-opacity'].forEach(
       (property) => hero?.style.removeProperty(property),
