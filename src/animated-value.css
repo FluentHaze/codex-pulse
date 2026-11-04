@@ -1,0 +1,26 @@
+/* The modifier overrides the older shared animation independently of import order. */
+.animated-value.animated-value-update {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  animation: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .animated-value.animated-value-update {
+    animation: pulse-value-update 360ms ease-out;
+  }
+}
+@keyframes pulse-value-update {
+  from {
+    opacity: 0.4;
+    transform: translateY(3px);
+    color: var(--accent);
+  }
+  45% {
+    color: var(--accent);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    color: inherit;
+  }
+}

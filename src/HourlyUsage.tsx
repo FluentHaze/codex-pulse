@@ -1,3 +1,4 @@
+import { RefreshButton } from './RefreshButton';
 /** Shared, pannable usage chart for the overview and today's usage. */
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from './use-language';
@@ -161,16 +162,28 @@ export function HourlyChart({
           </p>
         </div>
         <div className="usage-chart-actions">
-          <div className="usage-periods" role="group" aria-label={t('时间周期')}>
+          <div
+            className="usage-periods"
+            data-period={period}
+            data-count={allowDay ? 3 : 2}
+            role="group"
+            aria-label={t('时间周期')}
+          >
+            <span className="usage-period-indicator" aria-hidden="true" />
             {(['minute', 'hour', ...(allowDay ? ['day'] : [])] as Period[]).map((item) => (
               <button key={item} aria-pressed={period === item} onClick={() => changePeriod(item)}>
                 {item === 'day' && getLanguage().startsWith('zh') ? '日' : t(labels[item])}
               </button>
             ))}
           </div>
-          <button disabled={busy} onClick={refresh} aria-label={t('刷新')} title={t('刷新')}>
-            {busy ? '…' : '↻'}
-          </button>
+          <RefreshButton
+            busy={busy}
+            error={error}
+            updatedAt={stats?.updatedAt}
+            onClick={refresh}
+            label={t('刷新')}
+            iconOnly
+          />
         </div>
       </header>
       {error && stats && (
@@ -217,8 +230,8 @@ export function HourlyChart({
             ›
           </button>
         )}
-        <span>
-          {format(start, true)} – {format(start + count - 1, true)}
+        <span title={`${format(start, true)} – ${format(start + count - 1, true)}`}>
+          {format(start, period === 'day')} – {format(start + count - 1, period === 'day')}
         </span>
         {period === 'minute' && (
           <>
@@ -326,7 +339,7 @@ export function HourlyChart({
             }}
             onBlur={() => setSelected(null)}
           >
-            <svg viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
+            <svg key={period} viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <linearGradient id={`${id}-today`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--usage-blue)" stopOpacity=".16" />
@@ -380,6 +393,7 @@ export function HourlyChart({
                 <path
                   key={`yl${i}`}
                   d={path.line}
+                  pathLength="1"
                   className="usage-line usage-previous"
                   vectorEffect="non-scaling-stroke"
                 />
@@ -388,6 +402,7 @@ export function HourlyChart({
                 <path
                   key={`tl${i}`}
                   d={path.line}
+                  pathLength="1"
                   className="usage-line usage-current"
                   vectorEffect="non-scaling-stroke"
                 />

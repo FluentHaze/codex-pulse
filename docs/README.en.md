@@ -51,6 +51,8 @@ Limits are read through the local Codex `app-server`. Token counts come from loc
 
 Charts default to Hour. The overview offers Minute, Hour and Day; Today’s usage offers Minute and Hour. Minute compares today and yesterday with paired columns and supports browsing within today. Hour shows today’s fixed hourly range with yesterday as a reference. Day shows the last 15 days.
 
+Today’s usage lets you switch between exact and compact numbers and copy complete totals. The message drawer supports previous/next turns and copying per-turn usage. Recent conversations and the conversation list refresh every 30 seconds while visible and when shown again. The reset rhythm chart shows up to eight confirmed intervals with day counts, dates and reference ticks. Layouts adapt to the window width, and animations respect the system’s reduced-motion setting.
+
 ## Update the app
 
 A persistent update card above the account area shows the new version and download progress, with View update or Restart and install actions. In narrow windows it stays at the top of the content area.

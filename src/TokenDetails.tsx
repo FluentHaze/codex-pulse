@@ -1,3 +1,4 @@
+import { CopyUsageButton } from './CopyUsageButton';
 import { MessageBody } from './MessageBody';
 import { avatarDataUrl } from './avatar';
 import gptAvatar from '../assets/gpt-avatar.svg';
@@ -10,6 +11,7 @@ import { t, getLanguage } from '../electron/i18n';
 import { memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import type { TokenCatalog, TokenSession, TokenCounts, DailyStats } from '../electron/types';
 import { filterSessions, type DateFilter } from './session-filter';
+import './turn-motion.css';
 const count = (value: number | null | undefined) =>
   value == null ? '—' : value.toLocaleString(getLanguage());
 const compactFormatter = new Intl.NumberFormat('en', {
@@ -75,6 +77,7 @@ export const TokenDetails = memo(function TokenDetails({
   const [visibleCount, setVisibleCount] = useState(100);
   const [turnPage, setTurnPage] = useState(0);
   const [openedTurn, setOpenedTurn] = useState<string | null>(null);
+  const [turnDirection, setTurnDirection] = useState<'previous' | 'next' | null>(null);
   const drawer = useRef<HTMLDialogElement>(null);
   const drawerBackdropPressed = useRef(false);
   useEffect(() => {
@@ -131,7 +134,12 @@ export const TokenDetails = memo(function TokenDetails({
     turnPage,
     Math.max(0, Math.ceil((detail?.turns.length ?? 0) / 30) - 1),
   );
-  const activeTurn = detail?.turns.find((turn) => turn.id === openedTurn);
+  const activeTurnIndex = detail?.turns.findIndex((turn) => turn.id === openedTurn) ?? -1;
+  const activeTurn = activeTurnIndex >= 0 ? detail?.turns[activeTurnIndex] : undefined;
+  const drawerBody = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    drawerBody.current?.scrollTo({ top: 0 });
+  }, [openedTurn]);
   useEffect(() => {
     const dialog = drawer.current;
     if (activeTurn && dialog && !dialog.open) dialog.showModal();
@@ -142,14 +150,17 @@ export const TokenDetails = memo(function TokenDetails({
     panelScroll.current?.scrollTo({ top: 0, left: 0 });
   }, [selected, currentTurnPage]);
   const catalogRequest = useRef(0);
+  const loadingCatalog = useRef(false);
   const selectLatest = useRef(!initialSessionId);
   const mounted = useRef(true);
   const loadingDetail = useRef(false);
   const loadCatalog = useCallback(
-    async (force = false) => {
+    async (force = false, background = false) => {
+      if (loadingCatalog.current) return;
+      loadingCatalog.current = true;
       const request = ++catalogRequest.current;
       setListBusy(true);
-      setError('');
+      if (!background) setError('');
       try {
         const next = await window.pulse!.tokenCatalog(force);
         if (!mounted.current || catalogRequest.current !== request) return;
@@ -164,7 +175,10 @@ export const TokenDetails = memo(function TokenDetails({
         if (mounted.current && catalogRequest.current === request)
           setError('无法读取聊天列表，请检查会话目录和访问权限');
       } finally {
-        if (mounted.current && catalogRequest.current === request) setListBusy(false);
+        if (mounted.current && catalogRequest.current === request) {
+          loadingCatalog.current = false;
+          setListBusy(false);
+        }
       }
     },
     [sessionPath],
@@ -177,9 +191,17 @@ export const TokenDetails = memo(function TokenDetails({
     setDetail(undefined);
     setProject('*');
     void loadCatalog(false);
+    const readVisible = () => {
+      if (document.visibilityState === 'visible') void loadCatalog(false, true);
+    };
+    const timer = setInterval(readVisible, 30000);
+    document.addEventListener('visibilitychange', readVisible);
     return () => {
       mounted.current = false;
       catalogRequest.current++;
+      loadingCatalog.current = false;
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', readVisible);
     };
   }, [sessionPath, loadCatalog, initialSessionId]);
   useEffect(() => {
@@ -683,7 +705,10 @@ export const TokenDetails = memo(function TokenDetails({
         className="token-message-drawer"
         aria-labelledby="turn-drawer-title"
         onClose={(event) => {
-          if (event.target === event.currentTarget) setOpenedTurn(null);
+          if (event.target === event.currentTarget) {
+            setOpenedTurn(null);
+            setTurnDirection(null);
+          }
         }}
         onPointerDown={(event) => {
           const rect = event.currentTarget.getBoundingClientRect();
@@ -724,62 +749,101 @@ export const TokenDetails = memo(function TokenDetails({
                 ×
               </button>
             </header>
-            <div className="turn-drawer-body">
-              <dl className="turn-drawer-metrics">
-                {columns.map((column) => (
-                  <div key={column.key}>
-                    <dt title={column.title}>{column.label}</dt>
-                    <dd title={count(activeTurn.tokens?.[column.key])}>
-                      {compactCount(activeTurn.tokens?.[column.key])}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="note">{t('缓存输入已含在输入中，推理已含在输出中。')}</p>
-              <div className="message-thread">
-                <p className="note">{t('上方 Token 是整轮合计，不能分摊为每个气泡的精确消耗。')}</p>
-                {activeTurn.messages.length ? (
-                  activeTurn.messages.map((message, index) => (
-                    <section
-                      className={`chat-message ${message.role} ${index > 0 && activeTurn.messages[index - 1].role === message.role ? 'continued' : ''}`}
-                      key={`${message.role}-${index}`}
-                    >
-                      <div
-                        className="message-avatar"
-                        title={
-                          message.role === 'user'
-                            ? t('你')
-                            : message.phase === 'commentary'
-                              ? t('助手 · 进度说明')
-                              : 'GPT'
-                        }
+            <div className="turn-drawer-navigation">
+              <div role="group" aria-label={t('切换轮次')}>
+                <button
+                  disabled={activeTurnIndex <= 0}
+                  onClick={() => {
+                    setTurnDirection('previous');
+                    setOpenedTurn(detail!.turns[activeTurnIndex - 1].id);
+                  }}
+                >
+                  {t('上一轮')}
+                </button>
+                <button
+                  disabled={activeTurnIndex >= (detail?.turns.length ?? 0) - 1}
+                  onClick={() => {
+                    setTurnDirection('next');
+                    setOpenedTurn(detail!.turns[activeTurnIndex + 1].id);
+                  }}
+                >
+                  {t('下一轮')}
+                </button>
+              </div>
+              <CopyUsageButton
+                text={[
+                  t('第 {0} 轮 ', [activeTurn.number]).trim(),
+                  ...columns.map(
+                    (column) => `${column.label}: ${activeTurn.tokens?.[column.key] ?? '—'} Token`,
+                  ),
+                ].join('\n')}
+                disabled={!activeTurn.tokens}
+              />
+            </div>
+            <div ref={drawerBody} className="turn-drawer-body">
+              <div
+                key={openedTurn}
+                className="turn-drawer-content"
+                data-turn-direction={turnDirection}
+              >
+                <dl className="turn-drawer-metrics">
+                  {columns.map((column) => (
+                    <div key={column.key}>
+                      <dt title={column.title}>{column.label}</dt>
+                      <dd title={count(activeTurn.tokens?.[column.key])}>
+                        {count(activeTurn.tokens?.[column.key])}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="note">{t('缓存输入已含在输入中，推理已含在输出中。')}</p>
+                <div className="message-thread">
+                  <p className="note">
+                    {t('上方 Token 是整轮合计，不能分摊为每个气泡的精确消耗。')}
+                  </p>
+                  {activeTurn.messages.length ? (
+                    activeTurn.messages.map((message, index) => (
+                      <section
+                        className={`chat-message ${message.role} ${index > 0 && activeTurn.messages[index - 1].role === message.role ? 'continued' : ''}`}
+                        key={`${message.role}-${index}`}
                       >
-                        <img
-                          src={message.role === 'user' ? avatarDataUrl(account) : gptAvatar}
-                          alt={message.role === 'user' ? t('你') : 'GPT'}
-                          width="28"
-                          height="28"
-                        />
-                      </div>
-                      <div className={`message-bubble ${message.role}`}>
-                        <MessageBody
-                          text={message.text}
-                          user={message.role === 'user'}
-                          sessionId={selected}
-                        />
-                        {message.truncated && (
-                          <p className="token-warning">
-                            {t('内容过长，仅显示本次加载的前 {0} 个字符', [
-                              message.text.length.toLocaleString(),
-                            ])}
-                          </p>
-                        )}
-                      </div>
-                    </section>
-                  ))
-                ) : (
-                  <p className="empty">{t('此轮没有可读取的消息正文')}</p>
-                )}
+                        <div
+                          className="message-avatar"
+                          title={
+                            message.role === 'user'
+                              ? t('你')
+                              : message.phase === 'commentary'
+                                ? t('助手 · 进度说明')
+                                : 'GPT'
+                          }
+                        >
+                          <img
+                            src={message.role === 'user' ? avatarDataUrl(account) : gptAvatar}
+                            alt={message.role === 'user' ? t('你') : 'GPT'}
+                            width="28"
+                            height="28"
+                          />
+                        </div>
+                        <div className={`message-bubble ${message.role}`}>
+                          <MessageBody
+                            text={message.text}
+                            user={message.role === 'user'}
+                            sessionId={selected}
+                          />
+                          {message.truncated && (
+                            <p className="token-warning">
+                              {t('内容过长，仅显示本次加载的前 {0} 个字符', [
+                                message.text.length.toLocaleString(),
+                              ])}
+                            </p>
+                          )}
+                        </div>
+                      </section>
+                    ))
+                  ) : (
+                    <p className="empty">{t('此轮没有可读取的消息正文')}</p>
+                  )}
+                </div>
               </div>
             </div>
           </>

@@ -158,16 +158,27 @@ try {
     nodeId: headingNode,
   });
   assert.ok(
-    renderedFonts.some((font) => font.isCustomFont && font.familyName.startsWith('Noto Sans SC')),
-    'Chinese heading actually renders with the bundled fallback font',
+    renderedFonts.some(
+      (font) => font.glyphCount > 0 && /^(?:PingFang|Noto Sans SC)/.test(font.familyName),
+    ),
+    'Chinese heading renders with the system Chinese font or bundled fallback',
   );
   await writeFile(join(output, 'rendered-fonts.json'), JSON.stringify(renderedFonts, null, 2));
 
-  const size = await page.locator('.reset-tracker').boundingBox();
-  assert.ok(
-    size.y + size.height <= (await page.evaluate(() => innerHeight)),
-    'default calendar fits the desktop viewport',
-  );
+  const viewportHeight = await page.evaluate(() => innerHeight);
+  if (viewportHeight >= 1000) {
+    const size = await page.locator('.reset-tracker').boundingBox();
+    assert.ok(size.y + size.height <= viewportHeight, 'calendar fits a tall desktop viewport');
+  } else {
+    // macOS can clamp a requested test window to the physical screen height.
+    const lastDate = page.locator('.calendar-day').last();
+    await lastDate.scrollIntoViewIfNeeded();
+    const size = await lastDate.boundingBox();
+    assert.ok(
+      size.y >= 0 && size.y + size.height <= viewportHeight,
+      'short windows can scroll to the last date',
+    );
+  }
   await page.getByRole('tab', { name: '重置日历', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
   assert.equal(
@@ -283,6 +294,13 @@ try {
   await page.getByRole('button', { name: '刷新预测', exact: true }).click();
   await page.locator('.rhythm-column').first().waitFor();
   assert.equal(await page.locator('.rhythm-column').count(), 8);
+  assert.equal(await page.locator('.rhythm-axis span').count(), 3);
+  assert.equal(await page.locator('.rhythm-guides i').count(), 3);
+  assert.ok(await page.locator('.rhythm-bar').first().evaluate((el) => el.getBoundingClientRect().width <= 28));
+  await capture('rhythm-dark.png');
+  await page.evaluate(() => window.pulse.settings({ theme: 'light' }));
+  await capture('rhythm-light.png');
+  await page.evaluate(() => window.pulse.settings({ theme: 'dark' }));
   await page.getByRole('tab', { name: '重置日历', exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   await capture('radar-calendar-narrow.png');
@@ -299,7 +317,7 @@ try {
     window.dispatchEvent(new CustomEvent('pulse-navigate', { detail: 'overview' })),
   );
   await page.locator('.quota-amount').first().waitFor();
-  await page.locator('.recent-sessions > button').first().waitFor();
+  await page.locator('.recent-sessions b').first().waitFor();
   await desktop.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setSize(1320, 900),
   );
@@ -317,10 +335,10 @@ try {
     'default width supports three equal quota cards',
   );
   assert.ok(
-    Math.abs(secondQuota.x + secondQuota.width - usageChart.x - usageChart.width) < 1,
-    'chart aligns with second quota card',
+    Math.abs(sessionCard.x + sessionCard.width - usageChart.x - usageChart.width) < 1,
+    'short-list chart spans the complete content row',
   );
-  assert.ok(Math.abs(sessionCard.x - recentCard.x) < 1, 'right-hand columns align');
+  assert.ok(Math.abs(firstQuota.x - recentCard.x) < 1, 'short-list companion row starts at the content edge');
   assert.ok(
     Math.abs(firstQuota.y + firstQuota.height - sessionCard.y - sessionCard.height) < 1,
     'top row bottom edges align',
@@ -413,9 +431,15 @@ try {
   );
 
   await desktop.evaluate(({ app }) => app.setUpdateState({ status: 'downloaded' }));
-  await page.getByRole('button', { name: '重启并安装', exact: true }).waitFor();
+  await page
+    .locator('#settings-updates')
+    .getByRole('button', { name: '重启并安装', exact: true })
+    .waitFor();
   await desktop.evaluate(({ app }) => app.setUpdateState({ status: 'error' }));
-  await page.getByText('更新失败，请检查网络或前往下载页面', { exact: false }).waitFor();
+  await page
+    .locator('#settings-updates')
+    .getByText('更新失败，请检查网络或前往下载页面', { exact: false })
+    .waitFor();
   await capture('settings-dark.png');
   await desktop.evaluate(
     async ({ BrowserWindow }, paths) => {

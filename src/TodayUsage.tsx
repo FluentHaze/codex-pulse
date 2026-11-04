@@ -1,7 +1,10 @@
+import { AnimatedValue } from './AnimatedValue';
+import { RefreshButton } from './RefreshButton';
 /** 今日统计先展示缓存，后台更新；缓存与推理作为输入输出的子集呈现。 */
 import { useLanguage } from './use-language';
 import { t, getLanguage } from '../electron/i18n';
-import { memo } from 'react';
+import { memo, useState } from 'react';
+import { CopyUsageButton } from './CopyUsageButton';
 import { useTodayUsage } from './use-today-usage';
 import { HourlyChart } from './HourlyUsage';
 const format = (value: number | null | undefined) =>
@@ -18,6 +21,19 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
   useLanguage();
   const { stats, busy, error, refresh } = useTodayUsage(sessionPath);
   const tokens = stats?.tokens;
+  const [exact, setExact] = useState(false);
+  const display = (value: number | null | undefined) =>
+    exact ? (value == null ? '—' : value.toLocaleString(getLanguage())) : format(value);
+  const copyText = [
+    `${stats?.date ?? ''} · ${stats?.timeZone ?? ''}`,
+    ...[
+      [t('今日已记录用量'), tokens?.total],
+      [t('输入 Token'), tokens?.input],
+      [t('输出 Token'), tokens?.output],
+      [t('缓存输入'), tokens?.cachedInput],
+      [t('推理'), tokens?.reasoning],
+    ].map(([label, value]) => `${label}: ${value ?? '—'} Token`),
+  ].join('\n');
   const inputShare = ratio(
     tokens?.input,
     tokens?.input == null || tokens?.output == null ? null : tokens.input + tokens.output,
@@ -41,12 +57,22 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
     <section className="today-usage" aria-label={t('今日用量统计')}>
       <div className="daily-toolbar">
         <span>{stats ? `${stats.date} · ${stats.timeZone}` : t('按本机时区的自然日统计')}</span>
-        <span className="background-status" role="status">
+        <span className="background-status sr-only" role="status">
           {busy ? t('正在后台更新，可继续查看已有记录') : ''}
         </span>
-        <button disabled={busy} onClick={refresh}>
-          {busy ? t('正在汇总…') : t('刷新统计')}
-        </button>
+        <div className="usage-value-actions">
+          <button aria-pressed={exact} onClick={() => setExact((value) => !value)}>
+            {t('精确数值')}
+          </button>
+          <CopyUsageButton text={copyText} disabled={!tokens} />
+          <RefreshButton
+            busy={busy}
+            error={error}
+            updatedAt={stats?.updatedAt}
+            onClick={refresh}
+            label={t('刷新统计')}
+          />
+        </div>
       </div>
       {error && (
         <div className="alert" role="alert">
@@ -57,7 +83,7 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
         <section className="daily-total">
           <span>{t('今日已记录用量')}</span>
           <strong data-testid="daily-total" title={tokens?.total?.toLocaleString(getLanguage())}>
-            {format(tokens?.total)}
+            <AnimatedValue value={display(tokens?.total)} />
             <small>Token</small>
           </strong>
           <p>
@@ -69,18 +95,18 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
         <section className="daily-input">
           <span>{t('输入 Token')}</span>
           <strong>
-            {format(tokens?.input)}
+            <AnimatedValue value={display(tokens?.input)} />
             <small>Token</small>
           </strong>
-          <p>{t('其中缓存输入 {0}', [`${format(tokens?.cachedInput)} Token`])}</p>
+          <p>{t('其中缓存输入 {0}', [`${display(tokens?.cachedInput)} Token`])}</p>
         </section>
         <section className="daily-output">
           <span>{t('输出 Token')}</span>
           <strong>
-            {format(tokens?.output)}
+            <AnimatedValue value={display(tokens?.output)} />
             <small>Token</small>
           </strong>
-          <p>{t('其中推理 {0}', [`${format(tokens?.reasoning)} Token`])}</p>
+          <p>{t('其中推理 {0}', [`${display(tokens?.reasoning)} Token`])}</p>
         </section>
       </div>
       <div className="daily-analysis">
@@ -91,58 +117,62 @@ export const TodayUsage = memo(function TodayUsage({ sessionPath }: { sessionPat
           refresh={refresh}
           allowDay={false}
         />
-        <section className="usage-composition">
-          <h2>{t('用量构成')}</h2>
-          {shares.map((share) => (
-            <div className={`composition-row ${share.tone}`} key={share.label}>
-              <div>
-                <span>{share.label}</span>
-                <b>{share.value === null ? '—' : `${share.value.toFixed(1)}%`}</b>
+        <aside className="daily-sidebar">
+          <section className="usage-composition">
+            <h2>{t('用量构成')}</h2>
+            {shares.map((share) => (
+              <div className={`composition-row ${share.tone}`} key={share.label}>
+                <div>
+                  <span>{share.label}</span>
+                  <b>{share.value === null ? '—' : `${share.value.toFixed(1)}%`}</b>
+                </div>
+                <div className="composition-meter" aria-hidden="true">
+                  <i style={{ width: `${share.value ?? 0}%` }} />
+                </div>
               </div>
-              <div className="composition-meter" aria-hidden="true">
-                <i style={{ width: `${share.value ?? 0}%` }} />
-              </div>
-            </div>
-          ))}
-          <p>{t('缓存输入已含在输入中，推理已含在输出中。')}</p>
-        </section>
+            ))}
+            <p>{t('缓存输入已含在输入中，推理已含在输出中。')}</p>
+          </section>
+          <details className="usage-explanation">
+            <summary>{t('统计范围与去重说明')}</summary>
+            <p>
+              {t(
+                '缓存输入包含在输入中，推理包含在输出中，不重复相加。跨午夜的对话按用量事件发生时间分别计入当天。',
+              )}
+            </p>
+            <p>
+              {t(
+                '本机已记录用量，非账号账单；不按当前登录账号筛选。内部审核及子会话不计入，继承或复制的相同用量事件按轮次、时间和累计计数去重。',
+              )}
+            </p>
+            {stats?.warnings.map((warning) => (
+              <p className="token-warning" key={warning}>
+                {t(warning)}
+              </p>
+            ))}
+          </details>
+          {!!stats?.warnings.length && (
+            <p className="token-warning" role="status">
+              {t('部分记录不完整，仅展示已确认用量')}
+            </p>
+          )}
+          <footer className="daily-footer">
+            <span>
+              {t('{0}。页面打开时每 30 秒更新。', [
+                stats
+                  ? t('已读取 {0} 个文件 · 去重 {1} 条 · {2} 更新', [
+                      stats.scannedFiles,
+                      stats.duplicateRecords,
+                      new Date(stats.updatedAt).toLocaleTimeString(getLanguage(), {
+                        hour12: false,
+                      }),
+                    ])
+                  : t('没有统计时不会估算用量'),
+              ])}
+            </span>
+          </footer>
+        </aside>
       </div>
-      <details className="usage-explanation">
-        <summary>{t('统计范围与去重说明')}</summary>
-        <p>
-          {t(
-            '缓存输入包含在输入中，推理包含在输出中，不重复相加。跨午夜的对话按用量事件发生时间分别计入当天。',
-          )}
-        </p>
-        <p>
-          {t(
-            '本机已记录用量，非账号账单；不按当前登录账号筛选。内部审核及子会话不计入，继承或复制的相同用量事件按轮次、时间和累计计数去重。',
-          )}
-        </p>
-        {stats?.warnings.map((warning) => (
-          <p className="token-warning" key={warning}>
-            {t(warning)}
-          </p>
-        ))}
-      </details>
-      {!!stats?.warnings.length && (
-        <p className="token-warning" role="status">
-          {t('部分记录不完整，仅展示已确认用量')}
-        </p>
-      )}
-      <footer className="daily-footer">
-        <span>
-          {t('{0}。页面打开时每 30 秒更新。', [
-            stats
-              ? t('已读取 {0} 个文件 · 去重 {1} 条 · {2} 更新', [
-                  stats.scannedFiles,
-                  stats.duplicateRecords,
-                  new Date(stats.updatedAt).toLocaleTimeString(getLanguage(), { hour12: false }),
-                ])
-              : t('没有统计时不会估算用量'),
-          ])}
-        </span>
-      </footer>
     </section>
   );
 });

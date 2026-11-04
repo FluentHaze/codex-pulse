@@ -1,4 +1,17 @@
 export const interfaceMessages: Record<string, readonly string[]> = {
+  刷新完成: ['Refresh complete', '重新整理完成', '更新しました', '새로 고침 완료'],
+  复制用量: ['Copy usage', '複製用量', '使用量をコピー', '사용량 복사'],
+  已复制: ['Copied', '已複製', 'コピーしました', '복사됨'],
+  '复制失败，请重试': [
+    'Copy failed; try again',
+    '複製失敗，請重試',
+    'コピーできませんでした。再試行してください',
+    '복사하지 못했습니다. 다시 시도해 주세요',
+  ],
+  精确数值: ['Exact values', '精確數值', '正確な数値', '정확한 수치'],
+  切换轮次: ['Switch turn', '切換輪次', 'ターンを切り替え', '턴 전환'],
+  上一轮: ['Previous turn', '上一輪', '前のターン', '이전 턴'],
+  下一轮: ['Next turn', '下一輪', '次のターン', '다음 턴'],
   外观与语言: ['Appearance & language', '外觀與語言', '外観と言語', '모양 및 언어'],
   '正在后台更新，可继续查看已有记录': [
     'Updating in the background; loaded records remain available',

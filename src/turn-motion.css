@@ -1,0 +1,23 @@
+/* Only changing the opened turn remounts this layer; background refreshes keep it. */
+@media (prefers-reduced-motion: no-preference) {
+  .turn-drawer-content[data-turn-direction='previous'] {
+    --turn-enter-x: -8px;
+    animation: turn-content-enter 180ms var(--ease-out);
+  }
+
+  .turn-drawer-content[data-turn-direction='next'] {
+    --turn-enter-x: 8px;
+    animation: turn-content-enter 180ms var(--ease-out);
+  }
+}
+
+@keyframes turn-content-enter {
+  from {
+    opacity: 0;
+    transform: translateX(var(--turn-enter-x));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

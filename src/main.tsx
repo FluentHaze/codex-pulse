@@ -8,7 +8,11 @@ import { Select } from './Select';
 import { useLanguage } from './use-language';
 import { t, getLanguage, setLanguage, languages } from '../electron/i18n';
 import { menuBarOptions } from '../electron/menu-bar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import { MainNavigation } from './MainNavigation';
+import { AnimatedValue } from './AnimatedValue';
+import { RefreshButton } from './RefreshButton';
 import { createRoot } from 'react-dom/client';
 import {
   quotaWindows,
@@ -205,6 +209,8 @@ function App() {
     };
   }, []);
   const [state, setState] = useState<State>();
+  const receivedState = useRef<State | undefined>(undefined);
+  const themeTransition = useRef<ViewTransition | null>(null);
   const [now, setNow] = useState(Date.now());
   const [tab, setTab] = useState('overview');
   const [tokenSession, setTokenSession] = useState('');
@@ -290,18 +296,57 @@ function App() {
   useEffect(() => {
     if (!api) return;
     let mounted = true;
-    const unsubscribe = api.subscribe((value) => {
-      if (mounted) setState(value);
-    });
+    const applyState = (value: State) => {
+      if (!mounted) return;
+      const previous = receivedState.current;
+      receivedState.current = value;
+      const view = new URLSearchParams(location.search).get('view');
+      const animateTheme =
+        previous &&
+        previous.settings.theme !== value.settings.theme &&
+        view !== 'float' &&
+        view !== 'peek' &&
+        !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        typeof document.startViewTransition === 'function';
+      if (!animateTheme) {
+        setState(value);
+        return;
+      }
+      const rect = document.querySelector('.theme-toggle')?.getBoundingClientRect();
+      const x = rect ? rect.left + rect.width / 2 : innerWidth / 2;
+      const y = rect ? rect.top + rect.height / 2 : 0;
+      const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      themeTransition.current?.skipTransition();
+      const transition = document.startViewTransition(() => {
+        flushSync(() => setState(value));
+      });
+      themeTransition.current = transition;
+      void transition.ready
+        .then(() => {
+          document.documentElement.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+            {
+              duration: 460,
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              pseudoElement: '::view-transition-new(root)',
+            },
+          );
+        })
+        .catch(() => {
+          /* A newer theme choice can supersede this snapshot. */
+        });
+    };
+    const unsubscribe = api.subscribe(applyState);
     void api
       .getState()
       .then((value) => {
-        if (mounted) setState(value);
+        applyState(value);
       })
       .catch(() => setLocalError('无法连接应用后台'));
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => {
       mounted = false;
+      themeTransition.current?.skipTransition();
       unsubscribe();
       clearInterval(timer);
     };
@@ -583,8 +628,10 @@ function App() {
           </b>
         </div>
         <div className="nav-caption">{t('监控面板')}</div>
-        <nav aria-label={t('主导航')}>
-          {(
+        <MainNavigation
+          selected={tab}
+          onSelect={navigate}
+          items={(
             [
               { id: 'overview', label: t('额度概览'), icon: 'overview' },
               { id: 'resets', label: t('重置雷达'), icon: 'calendar' },
@@ -592,20 +639,8 @@ function App() {
               { id: 'tokens', label: t('Token 明细'), icon: 'document' },
               { id: 'settings', label: t('偏好设置'), icon: 'settings' },
             ] as const
-          ).map((item) => (
-            <button
-              key={item.id}
-              aria-current={tab === item.id ? 'page' : undefined}
-              title={item.label}
-              aria-label={item.label}
-              className={tab === item.id ? 'selected' : ''}
-              onClick={() => navigate(item.id)}
-            >
-              <Icon name={item.icon} />
-              {item.label}
-            </button>
-          ))}
-        </nav>
+          ).map((item) => ({ ...item, icon: <Icon name={item.icon} /> }))}
+        />
         <div className="sidebar-bottom">
           <AppUpdate notice onOpen={openUpdates} />
           <div className="sidebar-account" aria-label={t('当前账号')}>
@@ -669,18 +704,14 @@ function App() {
               </div>
             )}
             {tab !== 'tokens' && tab !== 'today' && tab !== 'resets' && (
-              <button
+              <RefreshButton
                 className="toolbar-refresh"
-                type="button"
-                aria-busy={state.refreshing}
-                title={t('立即刷新')}
-                aria-label={t('立即刷新')}
-                disabled={state.refreshing}
+                busy={state.refreshing}
+                error={state.error ?? undefined}
+                updatedAt={state.updatedAt ?? undefined}
                 onClick={() => run(api.refresh())}
-              >
-                <Icon name="refresh" className={state.refreshing ? 'refreshing' : ''} />
-                <span>{state.refreshing ? t('刷新中…') : t('刷新')}</span>
-              </button>
+                label={t('立即刷新')}
+              />
             )}
             <button
               type="button"
@@ -795,13 +826,20 @@ function App() {
                     </section>
                   )}
                 </div>
-                <button className="session-card" title={liveTitle} onClick={() => setTab('tokens')}>
+                <button
+                  className="session-card"
+                  data-running={live?.status === 'collecting'}
+                  title={liveTitle}
+                  onClick={() => setTab('tokens')}
+                >
                   <span className="session-icon">
                     <Icon name="pulse" />
                   </span>
                   <span className="session-card-heading">{liveLabel} Token</span>
                   <span className="session-count">
-                    <strong>{liveText}</strong>
+                    <strong>
+                      <AnimatedValue value={liveText} rawValue={liveCount} />
+                    </strong>
                     <small>{liveLabel} Token</small>
                   </span>
                   <span className="session-copy">
@@ -827,29 +865,31 @@ function App() {
               </div>
               <div className="overview-secondary">
                 <HourlyUsage sessionPath={state.settings.sessionPath} />
-                <RecentSessions
-                  sessionPath={state.settings.sessionPath}
-                  onSelect={(id) => {
-                    setTokenSession(id);
-                    navigate('tokens');
-                  }}
-                />
-              </div>
-              <button className="reset-entry" onClick={() => navigate('resets')}>
-                <Icon name="clock" />
-                <span>
-                  <b>{t('重置日历')}</b>
-                  <small>{t('查看 24 / 48 小时预测与重置日历')}</small>
-                </span>
-                <span aria-hidden="true">→</span>
-              </button>
-              <section className="connection">
-                <div>
-                  <Icon name="refresh" />
-                  {updated}
+                <div className="overview-sidebar">
+                  <RecentSessions
+                    sessionPath={state.settings.sessionPath}
+                    onSelect={(id) => {
+                      setTokenSession(id);
+                      navigate('tokens');
+                    }}
+                  />
+                  <button className="reset-entry" onClick={() => navigate('resets')}>
+                    <Icon name="clock" />
+                    <span>
+                      <b>{t('重置日历')}</b>
+                      <small>{t('查看 24 / 48 小时预测与重置日历')}</small>
+                    </span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                  <section className="connection">
+                    <div>
+                      <Icon name="refresh" />
+                      {updated}
+                    </div>
+                    <span>{t('每 {0} 分钟自动刷新', [state.settings.interval])}</span>
+                  </section>
                 </div>
-                <span>{t('每 {0} 分钟自动刷新', [state.settings.interval])}</span>
-              </section>
+              </div>
               <footer className="overview-note">
                 <Icon name="shield" />
                 <p>

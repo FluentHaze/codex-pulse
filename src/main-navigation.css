@@ -1,0 +1,42 @@
+.app-toolbar nav.main-navigation {
+  position: relative;
+  isolation: isolate;
+}
+.main-navigation-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  pointer-events: none;
+  z-index: -1;
+}
+.app-toolbar nav.main-navigation > button {
+  position: relative;
+}
+.app-toolbar nav.main-navigation > button.selected,
+.app-toolbar nav.main-navigation > button.selected:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  filter: none;
+}
+.app-toolbar nav.main-navigation > button:not(.selected):hover,
+.app-toolbar nav.main-navigation > button:active {
+  transform: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .main-navigation-indicator.animated {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 220ms ease-out,
+      height 220ms ease-out;
+  }
+  .app-toolbar nav.main-navigation > button .icon {
+    transition: transform 220ms cubic-bezier(0.22, 1.45, 0.36, 1);
+  }
+  .app-toolbar nav.main-navigation > button:active .icon {
+    transform: scale(0.87);
+    transition-duration: 80ms;
+  }
+}

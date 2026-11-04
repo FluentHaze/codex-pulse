@@ -1,3 +1,4 @@
+import { AnimatedValue } from './AnimatedValue';
 /**
  * 额度窗口的显示组件：在已用与剩余视角间转换，并按服务端重置时间计算倒计时。
  */
@@ -68,7 +69,7 @@ export function QuotaRing({
       </svg>
       {!mini && (
         <span className="ring-number">
-          {value === null ? '—' : +value.toFixed(1)}
+          <AnimatedValue value={value === null ? '—' : String(+value.toFixed(1))} />
           {value !== null && <small>%</small>}
           <em>{used ? t('已用') : t('剩余')}</em>
         </span>
@@ -106,7 +107,9 @@ export function Quota({
       </div>
       <div className="quota-visual">
         <div className="quota-amount">
-          <strong>{value === null ? '—' : `${+value.toFixed(1)}%`}</strong>
+          <strong>
+            <AnimatedValue value={value === null ? '—' : `${+value.toFixed(1)}%`} />
+          </strong>
           <span>{used ? t('已用') : t('剩余')}</span>
         </div>
         <QuotaRing quota={quota} used={used} />

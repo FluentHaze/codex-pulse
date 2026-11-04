@@ -82,7 +82,7 @@ export function ResetInsights({
   const median = sorted.length
     ? (sorted[Math.floor((sorted.length - 1) / 2)] + sorted[Math.floor(sorted.length / 2)]) / 2
     : null;
-  const max = Math.max(1, ...sorted);
+  const chartMax = Math.ceil(Math.max(1, ...sorted));
   const posts = (data?.feed?.posts ?? []).filter(
     (post) =>
       filter === 'all' ||
@@ -127,30 +127,58 @@ export function ResetInsights({
                 <strong>{t('{0} 天', [Math.max(...sorted).toFixed(1)])}</strong>
               </div>
             </div>
-            <div className="rhythm-chart" role="list" aria-label={t('已确认重置间隔，单位为天')}>
-              {intervals.map((item) => (
-                <div
-                  className="rhythm-column"
-                  role="listitem"
-                  key={item.at}
-                  aria-label={t('{0}，间隔 {1} 天', [stamp(item.at), item.days.toFixed(1)])}
-                >
-                  <div className="rhythm-track" aria-hidden="true">
-                    <span
-                      className="rhythm-bar"
-                      style={{ height: `${Math.max(2, (item.days / max) * 100)}%` }}
-                    >
-                      <b>{item.days.toFixed(1)}</b>
-                    </span>
+            <div className="rhythm-chart">
+              <div className="rhythm-axis" aria-hidden="true">
+                {[chartMax, chartMax / 2, 0].map((value) => (
+                  <span key={value}>
+                    {t('{0} 天', [
+                      value.toLocaleString(getLanguage(), { maximumFractionDigits: 1 }),
+                    ])}
+                  </span>
+                ))}
+              </div>
+              <div
+                className="rhythm-chart-scroll"
+                tabIndex={0}
+                aria-label={t('已确认重置间隔，单位为天')}
+              >
+                <div className="rhythm-plot" style={{ minWidth: intervals.length * 48 }}>
+                  <div className="rhythm-guides" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
                   </div>
-                  <small>
-                    {new Date(item.at).toLocaleDateString(getLanguage(), {
-                      month: 'numeric',
-                      day: 'numeric',
-                    })}
-                  </small>
+                  <div
+                    className="rhythm-columns"
+                    role="list"
+                    aria-label={t('已确认重置间隔，单位为天')}
+                  >
+                    {intervals.map((item) => (
+                      <div
+                        className="rhythm-column"
+                        role="listitem"
+                        key={item.at}
+                        aria-label={t('{0}，间隔 {1} 天', [stamp(item.at), item.days.toFixed(1)])}
+                      >
+                        <div className="rhythm-track" aria-hidden="true">
+                          <span
+                            className="rhythm-bar"
+                            style={{ height: `${(item.days / chartMax) * 100}%` }}
+                          >
+                            <b>{item.days.toFixed(1)}</b>
+                          </span>
+                        </div>
+                        <small>
+                          {new Date(item.at).toLocaleDateString(getLanguage(), {
+                            month: 'numeric',
+                            day: 'numeric',
+                          })}
+                        </small>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
           </>
         ) : (

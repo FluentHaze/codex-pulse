@@ -1,0 +1,65 @@
+.refresh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.refresh-button .refresh-button-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.refresh-button.refresh-button-icon-only {
+  flex: none;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  gap: 0;
+}
+
+.refresh-button[data-state='success'] .refresh-button-icon {
+  color: var(--positive);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .refresh-button {
+    transition: transform 120ms var(--ease-out);
+  }
+
+  .refresh-button:not(:disabled):active {
+    transform: scale(0.96);
+  }
+
+  .refresh-button[data-state='busy'] .refresh-button-icon {
+    animation: refresh-button-spin 800ms linear infinite;
+  }
+
+  .refresh-button[data-state='success'] .refresh-button-icon {
+    animation: refresh-button-complete 180ms var(--ease-out);
+  }
+}
+
+@keyframes refresh-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes refresh-button-complete {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

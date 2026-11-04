@@ -432,6 +432,7 @@ main {
   grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr);
   gap: 20px;
   margin-top: 20px;
+  align-items: start;
 }
 
 .overview-secondary>.hourly-card {
@@ -2050,8 +2051,9 @@ main {
 
 .page-heading h1,
 .reset-page .page-heading h1 {
-  font-size: 26px;
-  letter-spacing: -0.6px;
+  font-size: 25px;
+  letter-spacing: -0.5px;
+  font-weight: var(--heading-weight);
 }
 
 .page-heading p {
@@ -2124,7 +2126,10 @@ main {
 .hourly-card h2,
 .recent-sessions h2,
 .usage-composition h2 {
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: var(--heading-weight);
+  line-height: 1.5;
+  letter-spacing: -0.15px;
 }
 
 .hourly-total strong {
@@ -2633,7 +2638,7 @@ main {
 .reset-workspace .calendar-blank {
   height: 48px;
   width: 100%;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 6px;
   font-size: 12px;
   align-items: center;
@@ -2657,7 +2662,7 @@ main {
 }
 
 .reset-workspace .calendar-day.chosen {
-  background: var(--surface);
+  background: var(--accent-soft);
   border: 1px solid var(--accent);
   box-shadow: none;
   color: var(--ink);
@@ -3167,8 +3172,8 @@ main {
 }
 
 .settings-sections .setting-row small {
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .settings-sections .settings-secondary {
@@ -3258,7 +3263,7 @@ main {
 
 /* Chat usage: one viewport, two bounded scroll areas, persistent page controls. */
 .page-tokens .token-workspace {
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--line);
   align-items: stretch;
 }
 
@@ -3837,8 +3842,8 @@ main {
   .session-card {
     transition: background-color 160ms ease, border-color 160ms ease, transform 200ms var(--ease-out);
   }
-  .session-card:hover { transform: translateY(-2px); }
-  .session-card:active { transform: translateY(0); }
+  .session-card:hover { border-color: var(--control-border); }
+  .session-card:active { transform: scale(0.995); }
   .token-session-list > button,
   .turn-open { transition: background-color 160ms ease, color 160ms ease; }
   .select-popup { animation: pulse-popover-in 160ms var(--ease-out); transform-origin: top center; }
@@ -3911,61 +3916,6 @@ main {
 .chart-tooltip .tooltip-today-label { color: var(--accent); }
 .chart-tooltip .hourly-change { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); color: var(--ink); }
 
-/* Ambient motion is visible at rest and never changes the represented quantity. */
-@media (prefers-reduced-motion: no-preference) {
-  .quota:not(.muted) .ring-value {
-    animation: pulse-ring-breathe 4s ease-in-out infinite;
-  }
-  .quota-grid > :nth-child(2) .ring-value { animation-delay: -2s; }
-  .forecast-metrics .forecast-meter > i,
-  .peek-progress > i {
-    position: relative;
-    overflow: hidden;
-  }
-  .forecast-metrics .forecast-meter > i::after,
-  .peek-progress > i::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(105deg, transparent 28%, #ffffff65 50%, transparent 72%);
-    transform: translateX(-110%);
-    animation: pulse-meter-flow 3.6s ease-in-out infinite;
-    pointer-events: none;
-  }
-  .forecast-odds:nth-child(3) .forecast-meter > i::after { animation-delay: -1.8s; }
-  .hour-bar.current .hour-stack::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(0deg, transparent 20%, #ffffff60 50%, transparent 80%);
-    transform: translateY(110%);
-    animation: pulse-bar-flow 3.2s ease-in-out infinite;
-    pointer-events: none;
-  }
-  .sidebar-account .connection-dot:not(.offline) {
-    animation: pulse-online-breathe 3s ease-out infinite;
-  }
-}
-@keyframes pulse-ring-breathe {
-  0%, 100% { filter: brightness(1); opacity: 1; }
-  50% { filter: brightness(1.18); opacity: 0.74; }
-}
-@keyframes pulse-meter-flow {
-  0%, 15% { transform: translateX(-110%); opacity: 0; }
-  25% { opacity: 1; }
-  70% { transform: translateX(110%); opacity: 1; }
-  85%, 100% { transform: translateX(110%); opacity: 0; }
-}
-@keyframes pulse-bar-flow {
-  0%, 10% { transform: translateY(110%); opacity: 0; }
-  25% { opacity: 1; }
-  75% { transform: translateY(-110%); opacity: 1; }
-  90%, 100% { transform: translateY(-110%); opacity: 0; }
-}
-@keyframes pulse-online-breathe {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--positive) 40%, transparent); }
-  75%, 100% { box-shadow: 0 0 0 5px transparent; }
-}
 .motion-paused *, .motion-paused *::before, .motion-paused *::after {
   animation-play-state: paused !important;
 }
@@ -4047,4 +3997,490 @@ main {
   .workspace:has(.workspace-update-notice .sidebar-update-notice) #settings-updates {
     scroll-margin-top: 140px;
   }
+}
+
+/* Daily values remain readable when switching from compact to exact counts. */
+.usage-value-actions,
+.copy-usage,
+.turn-drawer-navigation,
+.turn-drawer-navigation > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.usage-value-actions {
+  margin: 12px 0;
+}
+.copy-usage > [role='status'] {
+  color: var(--muted);
+  font-size: 11px;
+}
+.usage-value-actions button,
+.turn-drawer-navigation button {
+  min-height: 32px;
+  font-size: 12px;
+}
+.usage-value-actions button[aria-pressed='true'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.daily-overview > section > strong {
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.turn-drawer-navigation {
+  justify-content: space-between;
+  padding: 12px 24px;
+  flex: none;
+}
+.turn-drawer-header > div {
+  min-width: 0;
+}
+.turn-drawer-header p {
+  overflow-wrap: anywhere;
+}
+.turn-drawer-metrics dd {
+  overflow-wrap: anywhere;
+}
+.dark .turn-drawer-metrics dd {
+  font-weight: 500;
+}
+.overview-secondary .recent-sessions {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-self: start;
+  padding: 18px 16px 10px;
+}
+.overview-secondary .recent-sessions > button {
+  padding: 11px 10px;
+  gap: 5px 10px;
+  border-radius: 8px;
+}
+.overview-secondary .recent-sessions > .recent-all {
+  margin-top: 8px;
+  padding-block: 10px;
+  text-align: left;
+}
+@media (max-width: 600px) {
+  .turn-drawer-navigation {
+    padding-inline: 16px;
+  }
+  .turn-drawer-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+.daily-overview > section > strong small {
+  display: inline-block;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+@media (max-width: 700px) {
+  /* Keep the existing icon-only rail after the shared typography overrides. */
+  .app-toolbar nav button {
+    font-size: 0;
+    gap: 0;
+    justify-content: center;
+  }
+  .app-toolbar nav button .icon {
+    flex-shrink: 0;
+  }
+}
+.overview-secondary .recent-sessions b {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: var(--label-weight);
+  line-height: 1.5;
+}
+.overview-secondary .recent-sessions small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.overview-secondary .recent-sessions time {
+  grid-row: 2;
+}
+
+/* Shared finishing details: a quiet hierarchy and stable, compact controls. */
+.workspace h2 {
+  font-weight: var(--heading-weight);
+  text-wrap: balance;
+}
+.workspace .page-heading p,
+.settings-sections .setting-row small,
+.token-scope p {
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+.workspace .page-heading h1 {
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.workspace :is(.setting-row b, .token-heading-name h2, .session-copy b) {
+  font-weight: var(--label-weight);
+}
+.workspace :is(.daily-overview, .forecast-panel, .usage-composition, .settings-card) {
+  box-shadow: var(--shadow);
+}
+.workspace :is(.chat-filters, .daily-toolbar) {
+  row-gap: 10px;
+}
+.workspace :is(.custom-select, input[type='search']) {
+  border-color: color-mix(in srgb, var(--line) 78%, var(--muted));
+  background: var(--surface);
+}
+.workspace :is(.custom-select, input[type='search']):hover {
+  border-color: var(--control-border);
+}
+.app-toolbar nav button {
+  font-weight: var(--label-weight);
+}
+.overview-secondary .recent-sessions h2 {
+  margin: 0 10px 10px;
+}
+.settings-sections .settings-card h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+.settings-sections .setting-row {
+  padding-block: 15px;
+}
+.turn-drawer-header {
+  padding-block: 18px;
+}
+.turn-drawer-header h2 {
+  font-weight: var(--heading-weight);
+  font-variant-numeric: tabular-nums;
+}
+.turn-drawer-navigation {
+  padding-block: 10px;
+  background: var(--surface);
+}
+.turn-drawer-metrics {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 65%, var(--surface));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .recent-sessions > button {
+    transition: background-color 140ms ease-out, color 140ms ease-out;
+  }
+}
+
+/* One composed row: the chart adapts to useful content in the adjacent column. */
+.overview-secondary {
+  align-items: stretch;
+}
+.overview-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.overview-sidebar > .recent-sessions {
+  width: 100%;
+}
+.page-overview .overview-sidebar > .reset-entry {
+  margin: 0;
+  padding: 16px 18px;
+  width: 100%;
+  text-align: left;
+  border-radius: 16px;
+}
+.overview-sidebar .reset-entry b {
+  font-size: 14px;
+  font-weight: var(--heading-weight);
+}
+.overview-sidebar .reset-entry small {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.overview-sidebar .connection {
+  margin: 0;
+  padding: 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 11px;
+  border: 0;
+}
+.overview-secondary > .usage-chart {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.overview-secondary > .usage-chart .usage-plot-layout {
+  flex: 1;
+  min-height: 206px;
+}
+.overview-secondary > .usage-chart .usage-chart-body {
+  display: flex;
+  flex-direction: column;
+}
+.overview-secondary > .usage-chart .usage-canvas {
+  flex: 1;
+  min-height: 180px;
+  height: auto;
+}
+/* A short list becomes a horizontal companion row rather than a tall empty column. */
+@media (min-width: 961px) {
+  .overview-secondary:has(.recent-sessions[data-session-count]:not([data-session-count='3'])) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .overview-secondary:has(.recent-sessions[data-session-count]:not([data-session-count='3'])) > .usage-chart {
+    grid-column: 1 / -1;
+  }
+  .overview-secondary:has(.recent-sessions[data-session-count]:not([data-session-count='3'])) .overview-sidebar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .overview-secondary:has(.recent-sessions[data-session-count]:not([data-session-count='3'])) .connection {
+    grid-column: 2;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .overview-primary > *,
+  .overview-secondary > *,
+  .daily-overview,
+  .daily-analysis,
+  .settings-category {
+    animation: pulse-content-in 360ms var(--ease-out) both;
+  }
+  .overview-secondary > *, .daily-analysis { animation-delay: 55ms; }
+  .recent-sessions > button:not(.recent-all) {
+    animation: pulse-ink-in 380ms ease-out both;
+  }
+  .recent-sessions > button:nth-of-type(2) { animation-delay: 45ms; }
+  .recent-sessions > button:nth-of-type(3) { animation-delay: 90ms; }
+  .recent-sessions > button:nth-of-type(4) { animation-delay: 135ms; }
+  .recent-sessions > button:nth-of-type(5) { animation-delay: 180ms; }
+  .quota .ring-value { animation: pulse-ring-enter 720ms var(--ease-out); }
+  .usage-line { stroke-dasharray: 1; animation: pulse-line-draw 650ms var(--ease-out) both; }
+  .usage-canvas > svg { animation: pulse-page-in 220ms ease-out; }
+  .session-card[data-running='true'] .session-card-heading::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-running 2.4s ease-in-out infinite;
+  }
+  .recent-sessions > button:not(:disabled):active,
+  .reset-entry:not(:disabled):active { transform: scale(0.99); }
+}
+@keyframes pulse-ink-in {
+  from { opacity: 0; filter: blur(2px); transform: translateY(3px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+@keyframes pulse-ring-enter {
+  from { stroke-dashoffset: 100; }
+}
+@keyframes pulse-line-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pulse-running {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Daily usage: compact tools and one coordinated trend/detail row. */
+.page-today > .page-heading {
+  min-height: 0;
+  margin-bottom: 12px;
+}
+.page-today .daily-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0 0 14px;
+}
+.page-today .daily-toolbar > span:first-child {
+  flex: 1 1 200px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.page-today .daily-toolbar .usage-value-actions {
+  margin: 0;
+  gap: 8px;
+}
+.page-today .daily-toolbar .background-status {
+  order: 3;
+  flex-basis: 100%;
+  margin: 0;
+}
+.page-today .daily-toolbar .background-status:empty,
+.page-today .copy-usage > [role='status']:empty {
+  display: none;
+}
+.page-today .daily-overview {
+  min-height: 0;
+  padding: 20px 24px;
+  gap: 24px;
+}
+.page-today .daily-overview strong,
+.page-today .daily-overview .daily-total strong {
+  font-size: clamp(26px, 3vw, 36px);
+  margin: 8px 0;
+}
+.page-today .daily-overview p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.page-today .daily-analysis {
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  margin: 16px 0 12px;
+}
+.daily-sidebar {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.page-today .usage-composition {
+  padding: 18px 20px;
+}
+.page-today .usage-composition h2 {
+  margin: 0 0 18px;
+}
+.page-today .usage-composition > p {
+  margin: 18px 0 0;
+}
+.page-today .composition-row,
+.page-today .composition-row.subset {
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+  font-size: 12px;
+}
+.page-today .composition-row > div:first-child {
+  align-items: baseline;
+  gap: 8px;
+}
+.page-today .composition-row b {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.page-today .usage-explanation {
+  padding: 10px 16px;
+}
+.page-today .daily-footer {
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  line-height: 1.7;
+}
+.animated-value {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) { z-index: 2; }
+::view-transition-old(root) { z-index: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .animated-value { animation: pulse-number-in 260ms ease-out; }
+  .composition-meter > i { transition: width 320ms var(--ease-out); }
+}
+@keyframes pulse-number-in {
+  from { opacity: 0.45; filter: blur(1px); transform: translateY(2px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+@media (max-width: 960px) {
+  .page-today .daily-analysis { grid-template-columns: minmax(0, 1fr); }
+  .page-today .usage-composition { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
+  .page-today .usage-composition > h2,
+  .page-today .usage-composition > p { grid-column: 1 / -1; margin: 0; }
+  .page-today .composition-row,
+  .page-today .composition-row.subset { margin: 0; }
+}
+@media (max-width: 700px) {
+  .page-today .daily-overview { padding: 16px; gap: 12px; }
+  .page-today .usage-composition { padding: 16px; gap: 16px; }
+}
+.page-today .usage-chart > header p {
+  display: none;
+}
+.page-today .usage-summary {
+  margin: 8px 0 10px;
+}
+.page-today .usage-canvas {
+  height: 220px;
+}
+/* Theme snapshots must not intercept another click during the reveal. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* The trend and the composed sidebar share a row, without an empty stretched ratio card. */
+.page-today .daily-analysis > .usage-chart {
+  display: flex;
+  flex-direction: column;
+}
+.page-today .daily-analysis > .usage-chart .usage-plot-layout {
+  flex: 1;
+  min-height: 206px;
+}
+.page-today .daily-analysis > .usage-chart .usage-chart-body {
+  display: flex;
+  flex-direction: column;
+}
+.page-today .daily-analysis > .usage-chart .usage-canvas {
+  flex: 1;
+  min-height: 180px;
+  height: auto;
+}
+.workspace-bar .toolbar-refresh.refresh-button {
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .logo-mark .brand-icon { animation: pulse-brand-idle 5.6s ease-in-out infinite; }
+  .quota .ring-value {
+    animation: pulse-ring-enter 720ms var(--ease-out), pulse-ring-idle 4.8s ease-in-out 720ms infinite;
+  }
+  .usage-now > span { animation: pulse-now-idle 3.6s ease-in-out infinite; }
+  .sidebar-account .connection-dot:not(.offline) { animation: pulse-connection-idle 3.2s ease-in-out infinite; }
+  .forecast-meter > i { position: relative; overflow: hidden; }
+  .forecast-meter > i::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent, #ffffff45, transparent);
+    transform: translateX(-110%);
+    animation: pulse-forecast-idle 5.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+@keyframes pulse-brand-idle {
+  0%, 100% { transform: translateY(0); filter: drop-shadow(0 2px 4px #007aff10); }
+  50% { transform: translateY(-1.5px); filter: drop-shadow(0 3px 8px #007aff40); }
+}
+@keyframes pulse-ring-idle {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+@keyframes pulse-now-idle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+@keyframes pulse-connection-idle {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 transparent; }
+  50% { opacity: 0.7; box-shadow: 0 0 0 3px color-mix(in srgb, var(--positive) 15%, transparent); }
+}
+@keyframes pulse-forecast-idle {
+  0%, 45% { transform: translateX(-110%); opacity: 0; }
+  55% { opacity: 1; }
+  85%, 100% { transform: translateX(110%); opacity: 0; }
 }
