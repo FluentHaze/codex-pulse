@@ -32,7 +32,7 @@ export function RecentSessions({
   return (
     <section className="recent-sessions">
       <h2>{t('最近的本机聊天')}</h2>
-      {catalog?.sessions.slice(0, 3).map((session) => (
+      {catalog?.sessions.slice(0, 5).map((session) => (
         <button onClick={() => onSelect(session.id)} key={session.id}>
           <b>{session.title}</b>
           <small>{session.projectName || t('未分类')}</small>
