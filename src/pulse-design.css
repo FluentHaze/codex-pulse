@@ -3463,17 +3463,35 @@ main {
   gap: 3px;
   margin-bottom: 3px;
 }
-.page-tokens .token-session-list > button:first-child {
+.page-tokens .token-session-summary {
   position: sticky;
-  top: 0;
+  top: -8px;
   z-index: 2;
-  min-height: 40px;
-  margin: 0 0 8px;
-  border-radius: 8px;
+  margin: -8px -8px 8px;
+  padding: 8px;
   background: var(--surface);
 }
-.page-tokens .token-session-list > button:first-child.active {
+.page-tokens .token-session-summary > button {
+  width: 100%;
+  min-height: 40px;
+  justify-content: flex-start;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+}
+.page-tokens .token-session-summary > button:not(.active):hover {
+  border-color: transparent;
+  background: var(--hover);
+}
+.page-tokens .token-session-summary > button.active {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
   background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 3px 0 var(--accent);
 }
 .token-detail-heading {
   display: flex;

@@ -373,13 +373,15 @@ export const TokenDetails = memo(function TokenDetails({
       </div>
       <div className="token-workspace">
         <aside className="token-session-list" aria-label={t('选择聊天')}>
-          <button
-            className={!selected ? 'active' : ''}
-            aria-pressed={!selected}
-            onClick={() => setSelected('')}
-          >
-            {t('全部匹配聊天的总用量')}
-          </button>
+          <div className="token-session-summary">
+            <button
+              className={!selected ? 'active' : ''}
+              aria-pressed={!selected}
+              onClick={() => setSelected('')}
+            >
+              {t('全部匹配聊天的总用量')}
+            </button>
+          </div>
           {visibleSessions.slice(0, visibleCount).map((session) => (
             <button
               className={
@@ -415,7 +417,9 @@ export const TokenDetails = memo(function TokenDetails({
           {busy && (selected ? !detail : !scope) && (
             <div className="token-content-loading" role="status">
               <span className="token-loading-line" />
-              <span>{selected ? t('正在读取轮次…') : t('正在汇总项目用量…')}</span>
+              <span className="sr-only">
+                {selected ? t('正在读取轮次…') : t('正在汇总项目用量…')}
+              </span>
               <div className="token-skeleton" aria-hidden="true">
                 <i />
                 <i />
@@ -433,11 +437,11 @@ export const TokenDetails = memo(function TokenDetails({
                   {visibleSessions.find((session) => session.id === selected)?.title ||
                     t('匹配聊天总用量')}
                 </h2>
-                <span>
-                  {detail
-                    ? t('{0} 轮对话，{1} 轮有统计', [detail.turns.length, totals?.count ?? 0])
-                    : t('正在读取轮次…')}
-                </span>
+                {detail && (
+                  <span>
+                    {t('{0} 轮对话，{1} 轮有统计', [detail.turns.length, totals?.count ?? 0])}
+                  </span>
+                )}
               </div>
               {selected && (
                 <strong
@@ -579,9 +583,11 @@ export const TokenDetails = memo(function TokenDetails({
                     </thead>
                     <tbody>
                       {!detail ? (
-                        <tr>
-                          <td colSpan={4}>{error ? t('未能读取统计') : t('正在加载统计…')}</td>
-                        </tr>
+                        error ? (
+                          <tr>
+                            <td colSpan={4}>{t('未能读取统计')}</td>
+                          </tr>
+                        ) : null
                       ) : !detail.turns.length ? (
                         <tr>
                           <td colSpan={4}>{t('这条聊天尚无可识别的轮次记录')}</td>
