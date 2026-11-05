@@ -930,6 +930,8 @@ select {
   }
 }
 .refreshing {
+  transform-box: view-box;
+  transform-origin: center;
   animation: rotate 1s linear infinite;
 }
 @media (min-width: 1200px) {

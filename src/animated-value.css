@@ -1,4 +1,28 @@
 /* The modifier overrides the older shared animation independently of import order. */
+.animated-value.animated-value-rolling {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 1;
+  animation: none;
+}
+.rolling-digit {
+  display: inline-block;
+  overflow: hidden;
+  width: 1ch;
+  height: 1em;
+}
+.rolling-digit-strip {
+  display: block;
+}
+.rolling-digit-strip > span {
+  display: block;
+  height: 1em;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rolling-digit-strip {
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
 .animated-value.animated-value-update {
   display: inline-block;
   font-variant-numeric: tabular-nums;

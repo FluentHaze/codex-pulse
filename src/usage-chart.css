@@ -25,6 +25,19 @@
 .usage-chart-actions {
   gap: 10px;
 }
+.usage-chart .usage-chart-actions > button {
+  align-self: center;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.usage-chart-actions > button .icon {
+  width: 16px;
+  height: 16px;
+}
 .usage-chart .usage-periods {
   padding: 3px;
   border: 1px solid var(--line);

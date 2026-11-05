@@ -1,6 +1,7 @@
 import { ScrollIndicator } from './ScrollIndicator';
 import { SettingsNavigation } from './SettingsNavigation';
 import { Select } from './Select';
+import { RefreshIcon } from './RefreshIcon';
 /**
  * 桌面详情页入口：消费 preload 状态并组织导航、偏好设置和各业务页面。
  * CSS 按基础布局、功能组件、主题覆盖的顺序加载，调整导入顺序会影响最终样式。
@@ -94,7 +95,8 @@ type IconName =
   | 'chart'
   | 'document';
 function Icon({ name, className = '' }: { name: IconName; className?: string }) {
-  const paths: Record<IconName, React.ReactNode> = {
+  if (name === 'refresh') return <RefreshIcon className={className} />;
+  const paths: Record<Exclude<IconName, 'refresh'>, React.ReactNode> = {
     search: (
       <>
         <circle cx="10.5" cy="10.5" r="6.5" />
@@ -146,11 +148,6 @@ function Icon({ name, className = '' }: { name: IconName; className?: string }) 
         <path d="M4 7h16M4 17h16" />
         <circle cx="9" cy="7" r="3" />
         <circle cx="16" cy="17" r="3" />
-      </>
-    ),
-    refresh: (
-      <>
-        <path d="M20 8a8 8 0 1 0 .2 7M20 3v5h-5" />
       </>
     ),
     clock: (
@@ -385,7 +382,9 @@ function App() {
         : t('本轮');
   const liveText =
     liveCount == null
-      ? '—'
+      ? live?.status === 'collecting' && live.turnId
+        ? '0'
+        : '—'
       : liveCount >= 1000000
         ? `${+(liveCount / 1000000).toFixed(1)}M`
         : liveCount >= 1000
@@ -838,7 +837,7 @@ function App() {
                   <span className="session-card-heading">{liveLabel} Token</span>
                   <span className="session-count">
                     <strong>
-                      <AnimatedValue value={liveText} rawValue={liveCount} />
+                      <AnimatedValue value={liveText} rawValue={liveCount} rolling />
                     </strong>
                     <small>{liveLabel} Token</small>
                   </span>

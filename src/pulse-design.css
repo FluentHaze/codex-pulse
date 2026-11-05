@@ -4442,7 +4442,7 @@ main {
   height: auto;
 }
 .workspace-bar .toolbar-refresh.refresh-button {
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--line);
   background: var(--surface);
 }
 @media (prefers-reduced-motion: no-preference) {

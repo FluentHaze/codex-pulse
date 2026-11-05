@@ -5,6 +5,7 @@ import { useLanguage } from './use-language';
 import { t, getLanguage } from '../electron/i18n';
 import { useRef, useEffect } from 'react';
 import { BrandIcon } from './BrandIcon';
+import { AnimatedValue } from './AnimatedValue';
 import { quotaWindows, remaining, type State } from '../electron/types';
 import { QuotaRing, duration, resetText } from './Quota';
 export function Floating({
@@ -62,7 +63,9 @@ export function Floating({
   const total = state.live?.tokens?.total;
   const short =
     total == null
-      ? '—'
+      ? state.live?.status === 'collecting' && state.live.turnId
+        ? '0'
+        : '—'
       : total >= 1e6
         ? `${+(total / 1e6).toFixed(1)}M`
         : total >= 1000
@@ -160,7 +163,9 @@ export function Floating({
                 t('等待本机聊天记录')}
             </b>
           </span>
-          <strong>{short}</strong>
+          <strong>
+            <AnimatedValue value={short} rawValue={total} rolling />
+          </strong>
         </button>
         <footer>
           <span>
@@ -288,7 +293,7 @@ export function Floating({
         aria-label={t('本轮 {0} Token，打开明细', [total?.toLocaleString() ?? t('暂无')])}
         onClick={() => action('tokens')}
       >
-        {short}
+        <AnimatedValue value={short} rawValue={total} rolling />
       </button>
     </div>
   );

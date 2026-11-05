@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { t } from '../electron/i18n';
+import { RefreshIcon } from './RefreshIcon';
 import './refresh-button.css';
 
 export function RefreshButton({
@@ -65,7 +66,7 @@ export function RefreshButton({
       }}
     >
       <span className="refresh-button-icon" aria-hidden="true">
-        {completed && !busy ? '✓' : '↻'}
+        {completed && !busy ? '✓' : <RefreshIcon />}
       </span>
       {!iconOnly && <span>{label}</span>}
     </button>

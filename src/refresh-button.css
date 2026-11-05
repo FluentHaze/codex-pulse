@@ -25,6 +25,11 @@
   gap: 0;
 }
 
+.refresh-button-icon > .icon {
+  width: 16px;
+  height: 16px;
+}
+
 .refresh-button[data-state='success'] .refresh-button-icon {
   color: var(--positive);
 }
