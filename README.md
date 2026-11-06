@@ -2,7 +2,11 @@
 
 **简体中文** · [繁體中文](docs/README.zh-TW.md) · [English](docs/README.en.md) · [日本語](docs/README.ja.md) · [한국어](docs/README.ko.md)
 
-轻巧的 macOS / Windows Codex 额度与 Token 用量监控软件。在菜单栏或桌面悬浮窗看额度，在详情窗口查看用量和重置时间。
+Codex Pulse 是一款适用于 macOS 和 Windows 的 Codex 桌面监控工具，提供额度监控、Token 用量统计、重置时间查看与提醒，以及本地聊天用量查询。
+
+Codex Pulse is a macOS and Windows desktop app for Codex quota monitoring, token usage tracking, reset alerts, and local chat usage.
+
+在 Mac 菜单栏或 Windows 桌面悬浮窗查看额度，在详情窗口查看用量和重置时间。
 
 [官网](https://fluenthaze.github.io/codex-pulse/) · [下载最新版](https://github.com/FluentHaze/codex-pulse/releases/latest) · [使用指南](docs/usage.zh-CN.md) · [反馈问题](https://github.com/FluentHaze/codex-pulse/issues)
 

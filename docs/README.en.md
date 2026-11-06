@@ -2,7 +2,7 @@
 
 [简体中文](../README.md) · [繁體中文](README.zh-TW.md) · **English** · [日本語](README.ja.md) · [한국어](README.ko.md)
 
-A lightweight Codex limits and token usage monitor for macOS and Windows.
+Codex Pulse is a macOS and Windows desktop app for Codex quota monitoring, token usage tracking, reset alerts, and local chat usage.
 
 [Website](https://fluenthaze.github.io/codex-pulse/en/) · [Download latest](https://github.com/FluentHaze/codex-pulse/releases/latest) · [Report an issue](https://github.com/FluentHaze/codex-pulse/issues)
 
