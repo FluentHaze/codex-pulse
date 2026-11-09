@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { UpdateState } from '../electron/types';
 import { t } from '../electron/i18n';
+import { hasUpdateNotice } from './update-notice';
 
 export function AppUpdate({
   compact = false,
@@ -74,8 +75,7 @@ export function AppUpdate({
                     : '发现新版后自动后台下载，点击重启更新';
   if (notice) {
     const failed = error || status === 'error';
-    if (!failed && !['available', 'downloading', 'downloaded', 'installing'].includes(status ?? ''))
-      return null;
+    if (!hasUpdateNotice(state)) return null;
     const title = failed
       ? t('更新失败，点击重试')
       : status === 'downloaded'
@@ -118,8 +118,7 @@ export function AppUpdate({
     );
   }
   if (compact) {
-    const attention =
-      error || ['available', 'downloading', 'downloaded', 'error'].includes(status ?? '');
+    const attention = hasUpdateNotice(state);
     const label = error ? t('更新失败，点击重试') : t(message);
     return (
       <button

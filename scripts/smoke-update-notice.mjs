@@ -50,16 +50,23 @@ try {
     );
   };
   const notice = page.locator('.sidebar-update-notice:visible');
-  for (const status of ['idle', 'checking', 'latest', 'manual']) {
+  for (const status of ['idle', 'checking', 'latest', 'manual', 'error']) {
     await send(status);
     await page.waitForFunction(() => !document.querySelector('.sidebar-update-notice'));
+    assert.equal(await page.locator('.sidebar-version .update-dot').count(), 0);
   }
+  assert.equal(await page.locator('.toolbar-refresh .refresh-button-icon > svg').count(), 1);
+  assert.equal(await page.locator('.toolbar-refresh .refresh-button-icon').textContent(), '');
   await send('available', { version: '0.1.37' });
   await notice.getByText('发现新版本', { exact: true }).waitFor();
   assert.ok((await notice.innerText()).includes('v0.1.37'));
   assert.ok((await page.locator('.sidebar-version').innerText()).includes('v0.1.36'));
   await notice.getByRole('button', { name: '查看更新' }).click();
   await page.locator('.app-update').waitFor();
+  await send('error');
+  await page.waitForFunction(() => !document.querySelector('.sidebar-update-notice'));
+  await page.locator('.app-update [role="alert"]').waitFor();
+  assert.equal(await page.locator('.sidebar-version .update-dot').count(), 0);
   await send('downloading', { version: '0.1.37', percent: 42.8 });
   await notice.getByText(/42%/).waitFor();
   assert.equal(await notice.locator('progress').getAttribute('value'), '42.8');

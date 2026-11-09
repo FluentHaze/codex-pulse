@@ -474,17 +474,28 @@ try {
     );
   await sendLive(1500001);
   await page.waitForFunction(
-    () => document.querySelector('.session-count .animated-value')?.textContent === '1.5M',
+    () =>
+      document.querySelector('.session-count .animated-value')?.getAttribute('aria-label') ===
+      '1.5M',
   );
   const previousNumber = await page.locator('.session-count .animated-value').elementHandle();
   await sendLive(1500101);
-  await page.waitForFunction((element) => !element.isConnected, previousNumber);
-  assert.equal(await page.locator('.session-count .animated-value').textContent(), '1.5M');
-  assert.match(
+  assert.equal(
+    await page.locator('.session-count .animated-value').getAttribute('aria-label'),
+    '1.5M',
+  );
+  assert.ok(await previousNumber.evaluate((element) => element.isConnected));
+  await sendLive(1600001);
+  await page.waitForFunction(
+    () =>
+      document.querySelector('.session-count .animated-value')?.getAttribute('aria-label') ===
+      '1.6M',
+  );
+  assert.deepEqual(
     await page
-      .locator('.session-count .animated-value')
-      .evaluate((el) => getComputedStyle(el).animationName),
-    /pulse-value-update/,
+      .locator('.session-count .rolling-digit-strip')
+      .evaluateAll((elements) => elements.map((el) => el.style.transform)),
+    ['translateY(-10%)', 'translateY(-60%)'],
   );
   const border = await page
     .locator('.toolbar-refresh')
