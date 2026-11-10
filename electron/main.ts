@@ -502,6 +502,20 @@ function createWindow(kind: 'float' | 'details' | 'peek', tab = 'overview') {
   if (kind === 'float') {
     floating = win;
     applyWindow();
+    // 悬浮窗关闭时驻留托盘；真正退出应用时才允许销毁。
+    win.on('close', (event) => {
+      if (quitting) return;
+      event.preventDefault();
+      win.hide();
+    });
+    win.on('closed', () => {
+      floating = undefined;
+      drag = undefined;
+      resizeAnchor = undefined;
+    });
+    win.on('hide', () => {
+      if (peekSource === 'float') hidePeek();
+    });
     win.on('moved', () => {
       if (!floating || resizing) return;
       clampWindow();
@@ -514,6 +528,10 @@ function createWindow(kind: 'float' | 'details' | 'peek', tab = 'overview') {
     });
   } else if (kind === 'peek') {
     peekWindow = win;
+    win.on('closed', () => {
+      peekWindow = undefined;
+      peekReady = false;
+    });
     win.once('ready-to-show', () => {
       peekReady = true;
     });
@@ -897,9 +915,6 @@ else {
         if (event.sender === peekWindow?.webContents && peekSource === 'tray') showTrayPeek();
         else showPeek();
       } else peekTimer = setTimeout(hidePeek, 300);
-    });
-    floating?.on('hide', () => {
-      if (peekSource === 'float') hidePeek();
     });
     ipcMain.handle('peek-size', (event, height: unknown) => {
       if (
