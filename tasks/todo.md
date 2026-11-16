@@ -313,9 +313,9 @@
 
 用户已明确授权提交、推送源码和标签并发布。
 - [x] 保护工作区并通过 HTTPS 拉取最新 main
-- [ ] 测试、构建并准备 v0.1.41 说明
-- [ ] 打包双平台并校验产物
-- [ ] 提交推送及发布，核对远端 latest 与附件
+- [x] 测试、构建并准备 v0.1.41 说明
+- [x] 打包双平台并校验产物
+- [x] 提交推送及发布，核对远端 latest 与附件
 
 ## Review
 
@@ -323,3 +323,6 @@
 - Windows x64 安装版/便携版与 macOS 双架构 DMG/ZIP 构建成功；三套 app.asar 的版本及 dist/dist-electron 内容逐字节核验一致，两平台更新清单 SHA-512/大小核验通过，Mac 本地签名检查通过。
 - 官方附件域名解析异常，使用已有官方 Electron 缓存完成构建；未更改项目下载配置。
 - Mac 未 Apple 公证，未进行 Windows 实机安装及真实跨版本升级端到端验证；已在发布说明披露。
+
+- 正式发布：https://github.com/FluentHaze/codex-pulse/releases/tag/v0.1.41 ，API 确认 latest；14 个远端附件大小和 SHA-256 均与本地一致。main 与 v0.1.41 标签核对为 `97c608d7176ba4119c34c6bb60b996e3b9ebb719`。ZIP 完整性及 DMG CRC 校验通过。
+- 额外聊天冒烟未完整通过：脚本仍查询当前导航已移除的 `.main-navigation-indicator`，在该旧断言处失败；不计为通过，未改产品代码绕过。
