@@ -53,6 +53,10 @@ Charts default to Hour. The overview offers Minute, Hour and Day; Today’s usag
 
 Today’s usage lets you switch between exact and compact numbers and copy complete totals. The message drawer supports previous/next turns and copying per-turn usage. Recent conversations and the conversation list refresh every 30 seconds while visible and when shown again. The reset rhythm chart shows up to eight confirmed intervals with day counts, dates and reference ticks. Layouts adapt to the window width, and animations respect the system’s reduced-motion setting.
 
+## Interaction and display
+
+Use Tab / Shift+Tab to move between controls with a visible blue focus outline. Chat filters are retained per session directory while switching pages in the same window; opening a specific chat from the overview clears filters to reveal it. Quota results older than two refresh intervals are marked as out of date, and the floating card identifies tracking mode and interrupted turns. Preferences → Codex connection shows connection details and a retry action. All platforms use bundled Noto fonts. Opacity changes apply immediately with one save notification when the interaction ends.
+
 ## Update the app
 
 A persistent update card above the account area shows the new version and download progress, with View update or Restart and install actions. In narrow windows it stays at the top of the content area.

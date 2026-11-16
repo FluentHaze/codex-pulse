@@ -1,4 +1,21 @@
 export const interfaceMessages: Record<string, readonly string[]> = {
+  自动跟随: ['Auto-follow', '自動跟隨', '自動追跡', '자동 추적'],
+  连接状态: ['Connection status', '連線狀態', '接続状態', '연결 상태'],
+  连接异常: ['Connection error', '連線異常', '接続エラー', '연결 오류'],
+  最近成功更新: ['Last successful update', '最近成功更新', '最終更新成功', '마지막 업데이트 성공'],
+  重试连接: ['Retry connection', '重試連線', '接続を再試行', '연결 재시도'],
+  '数据过期，显示上次额度，等待刷新': [
+    'Quota data is out of date; showing the last result until refreshed',
+    '資料過期，顯示上次額度，等待重新整理',
+    'データが古いため、更新されるまで前回の利用枠を表示しています',
+    '데이터가 오래되어 새로 고침할 때까지 이전 한도를 표시합니다',
+  ],
+  '显示上次额度，打开详情检查连接': [
+    'Showing the last quota result; open details to check the connection',
+    '顯示上次額度，開啟詳情檢查連線',
+    '前回の利用枠を表示中。詳細を開いて接続を確認してください',
+    '이전 한도 표시 중. 세부 정보를 열어 연결을 확인하세요',
+  ],
   刷新完成: ['Refresh complete', '重新整理完成', '更新しました', '새로 고침 완료'],
   复制用量: ['Copy usage', '複製用量', '使用量をコピー', '사용량 복사'],
   已复制: ['Copied', '已複製', 'コピーしました', '복사됨'],

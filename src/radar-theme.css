@@ -1,8 +1,7 @@
 /* 最终主题覆盖层，需在基础样式后加载；末尾维护侧栏元信息与窄窗口适配。 */
 /* Apple-inspired desktop materials; shared by detail and floating windows. */
 :root {
-  --font:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
+  --font: 'Noto Sans SC', 'Noto Sans KR';
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 .light {

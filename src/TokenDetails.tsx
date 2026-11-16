@@ -41,6 +41,12 @@ const messagePreview = (text: string | undefined) =>
     .trim() || t('用户消息未记录');
 
 const catalogs = new Map<string, TokenCatalog>();
+export interface SessionFilters {
+  query: string;
+  project: string;
+  period: DateFilter;
+}
+const defaultFilters: SessionFilters = { query: '', project: '*', period: 'all' };
 const details = new Map<string, TokenSession>();
 const scopes = new Map<string, DailyStats>();
 const remember = <T,>(map: Map<string, T>, key: string, value: T) => {
@@ -52,11 +58,15 @@ export const TokenDetails = memo(function TokenDetails({
   watchedSessionId,
   initialSessionId = '',
   account = '',
+  filters = defaultFilters,
+  onFiltersChange,
 }: {
   sessionPath: string;
   watchedSessionId: string;
   initialSessionId?: string;
   account?: string;
+  filters?: SessionFilters;
+  onFiltersChange(filters: SessionFilters): void;
 }) {
   const language = useLanguage();
   const statusNames = {
@@ -73,7 +83,7 @@ export const TokenDetails = memo(function TokenDetails({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [reload, setReload] = useState(0);
-  const [query, setQuery] = useState('');
+  const { query, project, period } = filters;
   const [visibleCount, setVisibleCount] = useState(100);
   const [turnPage, setTurnPage] = useState(0);
   const [openedTurn, setOpenedTurn] = useState<string | null>(null);
@@ -84,8 +94,6 @@ export const TokenDetails = memo(function TokenDetails({
     setTurnPage(0);
     setOpenedTurn(null);
   }, [selected, sessionPath]);
-  const [project, setProject] = useState('*');
-  const [period, setPeriod] = useState<DateFilter>('all');
   const [filterNow, setFilterNow] = useState(Date.now());
   const visibleSessions = useMemo(
     () => filterSessions(catalog?.sessions ?? [], query, project, period, new Date(filterNow)),
@@ -122,9 +130,7 @@ export const TokenDetails = memo(function TokenDetails({
       );
   }, [catalog, visibleSessions]);
   const clearFilters = () => {
-    setQuery('');
-    setProject('*');
-    setPeriod('all');
+    onFiltersChange(defaultFilters);
   };
   const detail =
     storedDetail?.id === selected && visibleSessions.some((session) => session.id === selected)
@@ -189,7 +195,6 @@ export const TokenDetails = memo(function TokenDetails({
     selectLatest.current = !initialSessionId;
     setSelected(initialSessionId);
     setDetail(undefined);
-    setProject('*');
     void loadCatalog(false);
     const readVisible = () => {
       if (document.visibilityState === 'visible') void loadCatalog(false, true);
@@ -344,7 +349,7 @@ export const TokenDetails = memo(function TokenDetails({
             placeholder={t('搜索标题或项目路径')}
             maxLength={100}
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => onFiltersChange({ ...filters, query: event.target.value })}
           />
         </label>
         <label>
@@ -353,7 +358,7 @@ export const TokenDetails = memo(function TokenDetails({
             aria-label={t('筛选项目')}
             value={project}
             onValueChange={(value) => {
-              setProject(value);
+              onFiltersChange({ ...filters, project: value });
               setSelected('');
             }}
           >
@@ -370,7 +375,7 @@ export const TokenDetails = memo(function TokenDetails({
           <Select
             aria-label={t('筛选更新时间')}
             value={period}
-            onValueChange={(value) => setPeriod(value as DateFilter)}
+            onValueChange={(value) => onFiltersChange({ ...filters, period: value as DateFilter })}
           >
             <option value="all">{t('全部时间')}</option>
             <option value="today">{t('今天')}</option>

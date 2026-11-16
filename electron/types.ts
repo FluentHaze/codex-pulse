@@ -58,6 +58,10 @@ export interface State {
   executable: string | null;
   live: LiveTokens | null;
 }
+/** 额度超过两个刷新周期未成功更新时，保留旧数值并标记过期。 */
+export function quotaIsStale(state: Pick<State, 'updatedAt' | 'settings'>, now: number) {
+  return state.updatedAt !== null && now - state.updatedAt > state.settings.interval * 120_000;
+}
 export const defaults: Settings = {
   language: 'system',
   menuBarDisplay: 'remaining',

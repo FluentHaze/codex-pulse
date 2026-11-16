@@ -1,14 +1,22 @@
 /* 已确认的 Apple 风格：共同材质、紧凑导航和页面层级。 */
 @font-face {
   font-family: 'Noto Sans SC';
-  src: url('./assets/fonts/NotoSansSC-Variable.ttf') format('truetype');
+  src: url('./assets/fonts/NotoSansSC-Variable.woff2') format('woff2');
   font-style: normal;
   font-weight: 100 900;
-  font-display: swap;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  src: url('./assets/fonts/NotoSansKR-Supplement.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
 }
 
 :root {
-  --font: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Noto Sans SC', 'Segoe UI', sans-serif;
+  --font: 'Noto Sans SC', 'Noto Sans KR';
   --warning-fill: #ff9f0a;
   --positive-fill: #30b85b;
   --output: #8ec5ff;

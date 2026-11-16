@@ -17,6 +17,7 @@ import { RefreshButton } from './RefreshButton';
 import { createRoot } from 'react-dom/client';
 import {
   quotaWindows,
+  quotaIsStale,
   type State,
   type Settings,
   type TokenCatalog,
@@ -32,7 +33,7 @@ import { DesktopChrome } from './DesktopChrome';
 import { BrandIcon } from './BrandIcon';
 import { ResetTracker } from './ResetTracker';
 import type { ResetData } from '../electron/reset-data';
-import { TokenDetails } from './TokenDetails';
+import { TokenDetails, type SessionFilters } from './TokenDetails';
 import { RecentSessions } from './RecentSessions';
 import { TodayUsage } from './TodayUsage';
 import './shell.css';
@@ -47,6 +48,7 @@ import './commands.css';
 import './radar-theme.css';
 import './localization.css';
 import './pulse-design.css';
+import './release-polish.css';
 interface Bridge {
   platform: string;
   getUpdate(): Promise<UpdateState>;
@@ -211,6 +213,10 @@ function App() {
   const [now, setNow] = useState(Date.now());
   const [tab, setTab] = useState('overview');
   const [tokenSession, setTokenSession] = useState('');
+  const [sessionFilters, setSessionFilters] = useState<Record<string, SessionFilters | undefined>>(
+    {},
+  );
+  const opacitySave = useRef<Promise<boolean> | undefined>(undefined);
   // 展示正在运行的版本，而非下载目标版本；只有重启到新应用后版本号才改变。
   const [appVersion, setAppVersion] = useState<string>();
   useEffect(() => {
@@ -244,22 +250,14 @@ function App() {
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
-    const disableTabNavigation = (event: KeyboardEvent) => {
-      if (event.key !== 'Tab') return;
-      if (event.target instanceof Element && event.target.closest('.token-message-drawer')) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    };
     const shortcut = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         setCommandOpen((value) => !value);
       }
     };
-    window.addEventListener('keydown', disableTabNavigation, true);
     window.addEventListener('keydown', shortcut);
     return () => {
-      window.removeEventListener('keydown', disableTabNavigation, true);
       window.removeEventListener('keydown', shortcut);
     };
   }, []);
@@ -352,15 +350,27 @@ function App() {
     void work?.catch(() => setLocalError('操作失败，请重试'));
   };
   const action = (name: string) => run(api?.action(name));
-  const setting = (patch: Partial<Settings>) => {
-    if (!api) return;
-    void api
+  const setting = (patch: Partial<Settings>, notify = true) => {
+    if (!api) return Promise.resolve(false);
+    return api
       .settings(patch)
       .then(() => {
         setLocalError('');
-        setToast({ id: Date.now(), text: patch.theme ? '已更新外观偏好' : '设置已自动保存' });
+        if (notify)
+          setToast({ id: Date.now(), text: patch.theme ? '已更新外观偏好' : '设置已自动保存' });
+        return true;
       })
-      .catch(() => setLocalError('设置保存失败，请重试'));
+      .catch(() => {
+        setLocalError('设置保存失败，请重试');
+        return false;
+      });
+  };
+  const finishOpacity = () => {
+    const pending = opacitySave.current;
+    opacitySave.current = undefined;
+    void pending?.then((saved) => {
+      if (saved) setToast({ id: Date.now(), text: '设置已自动保存' });
+    });
   };
   if (!api)
     return (
@@ -401,7 +411,7 @@ function App() {
     live?.tokens?.output?.toLocaleString() ?? '—',
     (live?.error ? t(live.error) : null) ?? t('随本地用量事件更新，不按当前登录账号筛选'),
   ]);
-  const stale = !!state.updatedAt && now - state.updatedAt > state.settings.interval * 120000;
+  const stale = quotaIsStale(state, now);
   const status = stale ? t('数据过期') : state.refreshing ? t('正在刷新') : state.status;
   const age = state.updatedAt ? now - state.updatedAt : null;
   const updated =
@@ -417,6 +427,24 @@ function App() {
   const navigate = (next: string) => {
     setTab(next);
     requestAnimationFrame(() => document.querySelector<HTMLHeadingElement>('main h1')?.focus());
+  };
+  const openSession = (id: string) => {
+    setTokenSession(id);
+    // 显式打开聊天时解除旧筛选，避免目标被隐藏。
+    if (id)
+      setSessionFilters((previous) => ({
+        ...previous,
+        [state.settings.sessionPath]: { query: '', project: '*', period: 'all' },
+      }));
+    navigate('tokens');
+  };
+  const openConnection = () => {
+    navigate('settings');
+    requestAnimationFrame(() => {
+      const section = document.getElementById('settings-connection');
+      section?.scrollIntoView({ block: 'start' });
+      section?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
+    });
   };
   const openUpdates = () => {
     navigate('settings');
@@ -765,10 +793,22 @@ function App() {
               </p>
             </div>
           </div>
+          {stale && (
+            <div className="quota-stale-notice" role="status">
+              <span>{t('数据过期，显示上次额度，等待刷新')}</span>
+              <RefreshButton
+                busy={state.refreshing}
+                error={state.error ?? undefined}
+                updatedAt={state.updatedAt ?? undefined}
+                label={t('立即刷新')}
+                onClick={() => run(api.refresh())}
+              />
+            </div>
+          )}
           {(state.error || localError) && (
             <div role="alert" className="alert">
               <span>{t(localError || state.error || '')}</span>
-              {state.error && <button onClick={() => setTab('settings')}>{t('检查连接')}</button>}
+              {state.error && <button onClick={openConnection}>{t('检查连接')}</button>}
               {localError && (
                 <button aria-label={t('关闭操作提示')} onClick={() => setLocalError('')}>
                   {t('关闭')}
@@ -821,7 +861,7 @@ function App() {
                           t('连接已登录的 Codex，即可查看你的额度。')}
                       </p>
                       <button onClick={() => action('login')}>{t('登录 Codex')}</button>
-                      <button onClick={() => setTab('settings')}>{t('检查路径设置')}</button>
+                      <button onClick={openConnection}>{t('检查路径设置')}</button>
                     </section>
                   )}
                 </div>
@@ -829,7 +869,7 @@ function App() {
                   className="session-card"
                   data-running={live?.status === 'collecting'}
                   title={liveTitle}
-                  onClick={() => setTab('tokens')}
+                  onClick={() => openSession(live?.sessionId ?? '')}
                 >
                   <span className="session-icon">
                     <Icon name="pulse" />
@@ -865,13 +905,7 @@ function App() {
               <div className="overview-secondary">
                 <HourlyUsage sessionPath={state.settings.sessionPath} />
                 <div className="overview-sidebar">
-                  <RecentSessions
-                    sessionPath={state.settings.sessionPath}
-                    onSelect={(id) => {
-                      setTokenSession(id);
-                      navigate('tokens');
-                    }}
-                  />
+                  <RecentSessions sessionPath={state.settings.sessionPath} onSelect={openSession} />
                   <button className="reset-entry" onClick={() => navigate('resets')}>
                     <Icon name="clock" />
                     <span>
@@ -912,6 +946,13 @@ function App() {
               sessionPath={state.settings.sessionPath}
               watchedSessionId={state.settings.watchedSessionId}
               initialSessionId={tokenSession}
+              filters={sessionFilters[state.settings.sessionPath]}
+              onFiltersChange={(filters) =>
+                setSessionFilters((previous) => ({
+                  ...previous,
+                  [state.settings.sessionPath]: filters,
+                }))
+              }
             />
           ) : (
             <div className="settings-layout">
@@ -981,7 +1022,13 @@ function App() {
                       max="1"
                       step="0.05"
                       value={state.settings.opacity}
-                      onChange={(e) => setting({ opacity: Number(e.target.value) })}
+                      onChange={(e) => {
+                        opacitySave.current = setting({ opacity: Number(e.target.value) }, false);
+                      }}
+                      onPointerUp={finishOpacity}
+                      onPointerCancel={finishOpacity}
+                      onKeyUp={finishOpacity}
+                      onBlur={finishOpacity}
                     />
                   </label>
                 </section>
@@ -1054,12 +1101,44 @@ function App() {
                   className="settings-card settings-category settings-secondary"
                 >
                   <h2>{t('Codex 连接')}</h2>
+                  <dl className="connection-diagnostics">
+                    <div>
+                      <dt>{t('连接状态')}</dt>
+                      <dd
+                        className={
+                          state.error ? 'connection-problem' : stale ? 'connection-stale' : ''
+                        }
+                      >
+                        {state.error ? t('连接异常') : status}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{t('当前账号')}</dt>
+                      <dd>{state.account ?? t('尚未连接')}</dd>
+                    </div>
+                    <div>
+                      <dt>{t('最近成功更新')}</dt>
+                      <dd>
+                        {state.updatedAt
+                          ? new Date(state.updatedAt).toLocaleString(getLanguage())
+                          : t('尚未成功更新')}
+                      </dd>
+                    </div>
+                  </dl>
+                  {state.error && <p className="connection-error">{t(state.error)}</p>}
                   <p className="path">
                     {state.settings.codexPath ||
                       state.executable ||
                       t('自动检测本机 Codex 可执行文件')}
                   </p>
                   <div className="actions">
+                    <RefreshButton
+                      busy={state.refreshing}
+                      error={state.error ?? undefined}
+                      updatedAt={state.updatedAt ?? undefined}
+                      label={t('重试连接')}
+                      onClick={() => run(api.refresh())}
+                    />
                     <button onClick={() => action('choose')}>{t('选择 Codex 可执行文件')}</button>
                     <button onClick={() => setting({ codexPath: '' })}>{t('恢复自动检测')}</button>
                     <button onClick={() => action('login')}>{t('登录账号 ↗')}</button>

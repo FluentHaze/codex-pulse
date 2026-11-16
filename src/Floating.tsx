@@ -6,7 +6,7 @@ import { t, getLanguage } from '../electron/i18n';
 import { useRef, useEffect } from 'react';
 import { BrandIcon } from './BrandIcon';
 import { AnimatedValue } from './AnimatedValue';
-import { quotaWindows, remaining, type State } from '../electron/types';
+import { quotaWindows, quotaIsStale, remaining, type State } from '../electron/types';
 import { QuotaRing, duration, resetText } from './Quota';
 export function Floating({
   state,
@@ -61,6 +61,17 @@ export function Floating({
   const windows = quotaWindows(main),
     used = state.settings.quotaDisplay === 'used';
   const total = state.live?.tokens?.total;
+  const stale = quotaIsStale(state, now);
+  const quotaStatus = state.error ? t('连接异常') : stale ? t('数据过期') : '';
+  const liveLabel =
+    state.live?.status === 'completed'
+      ? t('上轮')
+      : state.live?.status === 'interrupted'
+        ? t('中断')
+        : t('本轮');
+  const trackingLabel = state.settings.watchedSessionId ? t('固定跟踪') : t('自动跟随');
+  const liveTitle =
+    (state.live?.titleKey ? t(state.live.titleKey) : state.live?.title) ?? t('等待本机聊天记录');
   const short =
     total == null
       ? state.live?.status === 'collecting' && state.live.turnId
@@ -124,6 +135,11 @@ export function Floating({
             <b>{t('Codex 额度')}</b>
             <span className="plan-badge">{state.plan ?? 'ChatGPT'}</span>
           </header>
+          {stale && (
+            <p className="peek-data-status" role="status">
+              {t('数据过期，显示上次额度，等待刷新')}
+            </p>
+          )}
           {state.error && <p className="peek-error">{t(state.error ?? '')}</p>}
           {windows.length ? (
             windows.map((quota, index) => {
@@ -157,11 +173,10 @@ export function Floating({
         </div>
         <button className="peek-session" onClick={() => action('tokens')}>
           <span>
-            <small>{state.live?.status === 'completed' ? t('上轮 Token') : t('本轮 Token')}</small>
-            <b>
-              {(state.live?.titleKey ? t(state.live.titleKey) : state.live?.title) ??
-                t('等待本机聊天记录')}
-            </b>
+            <small>
+              {liveLabel} Token · {trackingLabel}
+            </small>
+            <b>{liveTitle}</b>
           </span>
           <strong>
             <AnimatedValue value={short} rawValue={total} rolling />
@@ -188,6 +203,11 @@ export function Floating({
   return (
     <div
       className={`floating-rail ${theme}`}
+      title={
+        quotaStatus
+          ? `${quotaStatus} · ${state.updatedAt === null ? t('检查连接') : t('显示上次额度，打开详情检查连接')}`
+          : undefined
+      }
       aria-label={t('Codex 竖向悬浮栏')}
       onPointerLeave={() => {
         hoverActive.current = false;
@@ -265,6 +285,11 @@ export function Floating({
         <i />
       </div>
       <div className="rail-rings">
+        {quotaStatus && (
+          <span className="rail-data-status" role="status" aria-label={quotaStatus}>
+            !
+          </span>
+        )}
         {windows.length ? (
           windows.map((quota, index) => (
             <button
@@ -290,7 +315,8 @@ export function Floating({
       </div>
       <button
         className="rail-token"
-        aria-label={t('本轮 {0} Token，打开明细', [total?.toLocaleString() ?? t('暂无')])}
+        aria-label={`${liveLabel} ${total?.toLocaleString() ?? t('暂无')} Token · ${trackingLabel} · ${liveTitle}`}
+        title={`${liveLabel} Token · ${trackingLabel}\n${liveTitle}`}
         onClick={() => action('tokens')}
       >
         <AnimatedValue value={short} rawValue={total} rolling />
