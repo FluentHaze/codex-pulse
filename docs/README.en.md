@@ -55,6 +55,8 @@ Today’s usage lets you switch between exact and compact numbers and copy compl
 
 ## Interaction and display
 
+Exhausted quota windows in the desktop floating rail show a reset countdown updated every second. Hours may exceed 24. When it reaches zero, Pending remains until a successful refresh confirms recovery; an unavailable reset time is shown as —.
+
 Use Tab / Shift+Tab to move between controls with a visible blue focus outline. Chat filters are retained per session directory while switching pages in the same window; opening a specific chat from the overview clears filters to reveal it. Quota results older than two refresh intervals are marked as out of date, and the floating card identifies tracking mode and interrupted turns. Preferences → Codex connection shows connection details and a retry action. All platforms use bundled Noto fonts. Opacity changes apply immediately with one save notification when the interaction ends.
 
 ## Update the app

@@ -42,7 +42,8 @@ test('absent secondary windows are omitted; an existing window with missing data
   );
 });
 test('vertical rail stays narrow and fits all returned quota windows', () => {
-  assert.deepEqual(floatingSize(2), { width: 68, height: 212 });
-  assert.deepEqual(floatingSize(1), { width: 68, height: 140 });
-  assert.deepEqual(floatingSize(0), { width: 68, height: 140 });
+  const quota = { usedPercent: 5, windowDurationMins: 300, resetsAt: null };
+  assert.deepEqual(floatingSize([quota, quota]), { width: 68, height: 212 });
+  assert.deepEqual(floatingSize([quota]), { width: 68, height: 140 });
+  assert.deepEqual(floatingSize([]), { width: 68, height: 140 });
 });

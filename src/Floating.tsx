@@ -291,17 +291,44 @@ export function Floating({
           </span>
         )}
         {windows.length ? (
-          windows.map((quota, index) => (
-            <button
-              className="rail-item"
-              key={index}
-              aria-label={t('{0}额度，点击打开详情', [duration(quota)])}
-              onClick={() => action('details')}
-            >
-              <QuotaRing quota={quota} used={used} />
-              <span>{duration(quota)}</span>
-            </button>
-          ))
+          windows.map((quota, index) => {
+            const exhausted = remaining(quota) === 0;
+            const seconds =
+              quota.resetsAt === null ? null : Math.max(0, Math.ceil(quota.resetsAt - now / 1000));
+            return (
+              <button
+                className="rail-item"
+                key={index}
+                aria-label={t('{0}额度，点击打开详情', [duration(quota)])}
+                aria-describedby={exhausted ? `rail-reset-${index}` : undefined}
+                onClick={() => action('details')}
+              >
+                <QuotaRing quota={quota} used={used} />
+                <span className="rail-label">{duration(quota)}</span>
+                {exhausted && (
+                  <small
+                    id={`rail-reset-${index}`}
+                    className="rail-reset-countdown"
+                    role="timer"
+                    aria-label={resetText(quota.resetsAt, now)}
+                    title={resetText(quota.resetsAt, now)}
+                  >
+                    {seconds === null
+                      ? '—'
+                      : seconds === 0
+                        ? t('待确认')
+                        : [
+                            Math.floor(seconds / 3600),
+                            Math.floor((seconds % 3600) / 60),
+                            seconds % 60,
+                          ]
+                            .map((value) => String(value).padStart(2, '0'))
+                            .join(':')}
+                  </small>
+                )}
+              </button>
+            );
+          })
         ) : (
           <button
             className="rail-item rail-unavailable"
@@ -309,7 +336,7 @@ export function Floating({
             onClick={() => action('details')}
           >
             <span className="rail-placeholder">—</span>
-            <span>{t('额度')}</span>
+            <span className="rail-label">{t('额度')}</span>
           </button>
         )}
       </div>

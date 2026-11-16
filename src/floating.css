@@ -83,10 +83,19 @@
 .rail-item .ring-number em {
   display: none;
 }
-.rail-item > span:last-child {
+.rail-item > .rail-label {
   font-size: 9px;
   color: var(--muted);
   line-height: 18px;
+}
+.rail-item > .rail-reset-countdown {
+  height: 16px;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--danger);
 }
 .rail-token {
   width: 46px;

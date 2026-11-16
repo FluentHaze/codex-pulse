@@ -1,4 +1,5 @@
 export const interfaceMessages: Record<string, readonly string[]> = {
+  待确认: ['Pending', '待確認', '確認待ち', '확인 대기'],
   自动跟随: ['Auto-follow', '自動跟隨', '自動追跡', '자동 추적'],
   连接状态: ['Connection status', '連線狀態', '接続状態', '연결 상태'],
   连接异常: ['Connection error', '連線異常', '接続エラー', '연결 오류'],

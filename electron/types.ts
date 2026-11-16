@@ -175,8 +175,9 @@ export function quotaWindows(bucket?: Bucket | null): QuotaWindow[] {
     (window): window is QuotaWindow => window != null,
   );
 }
-export function floatingSize(count: number) {
-  return { width: 68, height: 68 + Math.max(1, count) * 72 };
+export function floatingSize(windows: readonly QuotaWindow[]) {
+  const exhausted = windows.filter((window) => remaining(window) === 0).length;
+  return { width: 68, height: 68 + Math.max(1, windows.length) * 72 + exhausted * 16 };
 }
 export function remaining(window?: QuotaWindow | null) {
   return typeof window?.usedPercent === 'number' && Number.isFinite(window.usedPercent)

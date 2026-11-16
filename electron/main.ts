@@ -424,7 +424,7 @@ function clampWindow() {
 function applyWindow() {
   if (!floating) return;
   const main = state.buckets.find((bucket) => bucket.limitId === 'codex') ?? state.buckets[0];
-  const size = floatingSize(quotaWindows(main).length);
+  const size = floatingSize(quotaWindows(main));
   floating.setAlwaysOnTop(state.settings.alwaysOnTop);
   floating.setMovable(!state.settings.locked);
   floating.setIgnoreMouseEvents(state.settings.clickThrough, { forward: true });
@@ -462,7 +462,7 @@ function updateWindowColors() {
 // 三类窗口共用同一 preload，但尺寸、透明度和可聚焦行为分别配置。
 function createWindow(kind: 'float' | 'details' | 'peek', tab = 'overview') {
   const main = state.buckets.find((bucket) => bucket.limitId === 'codex') ?? state.buckets[0];
-  const size = floatingSize(quotaWindows(main).length);
+  const size = floatingSize(quotaWindows(main));
   const small = kind !== 'details';
   const detailArea = small ? null : screen.getPrimaryDisplay().workAreaSize;
   const win = new BrowserWindow({
