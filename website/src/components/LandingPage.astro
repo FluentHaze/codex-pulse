@@ -6,14 +6,23 @@ import Base from '../layouts/Base.astro';
 import Mark from './Mark.astro';
 import Icon from './Icon.astro';
 import ProductSections from './ProductSections.astro';
+import { bundledDownload } from '../download-snapshot';
 import '../styles/product-page.css';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const locale = Astro.props.locale ?? 'zh-CN';
 const repo = 'https://github.com/FluentHaze/codex-pulse';
 const releases = `${repo}/releases`;
+const macArm = bundledDownload('mac-arm64-dmg');
+const macIntel = bundledDownload('mac-x64-dmg');
+const windows = bundledDownload('win-x64-setup');
+const macArmZip = bundledDownload('mac-arm64-zip');
+const macIntelZip = bundledDownload('mac-x64-zip');
+const windowsPortable = bundledDownload('win-x64-portable');
 const readme = locale === 'zh-CN' ? repo : `${repo}/blob/main/docs/README.${locale}.md`;
 const dataAnchor = locale === 'zh-CN' ? '数据和连接' : 'data-and-connection';
 const t = translator(locale);
+const downloadLabel = (platform: string, label: string, tag?: string) =>
+  [label, platform, tag].filter(Boolean).join(' · ');
 const steps = [
   {
     number: '01',
@@ -153,76 +162,109 @@ interface Props {
         <article class="download-card" data-download-card="mac-arm64">
           <Icon name="mac" size={28} />
           <h3>
-            Mac · Apple Silicon <small data-download-version></small>
+            Mac · Apple Silicon <small data-download-version>{macArm?.tag}</small>
           </h3>
           <p>{t('M 系列芯片')}</p>
           <a
             class="button button-secondary"
             data-download="mac-arm64-dmg"
-            href={releases}
+            data-download-platform="Mac · Apple Silicon"
+            aria-label={downloadLabel(
+              'Mac · Apple Silicon',
+              t(macArm ? '下载安装包' : '前往 GitHub 下载'),
+              macArm?.tag,
+            )}
+            href={macArm?.url ?? releases}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('前往 GitHub 下载')} <Icon name="download" size={16} />
+            <span data-download-label>{t(macArm ? '下载安装包' : '前往 GitHub 下载')}</span>
+            <Icon name="download" size={16} />
           </a>
           <a
             class="download-alternative"
             data-download="mac-arm64-zip"
-            href={releases}
+            data-download-platform="Mac · Apple Silicon"
+            aria-label={downloadLabel('Mac · Apple Silicon', t('ZIP 压缩包'), macArmZip?.tag)}
+            href={macArmZip?.url ?? releases}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('ZIP 压缩包')} <Icon name="arrow" size={12} />
+            <span data-download-label>{t('ZIP 压缩包')}</span>
+            <small data-download-version>{macArmZip?.tag}</small>
+            <Icon name="arrow" size={12} />
           </a>
         </article>
         <article class="download-card" data-download-card="mac-x64">
           <Icon name="mac" size={28} />
           <h3>
-            Mac · Intel <small data-download-version></small>
+            Mac · Intel <small data-download-version>{macIntel?.tag}</small>
           </h3>
           <p>{t('Intel 处理器')}</p>
           <a
             class="button button-secondary"
             data-download="mac-x64-dmg"
-            href={releases}
+            data-download-platform="Mac · Intel"
+            aria-label={downloadLabel(
+              'Mac · Intel',
+              t(macIntel ? '下载安装包' : '前往 GitHub 下载'),
+              macIntel?.tag,
+            )}
+            href={macIntel?.url ?? releases}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('前往 GitHub 下载')} <Icon name="download" size={16} />
+            <span data-download-label>{t(macIntel ? '下载安装包' : '前往 GitHub 下载')}</span>
+            <Icon name="download" size={16} />
           </a>
           <a
             class="download-alternative"
             data-download="mac-x64-zip"
-            href={releases}
+            data-download-platform="Mac · Intel"
+            aria-label={downloadLabel('Mac · Intel', t('ZIP 压缩包'), macIntelZip?.tag)}
+            href={macIntelZip?.url ?? releases}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('ZIP 压缩包')} <Icon name="arrow" size={12} />
+            <span data-download-label>{t('ZIP 压缩包')}</span>
+            <small data-download-version>{macIntelZip?.tag}</small>
+            <Icon name="arrow" size={12} />
           </a>
         </article>
         <article class="download-card" data-download-card="win-x64">
           <Icon name="windows" size={28} />
           <h3>
-            Windows <small data-download-version></small>
+            Windows <small data-download-version>{windows?.tag}</small>
           </h3>
           <p>{t('x64 · 安装版，支持应用内更新')}</p>
           <a
             class="button button-secondary"
             data-download="win-x64-setup"
-            href={releases}
+            data-download-platform="Windows x64"
+            aria-label={downloadLabel(
+              'Windows x64',
+              t(windows ? '下载安装包' : '前往 GitHub 下载'),
+              windows?.tag,
+            )}
+            href={windows?.url ?? releases}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('前往 GitHub 下载')} <Icon name="download" size={16} />
+            <span data-download-label>{t(windows ? '下载安装包' : '前往 GitHub 下载')}</span>
+            <Icon name="download" size={16} />
           </a>
           <a
             class="download-alternative"
             data-download="win-x64-portable"
-            href={releases}
+            data-download-platform="Windows x64"
+            aria-label={downloadLabel('Windows x64', t('便携版 · 手动更新'), windowsPortable?.tag)}
+            href={windowsPortable?.url ?? releases}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {t('便携版 · 手动更新')} <Icon name="arrow" size={12} />
+            <span data-download-label>{t('便携版 · 手动更新')}</span>
+            <small data-download-version>{windowsPortable?.tag}</small>
+            <Icon name="arrow" size={12} />
           </a>
         </article>
       </div>
@@ -446,3 +488,14 @@ interface Props {
   <script src="../scripts/demo-fit.ts"></script>
   <script src="../scripts/hero-scroll.ts"></script>
 </Base>
+
+<style>
+  .download-alternative {
+    flex-wrap: wrap;
+  }
+
+  .download-alternative [data-download-version] {
+    font: inherit;
+    white-space: nowrap;
+  }
+</style>

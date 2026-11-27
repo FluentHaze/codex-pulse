@@ -35,3 +35,43 @@ export function releaseDownloadUrl(value: unknown): string | null {
     return null;
   }
 }
+
+/** Official desktop package tags are stable vMAJOR.MINOR.PATCH versions. */
+export function releaseVersion(value: unknown): string | null {
+  return typeof value === 'string' && /^v\d+\.\d+\.\d+$/.test(value) ? value : null;
+}
+
+export function assetDownloadUrl(key: string, tag: string, name: unknown, value: unknown) {
+  if (typeof name !== 'string' || !downloadRules[key]?.test(name) || !releaseVersion(tag)) {
+    return null;
+  }
+  const url = releaseDownloadUrl(value);
+  if (!url) return null;
+  const asset = new URL(url);
+  return !asset.search &&
+    !asset.hash &&
+    asset.pathname ===
+      `/FluentHaze/codex-pulse/releases/download/${tag}/${encodeURIComponent(name)}`
+    ? url
+    : null;
+}
+
+interface PublicRelease {
+  tag_name?: unknown;
+  draft?: unknown;
+  prerelease?: unknown;
+  assets?: { name?: unknown; browser_download_url?: unknown; state?: unknown }[];
+}
+
+/** GitHub Latest is authoritative even when a maintainer rolls it back. */
+export function findReleaseDownload(key: string, item?: PublicRelease | null) {
+  const tag = releaseVersion(item?.tag_name);
+  if (!item || !tag || item.draft !== false || item.prerelease !== false) return null;
+  if (!Array.isArray(item.assets)) return null;
+  for (const asset of item.assets) {
+    if (!asset || (asset.state !== undefined && asset.state !== 'uploaded')) continue;
+    const url = assetDownloadUrl(key, tag, asset.name, asset.browser_download_url);
+    if (url) return { tag, url };
+  }
+  return null;
+}
