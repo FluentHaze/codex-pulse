@@ -1,10 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  assetDownloadUrl,
   detectDownloadPlatform,
   downloadRules,
+  findReleaseDownload,
   releaseDownloadUrl,
+  releaseVersion,
 } from '../website/src/scripts/downloads';
+import { bundledDownload } from '../website/src/download-snapshot';
 
 test('download platform prefers OS hints and never recommends Mac for Windows or mobile clients', () => {
   assert.equal(detectDownloadPlatform('Windows', 'Mozilla/5.0'), 'windows');
@@ -59,4 +63,55 @@ test('malformed or foreign release URLs cannot replace download links', () => {
     url.replace('github.com', 'user:password@github.com'),
   ])
     assert.equal(releaseDownloadUrl(invalid), null);
+});
+
+test('first render has verified package links for all desktop targets', () => {
+  for (const [key, name] of Object.entries({
+    'mac-arm64-dmg': 'Codex-Pulse-0.1.41-mac-arm64.dmg',
+    'mac-arm64-zip': 'Codex-Pulse-0.1.41-mac-arm64.zip',
+    'mac-x64-dmg': 'Codex-Pulse-0.1.41-mac-x64.dmg',
+    'mac-x64-zip': 'Codex-Pulse-0.1.41-mac-x64.zip',
+    'win-x64-setup': 'Codex-Pulse-Setup-0.1.41-x64.exe',
+    'win-x64-portable': 'Codex-Pulse-0.1.41-win-x64.exe',
+  }) as [Parameters<typeof bundledDownload>[0], string][]) {
+    assert.deepEqual(bundledDownload(key), {
+      tag: 'v0.1.41',
+      url: 'https://github.com/FluentHaze/codex-pulse/releases/download/v0.1.41/' + name,
+    });
+  }
+});
+
+test('runtime updates cannot relabel assets from another tag or select an unfinished upload', () => {
+  const name = 'Codex-Pulse-Setup-0.1.42-x64.exe';
+  const url = 'https://github.com/FluentHaze/codex-pulse/releases/download/v0.1.42/' + name;
+  assert.equal(assetDownloadUrl('win-x64-setup', 'v0.1.42', name, url), url);
+  assert.equal(assetDownloadUrl('win-x64-setup', 'v0.1.41', name, url), null);
+  assert.equal(assetDownloadUrl('win-x64-portable', 'v0.1.42', name, url), null);
+  assert.equal(assetDownloadUrl('win-x64-setup', 'v0.1.42', name, url + '?x=1'), null);
+  assert.equal(releaseVersion('v0.1.42-beta'), null);
+  assert.equal(
+    findReleaseDownload('win-x64-setup', {
+      tag_name: 'v0.1.42',
+      draft: false,
+      prerelease: false,
+      assets: [{ name, browser_download_url: url, state: 'new' }],
+    }),
+    null,
+  );
+});
+
+test('an explicit GitHub Latest rollback can replace the bundled version', () => {
+  const name = 'Codex-Pulse-Setup-0.1.40-x64.exe';
+  const url = 'https://github.com/FluentHaze/codex-pulse/releases/download/v0.1.40/' + name;
+  const rollback = {
+    tag_name: 'v0.1.40',
+    draft: false,
+    prerelease: false,
+    assets: [{ name, browser_download_url: url, state: 'uploaded' }],
+  };
+  assert.equal(bundledDownload('win-x64-setup')?.tag, 'v0.1.41');
+  assert.deepEqual(findReleaseDownload('win-x64-setup', rollback), { tag: 'v0.1.40', url });
+  assert.equal(findReleaseDownload('win-x64-setup', { ...rollback, draft: true }), null);
+  assert.equal(findReleaseDownload('win-x64-setup', { ...rollback, prerelease: true }), null);
+  assert.equal(findReleaseDownload('mac-x64-dmg', rollback), null);
 });

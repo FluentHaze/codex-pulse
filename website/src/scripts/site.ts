@@ -2,7 +2,12 @@
  * 官网交互入口：管理语言菜单、移动导航及 Release 下载链接回填。
  */
 import { translator, locales, type Locale } from '../i18n';
-import { detectDownloadPlatform, downloadRules, releaseDownloadUrl } from './downloads';
+import {
+  detectDownloadPlatform,
+  downloadRules,
+  findReleaseDownload,
+  releaseVersion,
+} from './downloads';
 const locale = (document.documentElement.lang || 'en') as Locale;
 const t = translator(locale);
 const backdrop = document.querySelector<HTMLButtonElement>('[data-nav-backdrop]');
@@ -158,18 +163,8 @@ if (detectedPlatform === 'windows') {
   document.querySelector<HTMLButtonElement>('[data-platform-button="windows"]')?.click();
 }
 
-interface ReleaseAsset {
-  name: string;
-  browser_download_url: string;
-}
-interface PublicRelease {
-  tag_name: string;
-  draft: boolean;
-  prerelease: boolean;
-  assets: ReleaseAsset[];
-}
 async function loadDownloads() {
-  // Only public release assets are used. Drafts and unavailable APIs retain the working Releases link.
+  // GitHub Latest can intentionally point to an older release after a rollback.
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 6500);
   try {
@@ -181,34 +176,33 @@ async function loadDownloads() {
       },
     );
     if (!response.ok) return;
-    const release: PublicRelease = await response.json();
-    if (release.draft || release.prerelease || !Array.isArray(release.assets)) return;
+    const release: Parameters<typeof findReleaseDownload>[1] = await response.json();
+    const latestTag = releaseVersion(release?.tag_name);
+    if (!latestTag || release?.draft !== false || release.prerelease !== false) return;
     const matched = new Set<string>();
-    function applyRelease(item: PublicRelease) {
-      if (!item || item.draft || item.prerelease || !Array.isArray(item.assets)) return;
+    function applyRelease(item: Parameters<typeof findReleaseDownload>[1]) {
       document.querySelectorAll<HTMLAnchorElement>('a[data-download]').forEach((link) => {
         const key = link.dataset.download ?? '';
         if (matched.has(key)) return;
-        const rule = downloadRules[key];
-        const asset = item.assets.find(
-          (asset) =>
-            asset &&
-            typeof asset.name === 'string' &&
-            rule?.test(asset.name) &&
-            releaseDownloadUrl(asset.browser_download_url),
-        );
-        const url = asset && releaseDownloadUrl(asset.browser_download_url);
-        if (!url) return;
-        link.href = url;
-        if (link.classList.contains('button')) {
-          const text = link.firstChild;
-          if (text?.nodeType === Node.TEXT_NODE) text.textContent = t('下载安装包') + ' ';
-          const version = link
-            .closest('[data-download-card]')
-            ?.querySelector('[data-download-version]');
-          if (version) version.textContent = item.tag_name;
-        }
+        const download = findReleaseDownload(key, item);
+        if (!download) return;
+        link.href = download.url;
         matched.add(key);
+        const primary = link.classList.contains('button');
+        const label = link.querySelector('[data-download-label]');
+        if (primary && label) label.textContent = t('下载安装包');
+        const version = primary
+          ? link.closest('[data-download-card]')?.querySelector('h3 [data-download-version]')
+          : link.querySelector('[data-download-version]');
+        if (version) version.textContent = download.tag;
+        if (label?.textContent) {
+          link.setAttribute(
+            'aria-label',
+            [label.textContent, link.dataset.downloadPlatform, download.tag]
+              .filter(Boolean)
+              .join(' · '),
+          );
+        }
       });
     }
     applyRelease(release);
@@ -230,10 +224,10 @@ async function loadDownloads() {
     if (matched.size && status)
       status.textContent = t('最新公开版本 {version} · 完整更新记录见 GitHub Releases').replace(
         '{version}',
-        release.tag_name,
+        latestTag,
       );
   } catch {
-    /* Downloads still link to the repository's public release list. */
+    /* Keep the rendered package links or the repository’s public release list. */
   } finally {
     window.clearTimeout(timeout);
   }
